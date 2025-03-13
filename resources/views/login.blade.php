@@ -78,7 +78,7 @@
 
 <div class="login-container">
     <div class="logo">
-        <img src="public/asset/wrslogo.png" alt="Work Request System">
+        <img src="public/wrslogo.png" alt="Work Request System">
     </div>
     <div class="content">
         <div class="input-group">

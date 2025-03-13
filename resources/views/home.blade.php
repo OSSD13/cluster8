@@ -1,108 +1,86 @@
-@extends('layouts.app')  {{-- ใช้ layout หลักจากไฟล์ app.blade.php --}}
+@extends('layouts.app')
 
-@section('content')  {{-- เริ่มต้น section 'content' ที่จะถูกแทรกใน layout --}}
-<div class="container-fluid">  {{-- ใช้ container-fluid เพื่อให้เต็มหน้าจอ --}}
-    <div class="row">  {{-- ใช้ row เพื่อแบ่ง sidebar และ main content --}}
+@section('content')
+<div class="container-fluid">
+    <div class="row">
 
         <!-- Sidebar -->
-        <div class="col-md-2 bg-white vh-100 p-3 shadow-sm">  {{-- คอลัมน์ซ้าย 2 ส่วน, สีพื้นหลังขาว, ความสูงเต็มจอ, มีเงา --}}
-            <div class="text-center">  {{-- จัดกลางเนื้อหาภายใน --}}
-                <img src="{{ asset('images/WRS_Logo.png') }}" alt="Logo" width="150">  {{-- แสดงโลโก้ --}}
+        <div class="col-md-2 bg-primary vh-100 p-3 text-white">
+            <div class="text-center">
+                <img src="{{ asset('public\wrslogo.png') }}" alt="Logo" width="150">
             </div>
-            <hr>  {{-- เส้นแบ่งระหว่างโลโก้และเมนู --}}
-            <ul class="nav flex-column">  {{-- รายการเมนูแบบแนวตั้ง --}}
+            <hr>
+            <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a href="#" class="nav-link active text-primary fw-bold">  {{-- เมนู Home (active) --}}
-                        <i class="bi bi-house-door"></i> Home
+                    <a href="#" class="nav-link active text-white fw-bold">
+                        <i class="bi bi-house-door"></i> หน้าหลัก
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link text-dark">  {{-- เมนูสร้างใบสั่งงาน --}}
+                    <a href="#" class="nav-link text-white">
                         <i class="bi bi-file-earmark-plus"></i> สร้างใบสั่งงาน
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link text-dark">  {{-- เมนูรายงานการดำเนินงาน --}}
+                    <a href="#" class="nav-link text-white">
                         <i class="bi bi-file-bar-graph"></i> รายงานการดำเนินงาน
                     </a>
                 </li>
             </ul>
-            <div class="card mt-3">  {{-- การ์ดแสดงข้อมูลผู้ใช้ --}}
-                <div class="card-body text-center">
-                    <img src="{{ asset('images/user.png') }}" class="rounded-circle" width="50" alt="User">  {{-- รูปโปรไฟล์ --}}
-                    <h6 class="mt-2">วิรายุ คนโก้</h6>  {{-- ชื่อผู้ใช้ --}}
-                    <p class="text-muted">anita@commerce.com</p>  {{-- อีเมล --}}
-                </div>
-            </div>
         </div>
 
         <!-- Main Content -->
-        <div class="col-md-10 p-4 bg-light">  {{-- คอลัมน์ขวา 10 ส่วน, พื้นหลังสีเทาอ่อน --}}
-            <div class="d-flex justify-content-between align-items-center">  {{-- ใช้ flexbox จัดตำแหน่ง --}}
-                <h2>Home</h2>  {{-- หัวข้อหลัก --}}
-                <input type="text" class="form-control w-25" placeholder="Search anything here...">  {{-- ช่องค้นหา --}}
+        <div class="col-md-10 p-4 bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Home</h2>
+                <input type="text" class="form-control w-25" placeholder="Search anything here...">
             </div>
 
             <div class="row mt-3">
                 <!-- Task Plans -->
                 <div class="col-md-6">
-                    <div class="card shadow-sm">  {{-- การ์ดแสดงแผนงาน --}}
-                        <div class="card-header fw-bold">แผนในขั้นตอนการดำเนินงาน</div>  {{-- หัวข้อ --}}
+                    <div class="card shadow-sm">
+                        <div class="card-header fw-bold">แผนก</div>
                         <div class="card-body">
-                            <ul class="list-group">  {{-- รายการงาน --}}
-                                <li class="list-group-item">📦 เรื่องงาน : สมัครเรียนพนักงาน <br> วันสิ้นสุดการทำงาน : 30/12/2025</li>
-                                <li class="list-group-item">📦 เรื่องงาน : สมัครเรียนพนักงาน <br> วันสิ้นสุดการทำงาน : 30/12/2025</li>
-                                <li class="list-group-item">📦 เรื่องงาน : สมัครเรียนพนักงาน <br> วันสิ้นสุดการทำงาน : 30/12/2025</li>
+                            <p class="text-muted">ใบสั่งงานภายในแผน</p>
+                            <ul class="list-group">
+                                @for ($i = 0; $i < 4; $i++)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded bg-primary p-2 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                            <img src="{{ asset('images/box-icon-white.png') }}" width="30">
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold">ชื่องาน :</span> <span class="text-secondary">สมัครอีเมลพนักงาน</span><br>
+                                            <span class="text-muted">วันสิ้นสุดการทำงาน : 30/12/2025</span>
+                                        </div>
+                                    </div>
+                                    <i class="bi bi-chevron-right text-secondary"></i>
+                                </li>
+                                @endfor
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Task Progress Chart -->
+                <!-- Task Progress Chart 1 -->
                 <div class="col-md-6">
                     <div class="card shadow-sm">
-                        <div class="card-header fw-bold">แผนกราฟแสดงการทำงาน</div>
+                        <div class="card-header fw-bold">กราฟแสดงการทำงานในแผน</div>
                         <div class="card-body">
-                            <canvas id="taskChart"></canvas>  {{-- พื้นที่สำหรับกราฟ --}}
+                            <canvas id="taskChart1"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="row mt-3">
-                <!-- Personal Section -->
+                <!-- Task Progress Chart 2 -->
                 <div class="col-md-6">
                     <div class="card shadow-sm">
-                        <div class="card-header fw-bold">ส่วนตัวในแผนของฉัน</div>
+                        <div class="card-header fw-bold">กราฟแสดงการทำงานของส่วนตัว</div>
                         <div class="card-body">
-                            <ul class="list-group">
-                                <li class="list-group-item">📦 เรื่องงาน : สมัครเรียนพนักงาน <br> วันสิ้นสุดการทำงาน : 30/12/2025</li>
-                                <li class="list-group-item">📦 เรื่องงาน : สมัครเรียนพนักงาน <br> วันสิ้นสุดการทำงาน : 30/12/2025</li>
-                                <li class="list-group-item">📦 เรื่องงาน : สมัครเรียนพนักงาน <br> วันสิ้นสุดการทำงาน : 30/12/2025</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ongoing Tasks -->
-                <div class="col-md-6">
-                    <div class="card shadow-sm">
-                        <div class="card-header fw-bold">กำลังดำเนินการ</div>
-                        <div class="card-body">
-                            <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    📦 เรื่องงาน : สมัครเรียนพนักงาน
-                                    <button class="btn btn-primary btn-sm">เสร็จสิ้น</button>  {{-- ปุ่มเสร็จสิ้น --}}
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    📦 เรื่องงาน : สมัครเรียนพนักงาน
-                                    <button class="btn btn-primary btn-sm">เสร็จสิ้น</button>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    📦 เรื่องงาน : สมัครเรียนพนักงาน
-                                    <button class="btn btn-primary btn-sm">เสร็จสิ้น</button>
-                                </li>
-                            </ul>
+                            <canvas id="taskChart2"></canvas>
                         </div>
                     </div>
                 </div>
@@ -111,21 +89,24 @@
     </div>
 
     <!-- Chart.js Script -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  {{-- โหลดไลบรารี Chart.js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        var ctx = document.getElementById('taskChart').getContext('2d');  {{-- ดึง element canvas --}}
-        var taskChart = new Chart(ctx, {  {{-- สร้างกราฟแท่ง --}}
-            type: 'bar',  {{-- ประเภทของกราฟเป็นแท่ง --}}
-            data: {
-                labels: ['รอดำเนินการ', 'กำลังดำเนินการ', 'เสร็จสิ้น'],  {{-- ป้ายกำกับแกน X --}}
-                datasets: [{
-                    label: 'จำนวนงาน',
-                    data: [40, 10, 30],  {{-- ข้อมูลของกราฟ --}}
-                    backgroundColor: ['orange', 'yellow', 'green']  {{-- สีของแท่งกราฟ --}}
-                }]
-            }
-        });
+        function createChart(canvasId) {
+            var ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['รอดำเนินการ', 'กำลังดำเนินการ', 'เสร็จสิ้น'],
+                    datasets: [{
+                        label: 'จำนวนงาน',
+                        data: [50, 15, 40],
+                        backgroundColor: ['orange', 'yellow', 'green']
+                    }]
+                }
+            });
+        }
+        createChart('taskChart1');
+        createChart('taskChart2');
     </script>
 </div>
-
-@endsection  {{-- ปิด section 'content' --}}
+@endsection

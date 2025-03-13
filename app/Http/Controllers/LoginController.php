@@ -1,5 +1,4 @@
 <?php
-//ตังค์ 13/3/2568
 
 namespace App\Http\Controllers;
 
@@ -11,7 +10,7 @@ use App\Models\User;
 
 class LoginController extends Controller
 {
-    
+    //
     function index(){
         return view('login');
     }

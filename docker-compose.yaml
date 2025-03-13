@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  apache-php:
+    build: .
+    container_name: laravel-osssd-Cluster_8
+    ports:
+      - "1308:80"
+    env_file:
+      - .env

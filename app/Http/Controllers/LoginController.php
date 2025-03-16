@@ -27,5 +27,6 @@ class LoginController extends Controller
             $req->session()->flash('error', 'กรุณาตรวจสอบข้อมูลอีกครั้ง');
             return redirect('/login');
         }
+
     }
 }

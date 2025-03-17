@@ -106,7 +106,7 @@
         @csrf
         <div class="login-container">
             <div class="logo">
-                <img src="public\wrslogo.png" alt="Work Request System">
+                <img src="public\asset\WRS_1.png" alt="Work Request System">
             </div>
             <div>
                 <h1 class="login-title">เข้าสู่ระบบ</h1>

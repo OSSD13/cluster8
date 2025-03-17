@@ -75,22 +75,23 @@
     </style>
 </head>
 <body>
+    <form action="{{ url('/login') }}" method="post">
+        @csrf
+        <div class="login-container">
+            <div class="logo">
+                <img src="public/wrslogo.png" alt="Work Request System">
+            </div>
+            <div class="content">
+                <div class="input-group">
 
-<div class="login-container">
-    <div class="logo">
-        <img src="public/wrslogo.png" alt="Work Request System">
-    </div>
-    <div class="content">
-        <div class="input-group">
-
-            <label for="username">Username</label>
-            <input type="text" id="username" class="input-box username-input" placeholder="Username">
-            <label for="password">Password</label>
-            <input type="password" id="password" class="input-box" placeholder="Password">
+                <label for="username">Username</label>
+                <input name="username" type="text" id="username" class="input-box username-input" placeholder="Username">
+                <label for="password">Password</label>
+                <input name="password" type="password" id="password" class="input-box" placeholder="Password">
+                </div>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
         </div>
-    </div>
-    <button class="login-btn">Login</button>
-</div>
-
+    </form>
 </body>
 </html>

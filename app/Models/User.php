@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [# ค่าตัวแปรใน user
-        'id_user',
+        'user_id',
         'fname',
         'lname',
         'username',

@@ -7,8 +7,8 @@ use App\Http\Middleware\CheckLogin;
 
 
 
-Route::get("/",[HomeController::class,'home']);
-Route::get("/home",[HomeController::class,'index'])->middleware([CheckLogin::class]);
+Route::get("/",[HomeController::class, 'home'])->middleware([CheckLogin::class]);
+Route::get("/home",[HomeController::class,'home'])->middleware([CheckLogin::class]);
 
 Route::get('/login', [LoginController::class, 'index']);
 Route::post('/login', [LoginController::class, 'login']);

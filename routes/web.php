@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Middleware\CheckLogin;
+use App\Http\Controllers\WorkRequestController;
+use App\Http\Controllers\ReportController;
 
 
 
@@ -18,3 +20,6 @@ Route::get('/logout', function(){
     return redirect('/login');
 });
 
+Route::get("/workrequest", [WorkRequestController::class, "index"]);
+
+Route::get("/report", [ReportController::class, "index"]);

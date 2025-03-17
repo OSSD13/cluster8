@@ -18,12 +18,17 @@ class CheckLogin
         $user = session('users');
         if ($user == null || $user->user_id == null){
             return redirect('/login');
-        }else {
-            if ($user->user_ro_id != 0){
-                return $next($request);
-            }
-            return $next('/manage');
         }
-        
+        elseif ($user['user_ro_id'] != 0) {
+            if ($request->path() !== 'home') {
+                return redirect('/home');
+            }
+        } else {
+            if ($request->path() !== 'manage') {
+                return redirect('/manage');
+            }
+        }
+
+        return $next($request);
     }
 }

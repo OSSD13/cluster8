@@ -4,11 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Middleware\CheckLogin;
+use App\Http\Controllers\WorkRequestController;
+use App\Http\Controllers\ReportController;
 
 
 
-Route::get("/",[HomeController::class,'home']);
-Route::get("/home",[HomeController::class,'index'])->middleware([CheckLogin::class]);
+Route::get("/",[HomeController::class, 'home'])->middleware([CheckLogin::class]);
+Route::get("/home",[HomeController::class,'home'])->middleware([CheckLogin::class]);
 
 Route::get('/login', [LoginController::class, 'index']);
 Route::post('/login', [LoginController::class, 'login']);
@@ -18,3 +20,6 @@ Route::get('/logout', function(){
     return redirect('/login');
 });
 
+Route::get("/workrequest", [WorkRequestController::class, "index"]);
+
+Route::get("/report", [ReportController::class, "index"]);

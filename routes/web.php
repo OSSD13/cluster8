@@ -7,7 +7,6 @@ use App\Http\Middleware\CheckLogin;
 use App\Http\Controllers\WorkRequestController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ManageController;
-use App\Http\Middleware\CheckAdmin;
 
 
 

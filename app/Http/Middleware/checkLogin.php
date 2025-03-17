@@ -16,9 +16,19 @@ class CheckLogin
     public function handle(Request $request, Closure $next): Response
     {
         $user = session('users');
-        if ($user == null || $user->id == null){
+        if ($user == null || $user->user_id == null){
             return redirect('/login');
         }
+        elseif ($user['user_ro_id'] != 0) {
+            if ($request->path() !== 'home') {
+                return redirect('/home');
+            }
+        } else {
+            if ($request->path() !== 'manage') {
+                return redirect('/manage');
+            }
+        }
+
         return $next($request);
     }
 }

@@ -26,4 +26,4 @@ Route::get("/workrequest", [WorkRequestController::class, "index"]);
 
 Route::get("/report", [ReportController::class, "index"]);
 
-Route::get("/manage", [ManageController::class, "index"])->middleware([CheckAdmin::class]);
+Route::get("/manage", [ManageController::class, "index"])->middleware([CheckLogin::class]);

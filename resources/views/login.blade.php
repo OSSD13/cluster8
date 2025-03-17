@@ -19,7 +19,6 @@
             border-radius: 30px;
             text-align: center;
             width: 350px;
-            box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
             border: 2px solid blue;
         }
         .logo {
@@ -36,16 +35,22 @@
         }
         .input-group {
             text-align: left;
+            padding-left: 70px;
             margin-bottom: 15px;
+            justify-content: center;
+
         }
         .input-group label {
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
         }
+
         .input-box {
-            width: 100%;
-            padding: 10px;
+            align-items: center;
+            width: 75%;
+            padding-top: 5px;
+            padding-bottom: 5px;
             border: 1px solid #000;
             border-radius: 5px;
             font-size: 14px;
@@ -57,30 +62,36 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            width: 100%;
+            width: 40%;
             font-size: 16px;
+            margin-top: 30px
         }
         .login-btn:hover {
             background-color: darkblue;
         }
+        .username-input{
+            margin-bottom: 60px
+        }
     </style>
 </head>
 <body>
+    <form action="{{ url('/login') }}" method="post">
+        @csrf
+        <div class="login-container">
+            <div class="logo">
+                <img src="public/wrslogo.png" alt="Work Request System">
+            </div>
+            <div class="content">
+                <div class="input-group">
 
-<div class="login-container">
-    <div class="logo">
-        <img src="public/asset/wrslogo.png" alt="Work Request System">
-    </div>
-    <div class="input-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" class="input-box" placeholder="Username">
-    </div>
-    <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" class="input-box" placeholder="Password">
-    </div>
-    <button class="login-btn">Login</button>
-</div>
-
+                <label for="username">Username</label>
+                <input name="username" type="text" id="username" class="input-box username-input" placeholder="Username">
+                <label for="password">Password</label>
+                <input name="password" type="password" id="password" class="input-box" placeholder="Password">
+                </div>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+        </div>
+    </form>
 </body>
 </html>

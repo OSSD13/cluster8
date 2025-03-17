@@ -10,7 +10,7 @@ use App\Models\User;
 
 class LoginController extends Controller
 {
-    //
+    
     function index(){
         return view('login');
     }
@@ -20,10 +20,10 @@ class LoginController extends Controller
         $user = User::where('username', $req->username)->first();
         //print_r($user);
         if($user != null && Hash::check($req->password, $user->password)){
-            $req->session()->put('user', $user);
+            $req->session()->put('users', $user);
             return redirect('/');
         }else {
-            $req->session()->flash('error', 'กรุณาตรวจสอบข้อมูลอีกครั้ง');
+            
             return redirect('/login');
         }
     }

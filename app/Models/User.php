@@ -23,7 +23,6 @@ class User extends Authenticatable
         'lname',
         'username',
         'password',
-        'user_ro_id',
         'user_ro_id'
     ];
 

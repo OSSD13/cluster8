@@ -102,28 +102,27 @@
 </head>
 
 <body>
+    <form action="{{ url('/login') }}" method = 'post'>
+        @csrf
+        <div class="login-container">
+            <div class="logo">
+                <img src="public\wrslogo.png" alt="Work Request System">
+            </div>
+            <div>
+                <h1 class="login-title">เข้าสู่ระบบ</h1>
+                <div class="content">
+                    <div class="input-group">
+                        <label for="username">ชื่อผู้ใช้</label>
+                        <input name="username" type="text" id="username" class="input-box" placeholder="กรอกชื่อผู้ใช้">
 
-    <div class="login-container">
-        <div class="logo">
-            <img src="public\asset\WRS_1.png" alt="Work Request System">
-        </div>
-        <div>
-            <h1 class="login-title">เข้าสู่ระบบ</h1>
-            <div class="content">
-                <div class="input-group">
-                    <label for="username">ชื่อผู้ใช้</label>
-                    <input name="username" type="text" id="username" class="input-box" placeholder="กรอกชื่อผู้ใช้">
+                        <label for="password">รหัสผ่าน</label>
+                        <input name="password" type="password" id="password" class="input-box" placeholder="กรอกรหัสผ่าน">
+                    </div>
 
-                    <label for="password">รหัสผ่าน</label>
-                    <input name="password" type="password" id="password" class="input-box" placeholder="กรอกรหัสผ่าน">
+                    <button class="login-btn">เข้าสู่ระบบ</button>
                 </div>
-
-                <button class="login-btn">เข้าสู่ระบบ</button>
             </div>
         </div>
-
-    </div>
-
+    </form>
 </body>
-
 </html>

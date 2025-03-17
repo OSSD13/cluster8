@@ -86,7 +86,7 @@
                         <td class="p-2 text-center">1</td>
                         <td class="p-2">HR-680003</td>
                         <td class="p-2">27 ก.พ. 68</td>
-                        <td class="p-2">สีเสียว คนดี</td>
+                        <td class="p-2">สี่โลร้อย คนดี</td>
                         <td class="p-2">HR</td>
                         <td class="p-2">xxxxxxxxxx</td>
                         <td class="p-2">xxxxxxxxx</td>
@@ -97,7 +97,7 @@
                         <td class="p-2 text-center">2</td>
                         <td class="p-2">HR-680004</td>
                         <td class="p-2">27 ก.พ. 68</td>
-                        <td class="p-2">สีเสียว คนดี</td>
+                        <td class="p-2">สี่โลร้อย คนดี</td>
                         <td class="p-2">HR</td>
                         <td class="p-2">xxxxxxxx</td>
                         <td class="p-2">xxxxxxxxx</td>

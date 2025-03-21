@@ -86,7 +86,7 @@
                                 <div class="text-sm text-[#6b7280]">วันสิ้นสุดการทำงาน : 30/12/2025</div>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                        <i class="fas fa-chevron-right text-[#0012E1]"></i>
                     </div>
                     
                     <div class="flex items-center justify-between border-b pb-4">
@@ -99,7 +99,7 @@
                                 <div class="text-sm text-[#6b7280]">วันสิ้นสุดการทำงาน : 30/12/2025</div>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                        <i class="fas fa-chevron-right text-[#0012E1]"></i>
                     </div>
                     
                     <div class="flex items-center justify-between border-b pb-4">
@@ -112,7 +112,7 @@
                                 <div class="text-sm text-[#6b7280]">วันสิ้นสุดการทำงาน : 30/12/2025</div>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                        <i class="fas fa-chevron-right text-[#0012E1]"></i>
                     </div>
                     
                     <div class="flex items-center justify-between">
@@ -125,7 +125,7 @@
                                 <div class="text-sm text-[#6b7280]">วันสิ้นสุดการทำงาน : 30/12/2025</div>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                        <i class="fas fa-chevron-right text-[#0012E1]"></i>
                     </div>
                 </div>
             </div>
@@ -164,17 +164,17 @@
                 
                 <div class="h-64 flex items-end justify-around">
                     <div class="flex flex-col items-center">
-                        <div class="bg-[#facc15] w-16 rounded-t" style="height: 180px"></div>
+                        <div class="bg-[#facc15] w-8 rounded-t" style="height: 180px"></div>
                         <div class="mt-2 text-sm">รอดำเนินการ</div>
                     </div>
                     
                     <div class="flex flex-col items-center">
-                        <div class="bg-[#fef08a] w-16 rounded-t" style="height: 40px"></div>
+                        <div class="bg-[#fef08a] w-8 rounded-t" style="height: 40px"></div>
                         <div class="mt-2 text-sm">กำลังดำเนินการ</div>
                     </div>
                     
                     <div class="flex flex-col items-center">
-                        <div class="bg-[#22c55e] w-16 rounded-t" style="height: 140px"></div>
+                        <div class="bg-[#22c55e] w-8 rounded-t" style="height: 140px"></div>
                         <div class="mt-2 text-sm">เสร็จสิ้น</div>
                     </div>
                 </div>
@@ -198,7 +198,7 @@
                                 <div class="text-sm text-[#6b7280]">วันสิ้นสุดการทำงาน : 30/12/2025</div>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                        <i class="fas fa-chevron-right text-[#0012E1]"></i>
                     </div>
                     
                     <div class="flex items-center justify-between border-b pb-4">
@@ -211,7 +211,7 @@
                                 <div class="text-sm text-[#6b7280]">วันสิ้นสุดการทำงาน : 30/12/2025</div>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                        <i class="fas fa-chevron-right text-[#0012E1]"></i>
                     </div>
                     
                     <div class="flex items-center justify-between border-b pb-4">
@@ -224,7 +224,7 @@
                                 <div class="text-sm text-[#6b7280]">วันสิ้นสุดการทำงาน : 30/12/2025</div>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                        <i class="fas fa-chevron-right text-[#0012E1]"></i>
                     </div>
                     
                     <div class="flex items-center justify-between">
@@ -237,7 +237,7 @@
                                 <div class="text-sm text-[#6b7280]">วันสิ้นสุดการทำงาน : 30/12/2025</div>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                        <i class="fas fa-chevron-right text-[#0012E1]"></i>
                     </div>
                 </div>
             </div>
@@ -262,7 +262,7 @@
                         </div>
                         <div class="flex items-center">
                         <button class="bg-[#ffffff] border border-[#000000] text-[#000000] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#000000] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                            <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                            <i class="fas fa-chevron-right text-[#0012E1]"></i>
                         </div>
                     </div>
                     
@@ -278,7 +278,7 @@
                         </div>
                         <div class="flex items-center">
                         <button class="bg-[#ffffff] border border-[#000000] text-[#000000] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#000000] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                            <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                            <i class="fas fa-chevron-right text-[#0012E1]"></i>
                         </div>
                     </div>
                     
@@ -294,7 +294,7 @@
                         </div>
                         <div class="flex items-center">
                         <button class="bg-[#ffffff] border border-[#000000] text-[#000000] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#000000] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                            <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                            <i class="fas fa-chevron-right text-[#0012E1]"></i>
                         </div>
                     </div>
                     
@@ -310,7 +310,7 @@
                         </div>
                         <div class="flex items-center">
                         <button class="bg-[#ffffff] border border-[#000000] text-[#000000] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#000000] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                            <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                            <i class="fas fa-chevron-right text-[#0012E1]"></i>
                         </div>
                     </div>
                 </div>

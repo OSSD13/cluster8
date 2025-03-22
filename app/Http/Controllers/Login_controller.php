@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 use App\Models\User;
 
-class LoginController extends Controller
+class Login_controller extends Controller
 {
     
     function index(){

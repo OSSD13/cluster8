@@ -96,11 +96,39 @@
                     <th>ชื่อ</th>
                     <th>แผนก</th>
                     <th>อีเมล</th>
-                    <th>เพศ</th>
+                    <th> </th>
                 </tr>
             </thead>
             <tbody>
                 <!-- Add table rows here -->
+                <?php foreach ($users as $index => $user) { ?>
+                    <tr class="align-middle">
+                      <td>{{ $index+1 }}.</td>
+                      <td>{{ $user->fname }}{{' '}}{{$user->lname}}</td>
+                      <td>
+                        <form>
+                            <!--
+                                Programmer
+                                System Analyst
+                                System Engineer
+                                Tester
+                                Project Manager
+                                IT Support
+                            -->
+                            <select id="dropdown" name="options">
+                                <option value="option1">IT Support</option>
+                                <option value="option2">Project Manager</option>
+                                <option value="option3">Tester</option>
+                                <option value="option3">System Engineer</option>
+                                <option value="option3">System Analyst</option>
+                                <option value="option3">Programmer</option>
+                            </select>
+                        </form>
+                      </td>
+                      <td>{{ $user->email }}</td>
+
+                    </tr>
+                    <?php } ?>
                 <tr>
                     <td>25000001</td>
                     <td>กิตติพงษ์ สุวรรณโชติ</td>

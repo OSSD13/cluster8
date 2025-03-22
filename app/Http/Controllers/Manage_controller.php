@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class ManageController extends Controller
+class Manage_controller extends Controller
 {
     //
     function index(){

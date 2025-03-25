@@ -7,6 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
+<script>
+    setTimeout(() => {
+        document.getElementById("rowToHide").style.display = "none";
+    }, 2000);
+</script>
 <body class="bg-[#f3f4f6] flex min-h-screen">
     <!-- Sidebar - Fixed Position -->
     <div class="w-60 bg-[#ffffff] shadow-lg fixed h-full">
@@ -67,7 +72,7 @@
         </div>
         <div class="bg-white shadow-md rounded-lg mt-6 p-4">
             <h3 class="font-bold text-gray-800">สรุปรายการ Work Request ประจำเดือน กุมภาพันธ์ ปี 2568</h3>
-            <table class="w-full mt-4 border">
+            <table  class="w-full mt-4 border">
                 <thead>
                     <tr class="bg-blue-500 text-white">
                         <th class="p-2">#</th>
@@ -82,7 +87,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="border">
+                    <tr id="rowToHide" class="border">
                         <td class="p-2 text-center">1</td>
                         <td class="p-2">HR-680003</td>
                         <td class="p-2">27 ก.พ. 68</td>

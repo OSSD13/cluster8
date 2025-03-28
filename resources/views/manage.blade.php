@@ -79,7 +79,7 @@
     <div class="container">
         <div class="header">
             <h1>จัดการแผนก</h1>
-            <button class="btn-">+ เพิ่ม</button>
+            <button>+ เพิ่ม</button>
         </div>
         <div class="search-bar">
             <input type="text" placeholder="ค้นหาชื่อหรือรหัสพนักงาน">
@@ -114,3 +114,4 @@
     </div>
 </body>
 </html>
+

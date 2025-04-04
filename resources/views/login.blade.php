@@ -113,10 +113,10 @@
                 <div class="content">
                     <div class="input-group">
                         <label for="username">ชื่อผู้ใช้</label>
-                        <input name="username" type="text" id="username" class="input-box" placeholder="กรอกชื่อผู้ใช้">
+                        <input name="user_username" type="text" id="user_username" class="input-box" placeholder="กรอกชื่อผู้ใช้">
 
                         <label for="password">รหัสผ่าน</label>
-                        <input name="password" type="password" id="password" class="input-box" placeholder="กรอกรหัสผ่าน">
+                        <input name="user_password" type="password" id="user_password" class="input-box" placeholder="กรอกรหัสผ่าน">
                     </div>
 
                     <button class="login-btn">เข้าสู่ระบบ</button>

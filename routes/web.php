@@ -23,6 +23,7 @@ Route::get('/logout', function(){
 
 Route::get("/workrequest", [Work_request_controller::class, "index"]);
 
+
 Route::get("/report", [Report_controller::class, "index"]);
 
 Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_login::class]);

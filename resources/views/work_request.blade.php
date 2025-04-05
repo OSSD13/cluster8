@@ -3,7 +3,7 @@
 $pdo = new PDO("mysql:host=10.80.6.165;dbname=cluster8;charset=utf8", "cluster8", "k4PL1Wqq");
 
 // 2. ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา
-$sql = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id FROM work_request_order 
+$sql = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id FROM work_request_order
         WHERE work_submit_date >= NOW() - INTERVAL 5 DAY";
 
 $stmt = $pdo->query($sql);
@@ -32,7 +32,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <img src="{{ asset('public/wrslogo.png') }}" alt="WorkRequest System Logo" class="mr-3 h-13">
             </div>
         </div>
-        
+
         <!-- Sidebar Menu -->
         <div class="py-4">
             <a href="home" class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
@@ -49,9 +49,9 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </a>
         </div>
     </div>
-    
+
     <!-- Main Content -->
-    <div class="flex-1 p-8 ml-60">
+    <div class="flex-1 p-8 ml-60" x-data="{ isOpen: false, detail: null }">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-[#0012E1]">สร้างใบสั่งงาน</h1>
         </div>
@@ -69,11 +69,22 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <th class="border p-2">ผู้ใช้</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody >
                             <?php foreach ($data as $row): ?>
                             <tr class="border">
                                 <td class="p-2 text-center"><?= htmlspecialchars($row['work_request_id']) ?></td>
-                                <td class="p-2 text-center"><?= htmlspecialchars($row['work_name']) ?></td>
+                                <td
+                                    @click="detailModal = true; currentItem = {
+                                        id: '<?= htmlspecialchars($row['work_request_id']) ?>',
+                                        name: '<?= htmlspecialchars($row['work_name']) ?>',
+                                        createDate: '<?= htmlspecialchars($row['work_create_date']) ?>',
+                                        submitDate: '<?= htmlspecialchars($row['work_submit_date']) ?>',
+                                        userId: '<?= htmlspecialchars($row['work_create_by_user_id']) ?>'
+                                    }"
+                                    class="p-2 cursor-pointer text-blue-600 hover:text-blue-800 hover:underline"
+                                >
+                                <?= htmlspecialchars($row['work_name']) ?>
+                                </td>
                                 <td class="p-2 text-center"><?= htmlspecialchars($row['work_create_date']) ?></td>
                                 <td class="p-2 text-center"><?= htmlspecialchars($row['work_submit_date']) ?></td>
                                 <td class="p-2 text-center"><?= htmlspecialchars($row['work_create_by_user_id']) ?></td>
@@ -87,12 +98,13 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <button @click="isOpen = true" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition">
                     <i class="fas fa-plus"></i> สร้างคำขอใหม่
                 </button>
-            </div>
-        </main>
-    </div>
+
+1            </div>
+ /1       </main>
+ \   </div>
 
     <!-- Modal -->
-    <div x-show="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div x-show="isOpen = true" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div class="flex justify-between items-center border-b pb-2">
                 <h2 class="text-lg font-semibold">สร้างคำขอใหม่</h2>
@@ -112,5 +124,30 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
+
+    <!-- Detail Modal -->
+    <div x-show="detailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 class="text-lg font-semibold">รายละเอียดคำขอ</h2>
+                <button @click="detailModal = false" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mt-4 space-y-2">
+                <p><strong>รหัสคำขอ:</strong> <span x-text="currentItem?.id"></span></p>
+                <p><strong>ชื่อคำขอ:</strong> <span x-text="currentItem?.name"></span></p>
+                <p><strong>วันที่สร้าง:</strong> <span x-text="currentItem?.createDate"></span></p>
+                <p><strong>วันที่เสร็จ:</strong> <span x-text="currentItem?.submitDate"></span></p>
+                <p><strong>ผู้สร้างคำขอ:</strong> <span x-text="currentItem?.userId"></span></p>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button @click="detailModal = false" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 mr-2">ปิด</button>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">ดำเนินการ</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+
+

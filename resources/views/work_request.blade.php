@@ -1,203 +1,116 @@
+<?php
+// 1. เชื่อมต่อฐานข้อมูล MySQL
+$pdo = new PDO("mysql:host=10.80.6.165;dbname=cluster8;charset=utf8", "cluster8", "k4PL1Wqq");
+
+// 2. ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา
+$sql = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id FROM work_request_order 
+        WHERE work_submit_date >= NOW() - INTERVAL 5 DAY";
+
+$stmt = $pdo->query($sql);
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work Request System</title>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-[#f3f4f6] flex min-h-screen">
+<body class="bg-gray-100 text-gray-900" x-data="{ isOpen: false }">
     <!-- Sidebar - Fixed Position -->
     <div class="w-60 bg-[#ffffff] shadow-lg fixed h-full">
         <div class="p-4 border-b">
             <div class="flex items-center">
-                <img src="{{ asset('public\wrslogo.png') }}" alt="WorkRequest System Logo" class="mr-3 h-13">
+                <img src="{{ asset('public/wrslogo.png') }}" alt="WorkRequest System Logo" class="mr-3 h-13">
             </div>
         </div>
-
+        
         <!-- Sidebar Menu -->
         <div class="py-4">
             <a href="home" class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
                 <i class="fas fa-home mr-3"></i>
                 <span>หน้าหลัก</span>
             </a>
-
-
             <a href="workrequest" class="flex items-center px-4 py-3 bg-[#3b82f6] text-[#ffffff] rounded-lg mx-2 mb-2">
                 <i class="fas fa-clipboard-list mr-3"></i>
                 <span>สร้างใบสั่งงาน</span>
             </a>
-
             <a href="report" class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
                 <i class="fas fa-chart-line mr-3"></i>
                 <span>รายงานการดำเนินงาน</span>
             </a>
         </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex-1 p-8 ml-60">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-[#0012E1]">สร้างใบสั่งงาน</h1>
+        </div>
+        <main class="container mx-auto p-4">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-lg font-semibold">รายการคำขอใน 5 วันที่ผ่านมา</h2>
+                <div class="mt-4">
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="border p-2">ID</th>
+                                <th class="border p-2">ชื่อคำขอ</th>
+                                <th class="border p-2">วันที่สร้าง</th>
+                                <th class="border p-2">วันที่เสร็จ</th>
+                                <th class="border p-2">ผู้ใช้</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($data as $row): ?>
+                            <tr class="border">
+                                <td class="p-2 text-center"><?= htmlspecialchars($row['work_request_id']) ?></td>
+                                <td class="p-2 text-center"><?= htmlspecialchars($row['work_name']) ?></td>
+                                <td class="p-2 text-center"><?= htmlspecialchars($row['work_create_date']) ?></td>
+                                <td class="p-2 text-center"><?= htmlspecialchars($row['work_submit_date']) ?></td>
+                                <td class="p-2 text-center"><?= htmlspecialchars($row['work_create_by_user_id']) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
 
-        <!-- User Profile -->
-        <div class="absolute bottom-0 w-60 p-2">
-            <div class="flex items-center bg-[#1e3a8a] text-[#ffffff] p-2 rounded-lg">
-                <div class="relative">
-                    <img src="https://via.placeholder.com/40" alt="Profile" class="rounded-full w-10 h-10">
-                </div>
-                <div class="ml-2">
-                    <div class="font-semibold">จิรายุท คนโก้</div>
-                    <div class="text-xs">anita@commerce.com</div>
-                </div>
-                <div class="ml-auto">
-                    <i class="fas fa-ellipsis-v"></i>
-                </div>
+                <!-- ปุ่มเพิ่มคำขอ -->
+                <button @click="isOpen = true" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-plus"></i> สร้างคำขอใหม่
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div x-show="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 class="text-lg font-semibold">สร้างคำขอใหม่</h2>
+                <button @click="isOpen = false" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mt-4">
+                <label class="block text-gray-700">ชื่อคำขอ</label>
+                <input type="text" class="w-full p-2 border rounded-lg mt-1" placeholder="กรอกชื่อคำขอ">
+                <label class="block text-gray-700 mt-2">วันที่ต้องการ</label>
+                <input type="date" class="w-full p-2 border rounded-lg mt-1">
+            </div>
+            <div class="flex justify-end mt-4">
+                <button @click="isOpen = false" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 mr-2">ยกเลิก</button>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">ส่ง</button>
             </div>
         </div>
     </div>
-
-    <!--test -->
-    @section('content')
-    <form action=" {{url('/workrequest') }}" method="post">
-    @csrf
-    <div class="row mt-3">
-        <div class="col-6">
-            <label>works_request</label>
-            <input type="text" name="works_requests_name" class="form-control">
-        </div>
-    </div>
-    <button class="btn btn-primary" id="btn-add_works_requests" type="button"> + เพิ่ม </button>
-    <div class="row mt-3" id="subs_works_list">
-        <div class="col-6">
-            <label>Sub Name <button type="button"
-                class="btn btn-danger ml-2 mt-2 mb-2 btn-del-subs_works_list">ลบ</button></label>
-            <input name="subs_works_name[]" type="text" class="form-control">
-        </div>
-    </div>
-    <button type="submit" class="btn btn-success mt-3">บันทึก</button>
-    </form>
-    <table class="table">
-        <thead>
-            <tr>
-                <td>#</td>
-                <td>Work Request Name</td>
-                <td>Sub Work Name</td>
-                <td>User Name</td>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($works_requests as $index => $works_requests) { ?>
-                <tr class="align-middle">
-                    <td>{{ $index + 1 }}.</td>
-                    <td>{{ $works_requests->name }}</td>
-                    <td>
-                        @foreach ($subs_works as $index => $subs_works_req)
-                            @if ($subs_works_req->works_requests_id == $works_requests->id)
-                                <li>{{ $subs_works_req->name }}</li>
-                            @endif
-                        @endforeach
-                    </td>
-
-                    <td>
-                        <!--
-                        <?php $first = true; ?>
-                        @foreach ($subs_works as $index => $subs_works_req)
-                            @if ($subs_works_req->works_requests_id == $works_requests->id)
-                                @foreach ($user as $index => $userItem)
-                                    @if ($productItem->category_id == $category->id && $productItem->user_id == $userItem->id && $first)
-                                        <li>{{ $userItem->name }}</li>
-                                        <?php $first = false; ?>
-                                    @endif
-                                @endforeach
-                            @endif
-                        @endforeach
-                        -->
-                    </td>
-                </tr>
-            <?php } ?>
-        </tbody>
-    </table>
-
-
-        <!-- ยังไม่แสดง -->
-        <!-- Main Content -->
-        <div class="col-md-10">
-            <h2 class="mt-4">สร้างใบสั่งงาน</h2>
-
-            <div class="row mt-4">
-                <!-- เสร็จสิ้น -->
-                <div class="col-md-6">
-                    <h4>เสร็จสิ้น</h4>
-                    <div class="card card-status card-success">
-                        <div class="card-body">
-                            <h5>สมัครรับพัสดุ...</h5>
-                            <p>สี่โลร้อย คนดี</p>
-                            <span class="badge bg-dark">หมายเหตุ</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- กำลังดำเนินการ -->
-                <div class="col-md-6">
-                    <h4>กำลังดำเนินการ</h4>
-                    <div class="card card-status card-warning">
-                        <div class="card-body">
-                            <h5>XXXXXX</h5>
-                            <p>XXXXXX</p>
-                            <button class="btn btn-primary">กำลังดำเนินการ</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ประวัติ -->
-            <div class="row mt-4">
-                <div class="col-md-8">
-                    <h4>ประวัติ</h4>
-                    <div class="card card-status card-light">
-                        <div class="card-body">
-                            <h5>XXXXXXXXX</h5>
-                            <p>XXXXXXXXX</p>
-                            <button class="btn btn-success">เสร็จสิ้น</button>
-                            <button class="btn btn-danger">ปฏิเสธ</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- แบบร่าง -->
-                <div class="col-md-4">
-                    <h4>แบบร่าง</h4>
-                    <div class="card card-status card-secondary">
-                        <div class="card-body">
-                            <h5>XXXXXXXXX</h5>
-                            <button class="btn btn-light">แบบร่าง</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div> <!-- End Main Content -->
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
-@section('scripts')
-<script>
-       $(document).ready(function() {
-            $('#btn-add_works_requests').on('click', function() {
-                $('#subs_works_list').append(`
-                    <div class="col-6">
-                        <label>Name
-                            <button type="button" class="btn btn-danger ml-3 mt-2 mb-2 btn-del-subs_works_list">ลบ</button>
-                        </label>
-                        <input name="subs_works_name[]" type="text" class="form-control" required>
-                    </div>
-                `);
-            });
-
-            $(document).on('click', '.btn-del-subs_works_list', function() {
-                $(this).parent().parent().remove();
-            });
-        });
-</script>
-@endsection

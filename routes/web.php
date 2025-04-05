@@ -44,4 +44,7 @@ Route::get("/workrequest", [Work_request_controller::class, "index"]);
 Route::get("/report", [Report_controller::class, "index"]);
 
 Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_login::class]);
+Route::post('/manage', [Manage_controller::class, 'manage']);
+
+
 

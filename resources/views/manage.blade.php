@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -114,4 +114,74 @@
     </div>
 </body>
 </html>
+ --}}
+
+{{-- โค้ดทดสอบ Controller --}}
+ {{-- <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ค้นหาผู้ใช้</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        #results div {
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+        }
+        #results div:hover {
+            background-color: #f0f0f0;
+        }
+        input {
+            width: 300px;
+            padding: 8px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>ค้นหาผู้ใช้</h2>
+
+    <input type="text" id="search" placeholder="พิมพ์ชื่อ / นามสกุล / ID..." autocomplete="off" />
+    <div id="results"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('search');
+            const resultsDiv = document.getElementById('results');
+
+            searchInput.addEventListener('input', function () {
+                const query = this.value;
+
+                if (query.length >= 2) {
+                    fetch(`/manage?query=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            resultsDiv.innerHTML = '';
+                            if (data.length > 0) {
+                                data.forEach(user => {
+                                    const div = document.createElement('div');
+                                    div.textContent = `ID: ${user.user_id}, ชื่อ: ${user.user_fname} ${user.user_lname}`;
+                                    resultsDiv.appendChild(div);
+                                });
+                            } else {
+                                resultsDiv.innerHTML = '<div>ไม่พบข้อมูล</div>';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
+                        });
+                } else {
+                    resultsDiv.innerHTML = '';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html> --}}
 

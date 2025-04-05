@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Work_Request extends Model
+class Work_request_order extends Model
 {
     //
     protected $fillable = [

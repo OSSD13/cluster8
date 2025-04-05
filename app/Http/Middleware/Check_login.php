@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class checkLogin
+class Check_login
 {
     /**
      * Handle an incoming request.
@@ -15,11 +15,20 @@ class checkLogin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = session('user');
-        if($user == null || $user->id == null)
-        {
+        $user = session('users');
+        if ($user == null || $user->user_id == null){
             return redirect('/login');
         }
+        elseif ($user['user_ro_id'] != 0) {
+            if ($request->path() !== 'home') {
+                return redirect('/home');
+            }
+        } else {
+            if ($request->path() !== 'manage') {
+                return redirect('/manage');
+            }
+        }
+
         return $next($request);
     }
 }

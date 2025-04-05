@@ -18,11 +18,12 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [# ค่าตัวแปรใน user
-        'id_user',
-        'fname',
-        'lname',
-        'username',
-        'password',
+        'user_id',
+        'user_fname',
+        'user_lname',
+        'user_username',
+        'user_password',
+        'user_ro_id'
     ];
 
     /**
@@ -31,7 +32,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
+        'user_password',
         'remember_token',
     ];
 
@@ -44,7 +45,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'user_password' => 'hashed',
         ];
     }
 }

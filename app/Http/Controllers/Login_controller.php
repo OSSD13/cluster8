@@ -1,5 +1,4 @@
 <?php
-//ตังค์ 13/3/2568
 
 namespace App\Http\Controllers;
 
@@ -9,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 
 use App\Models\User;
 
-class LoginController extends Controller
+class Login_controller extends Controller
 {
 
     function index(){
@@ -18,15 +17,14 @@ class LoginController extends Controller
 
     function login(Request $req){
         //print_r($req->input());
-        $user = User::where('username', $req->username)->first();
+        $user = User::where('user_username', $req->user_username)->first();
         //print_r($user);
-        if($user != null && Hash::check($req->password, $user->password)){
-            $req->session()->put('user', $user);
+        if($user != null && Hash::check($req->user_password, $user->user_password)){
+            $req->session()->put('users', $user);
             return redirect('/');
         }else {
-            $req->session()->flash('error', 'กรุณาตรวจสอบข้อมูลอีกครั้ง');
+            
             return redirect('/login');
         }
-
     }
 }

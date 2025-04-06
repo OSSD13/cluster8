@@ -376,7 +376,7 @@
 @endsection  {{-- ปิด section 'content' --}}
 
 
-@endsection
+
 
 
 </body>

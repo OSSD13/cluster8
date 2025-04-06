@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Work_Request_Order extends Model
+class Work_request_order extends Model
 {
     //
+    protected $table = 'work_request_order';
+
     protected $fillable = [
         'work_request_id',
         'work_name',
@@ -16,6 +18,6 @@ class Work_Request_Order extends Model
         'work_author_type',
         'work_sub_task_id',
         'work_status',
-        'work_create_by_department_id'
+        'work_created_by_department_id'
     ];
 }

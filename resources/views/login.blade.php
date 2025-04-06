@@ -16,7 +16,7 @@
 </head>
 
 <body class="min-h-screen bg-[#F4F5F9] flex items-center justify-center">
-    <form action="{{ url('/login') }}" method="POST" class="bg-white p-8 rounded-2xl shadow border border-gray-300 w-[590px] h-[625px]">
+    <form action="{{ url('/login') }}" method="POST" class="bg-white p-8 rounded-2xl shadow border border-gray-300 w-[590px] h-[625px]" style="border-radius: 30px"> 
         @csrf
         <div class="flex flex-col items-center">
             <!-- Logo -->
@@ -26,7 +26,7 @@
 
             
             <!-- Form content -->
-            <div class="w-[344px]">
+            <div class="w-[344px]" >
                 <div class="mb-6">
                     <h1 class="w-full text-left text-2xl font-bold mb-10">เข้าสู่ระบบ</h1>
                     <label for="user_username" class="block text-sm mb-2">ชื่อผู้ใช้</label>

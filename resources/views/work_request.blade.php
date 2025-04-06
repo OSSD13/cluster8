@@ -27,11 +27,28 @@ $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
+$sql2 = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id, work_status,
+        user_fname, user_lname, department_name
+        FROM work_request_order
+        LEFT JOIN users ON work_create_by_user_id = user_id
+        LEFT JOIN departments ON work_created_by_department_id = department_id
+        WHERE work_create_by_user_id = $userID AND work_submit_date >= NOW() - INTERVAL 5 DAY
+        LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
+
+$stmt2 = $pdo->prepare($sql2);
+
+$stmt2->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt2->execute();
+$data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
 // คำนวณจำนวนหน้าทั้งหมด
-$sql_count = "SELECT COUNT(*) FROM work_request_order WHERE work_submit_date >= NOW() - INTERVAL 5 DAY";
-$countStmt = $pdo->query($sql_count);
-$total_item = $countStmt->fetchColumn();
+$sql_count = "SELECT COUNT(*) FROM work_request_order WHERE work_submit_date >= NOW() - INTERVAL 5 DAY AND work_create_by_user_id = $userID AND (work_status = 'C' OR work_status = 'D')";
+$count_stmt = $pdo->query($sql_count);
+$total_item = $count_stmt->fetchColumn();
 $total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
+
 
 ?>
 

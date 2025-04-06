@@ -17,6 +17,7 @@ class Task extends Model
         'task_recipient_department_id',
         'task_notation',
         'task_recipient_type',
-        'task_submit_date'
+        'task_submit_date',
+        'task_work_request_id'
     ];
 }

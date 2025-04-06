@@ -3,38 +3,38 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Work_request_order;
+
+use App\Models\Work_Request_Order;
 use App\Models\Task;
-use App\Models\User;
 
 class Work_request_controller extends Controller
 {
     //
     function index(){
-        $work_request_order = Work_request_order::all();
-        $task_list = Task::all();
-        $user = User::all();
-        $data['work_request_order'] = $work_request_order;
-        $data['task'] = $task_list;
-        $data['user'] = $user;
-        return view('work_request', $data);
+       
+        return view('work_request');
     }
 
+    function create(Request $req){
+        print_r($req->input());
+        $mwrq = new Work_Request_Order();
+        $mtask = new Task();
 
-
-    function store(Request $request) {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'owner_name' => 'required|string|max:255',
-        ]);
-
-        Project::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'owner_name' => $request->owner_name,
-        ]);
-
-        return redirect()->route('projects.index')->with('success', 'บันทึกโครงงานเรียบร้อยแล้ว');
+        $mwrq->work_name = $req->input('work_name');
+        $mwrq->work_create_date = $req->input('create_date');
+        $mwrq->work_create_by_user_id = $req->input('');
+        $mwrq->work_author_type = $req->input('work_author_type');
+        $mwrq->work_status = $req->input('R');
+        $mwrq->work_create_by_department_id = $req->input('');
+        $mwrq->save();
+        $mtask->task_work_request_id = $mwrq->work_request_id;
+        $mtask->task_name = $req->input('task_name');
+        $mtask->task_deadline = $req->input('task_deadline');
+        $mtask->task_recipient_user_id = $req->input('task_recipient_user_id');
+        $mtask->task_recipient_department_id = $req->input('task_recipient_department_id');
+        $mtask->task_recipient_type = $req->input('task_recipient_type_');
+        $mtask->save();
+    
+        return redirect('/work_request')->with('status', 'Work request created successfully');
     }
 }

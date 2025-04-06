@@ -55,13 +55,46 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
 </head>
 
 <body class="bg-gray-100 text-gray-900" x-data="{ isOpen: false }">
-    <!-- Sidebar -->
-    <div class="w-60 bg-white shadow-lg fixed h-full p-4">
-        <img src="public/wrslogo.png" alt="WorkRequest System Logo" class="h-13 mb-4">
-        <a href="home" class="flex items-center px-4 py-3 hover:bg-gray-200 rounded-lg mb-2"><i class="fas fa-home mr-3"></i>หน้าหลัก</a>
-        <a href="workrequest" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg mb-2"><i class="fas fa-clipboard-list mr-3"></i>สร้างใบสั่งงาน</a>
-        <a href="report" class="flex items-center px-4 py-3 hover:bg-gray-200 rounded-lg mb-2"><i class="fas fa-chart-line mr-3"></i>รายงาน</a>
+    <!-- เริ่มส่วน Sidebar -->
+    <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
+        <!-- โลโก้ -->
+        <div class="py-2 border-b">
+            <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-10 mx-auto">
+        </div>
+        
+        <!-- เมนู -->
+        <div class="flex-1 px-3 py-6 space-y-2">
+            <a href="home" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+                <i class="fas fa-home mr-3"></i><span>หน้าหลัก</span>
+            </a>
+            <a href="workrequest" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
+                <i class="fas fa-clipboard-list mr-3"></i><span>สร้างใบสั่งงาน</span>
+            </a>
+            <a href="report" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+                <i class="fas fa-file-alt mr-3"></i><span>รายงานการดำเนินงาน</span>
+            </a>
+            <a href="dashboard" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+                <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
+            </a>
+        </div>
+        
+        <!-- โปรไฟล์ผู้ใช้ -->
+        <div class="p-4">
+            <div class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-lg"></i>
+                    </div>
+                    <div class="leading-tight">
+                        <div class="text-sm font-semibold">จิรายุ คนโก้</div>
+                        <div class="text-xs">anita@commerce.com</div>
+                    </div>
+                </div>
+                <i class="fas fa-arrow-right text-white text-sm"></i>
+            </div>
+        </div>
     </div>
+    <!-- จบส่วน Sidebar -->
     
     <!-- Main Content -->
     <div class="ml-64 p-8">
@@ -279,64 +312,51 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
     <!-- Modal -->
 <div x-show="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <!-- Modal Box -->
-    <div class="bg-white p-4 rounded-xl shadow-xl w-full max-w-xl max-h-[80vh] overflow-y-auto">
+    <div class="bg-white p-4 rounded-xl shadow-xl w-full max-w-3xl p-6 relative">
         <!-- Header -->
         <div class="flex justify-between items-center border-b pb-2 mb-4">
-            <div class="text-blue-600 font-semibold text-lg">รายละเอียดใบสั่งงาน</div>
-            <div class="text-gray-500">#</div>
+                <h2 class="text-xl font-bold text-blue-700 mb-4">
+                    รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#</span>
+                </h2>
             <button @click="isOpen = false" class="text-gray-600 hover:text-black text-xl">
                 <i class="fas fa-times-circle"></i>
             </button>
         </div>
     
             <!-- FORM -->
-            <form action="{{ url('/work_request') }}" method="POST">
+            <form action="{{ url('/workrequest') }}" method="POST">
                 @csrf
-    
-                <!-- ชื่อเรื่อง / วันที่ร้องขอ -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 mb-4">
-    <!-- ชื่อเรื่อง -->
-    <div class="flex items-center space-x-2">
-        <label for="work_name" class="text-sm font-semibold text-gray-700 whitespace-nowrap">ชื่อเรื่อง :</label>
-        <input type="text" name="work_name" id="work_name"
-            class="border px-3 py-2 rounded w-full" placeholder="กรุณากรอกชื่อเรื่อง" required>
-    </div>
+                
+                <!-- ข้อมูลหลัก -->
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
+                  <div>
+                      <label for="work_name" class="font-semibold">ชื่อเรื่อง :</label>
+                        <input type="text" name="work_name" id="work_name"
+                            class="border px-3 py-2 rounded w-half" placeholder="กรุณากรอกชื่อเรื่อง" required>
+                  </div>
+                  <div class="px-3 py-2">
+                      <label class="font-semibold">วันที่ร้องขอ :</label>
+                        <span name="create_date" value="" class="text-gray-900 font-medium">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</span>
+                  </div>
+                  <div>
+                    <span class="font-semibold">ผู้ส่ง :</span>
+                    {{ session('users')->user_fname }} {{ session('users')->user_lname }}                     
+                    
+                    
+                  </div>
+                  <div class="px-3">
+                        <label class="font-semibold ">แผนก <span class="text-red-500">*</span> :</label>
+                        <label class="space-x-2 px-3 py-3">
+                            <input type="radio" name="work_author_type" value="D" checked class="">
+                            <span class="">ระบุ</span>
+                        </label>
+                        <label class="space-x-2 px-3 py-3">
+                            <input type="radio" name="work_author_type" value="P" class="">
+                            <span class="">ไม่ระบุ</span>
+                        </label>
+                  </div>
+                </div>
 
-    <!-- วันที่ร้องขอ -->
-    <div class="flex items-center justify-end space-x-2">
-        <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">วันที่ร้องขอ :</label>
-        <span name="create_date" class="text-gray-900 font-medium">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</span>
-    </div>
-</div>
-
-<!-- ผู้ส่ง / แผนก -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-    <!-- ผู้ส่ง -->
-    <div class="flex items-center space-x-2">
-        <span class="text-sm font-semibold text-gray-700 whitespace-nowrap">ผู้ส่ง :</span>
-        
-        <span class="text-gray-900 font-semibold">
-            
-            
-        </span>
-    </div>
-
-    <!-- แผนก -->
-    <div class="flex items-center justify-end space-x-4">
-        <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">แผนก <span class="text-red-500">*</span> :</label>
-        <div class="flex items-center space-x-4">
-            <label class="flex items-center space-x-1">
-                <input type="radio" name="work_author_type" value="D" checked class="accent-blue-600">
-                <span class="text-gray-700 text-sm">ระบุ</span>
-            </label>
-            <label class="flex items-center space-x-1">
-                <input type="radio" name="work_author_type" value="P" class="accent-blue-600">
-                <span class="text-gray-700 text-sm">ไม่ระบุ</span>
-            </label>
-        </div>
-    </div>
-</div>
-    
                 <hr class="mb-4">
     
                 <!-- งานย่อย -->
@@ -350,10 +370,11 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                             this.tasks.splice(index, 1);
                         }
                     }"
+                    class="max-h-80 overflow-y-auto scrollbar-hide"
                 >
     
                     <!-- ปุ่มเพิ่ม -->
-                    <div class="flex justify-end items-center mt-3">
+                    <div class="flex justify-end items-center mt-3 max-h-80 overflow-y-auto">
                         <button type="button" @click="addTask" class="button-button5 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700 transition">
                             <i class="fas fa-plus"></i> เพิ่มรายการ
                         </button>
@@ -371,31 +392,29 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                                 <input type="date" name="task_deadline[]" class="flex-1 outline-none" required>
                                 </div>
                             </div>  
-
-                            <!-- ผู้รับงาน (บุคคล / แผนก) -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <!-- บุคคล -->
+                            <div
+                                class="grid grid-cols-1 md:grid-cols-2 gap-2"
+                                x-data="{ selected : 'P' }"
+                            >
                                 <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                    <input type="radio" :name="'task_recipient_type_' + index" value="P" checked class="accent-blue-500">
-                                    <span class="flex items-center w-full space-x-2">
-                                        <input type="text" name="task_recipient_user_id[]" placeholder="บุคคล" class="flex-1 outline-none" required>
-                                        <i class="fas fa-search text-gray-500"></i>
-                                    </span>
+                                    <input type="radio" :name="'task_recipient_type_' + index" value="P" x-model="selected">
+                                    <input type="text" name="task_recipient_user_id[]" placeholder="บุคคล" class="flex-1 outline-none" 
+                                    :disabled="selected !== 'P' , value='-'"
+                                    :required="selected === 'P'">
+                                    <i class="fas fa-search text-gray-500"></i>
                                 </label>
                     
                                 <!-- แผนก -->
                                 <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                    <input type="radio" :name="'task_recipient_type_' + index" value="D" class="accent-blue-500">
-                                    <span class="flex items-center w-full space-x-2">
-                                        <input type="text" name="task_recipient_department_id[]" placeholder="แผนก" class="flex-1 outline-none" required>
-                                        <i class="fas fa-search text-gray-500"></i>
-                                    </span>
+                                    <input type="radio" :name="'task_recipient_type_' + index" value="D" x-model="selected">
+                                    <input type="text" name="task_recipient_department_id[]" placeholder="แผนก" class="flex-1 outline-none" 
+                                    :disabled="selected !== 'D' , value='-'"
+                                    :required="selected === 'D'">
+                                    <i class="fas fa-search text-gray-500"></i>
                                 </label>
                             </div>
                     
-                            
-                    
-                            <!-- ปุ่มลบ -->
+                         <!-- ปุ่มลบ -->
                             <div class="flex justify-end">
                                 <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
                                     <i class="fas fa-trash-alt"></i> ลบ
@@ -406,12 +425,11 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 </div>
 
                 <hr class="semibold my-6">
-                
-    
+                   
                 <!-- ปุ่มส่ง -->
                 <div class="flex justify-end space-x-4">
-                    <button type="submit" class="px-6 py-2 text-blue border border-blue  rounded">ส่ง</button>
-                    <button type="submit" name="save_draft" class="px-6 py-2 border border-black rounded">แบบร่าง</button>
+                    <button type="submit" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
+                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
                 </div>
             </form>
         </div>

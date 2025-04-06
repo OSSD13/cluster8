@@ -26,7 +26,7 @@ class Login_controller extends Controller
             return redirect('/');
 
         }else {
-            
+   
             return redirect('/login');
         }
     }

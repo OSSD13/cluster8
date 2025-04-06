@@ -104,6 +104,7 @@
 <body>
     <form action="{{ url('/login') }}" method = 'post'>
         @csrf
+
         <div class="login-container">
             <div class="logo">
                 <img src="public\asset\WRS_1.png" alt="Work Request System">

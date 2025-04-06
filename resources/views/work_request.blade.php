@@ -2,32 +2,52 @@
 // เชื่อมต่อฐานข้อมูล MySQL
 $pdo = new PDO("mysql:host=10.80.6.165;dbname=cluster8;charset=utf8", "cluster8", "k4PL1Wqq");
 
+session_start();  // เริ่มต้น session
+
+// รับค่าจากฟอร์ม
+
+
 // กำหนดการตั้งค่าการแบ่งหน้า
 $items_per_page = 50; // จำนวนรายการที่จะแสดงในแต่ละหน้า (50 รายการต่อหน้า)
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // ตรวจสอบหน้าปัจจุบัน
 $offset = ($current_page - 1) * $items_per_page; // คำนวณ offset
-session_start(); // เริ่มต้น session
 // ลบค่า user_id ออกจาก session
 unset($_SESSION['user_id']);
+$userID = session('users')->user_id;
 
 
-// ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
+$user_login_id = session('user_id');
 $sql = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id, work_status,
         user_fname, user_lname, department_name
         FROM work_request_order
         LEFT JOIN users ON work_create_by_user_id = user_id
         LEFT JOIN departments ON work_created_by_department_id = department_id
-        WHERE work_submit_date >= NOW() - INTERVAL 5 DAY 
+        WHERE work_create_by_user_id = $userID
         LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
-
 $stmt = $pdo->prepare($sql);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
+$sql2 = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id, work_status,
+        user_fname, user_lname, department_name
+        FROM work_request_order
+        LEFT JOIN users ON work_create_by_user_id = user_id
+        LEFT JOIN departments ON work_created_by_department_id = department_id
+        WHERE work_create_by_user_id = $userID AND work_submit_date >= NOW() - INTERVAL 5 DAY
+        LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
+
+$stmt2 = $pdo->prepare($sql2);
+
+$stmt2->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt2->execute();
+$data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
 // คำนวณจำนวนหน้าทั้งหมด
-$sql_count = "SELECT COUNT(*) FROM work_request_order WHERE work_submit_date >= NOW() - INTERVAL 5 DAY";
+$sql_count = "SELECT COUNT(*) FROM work_request_order WHERE work_submit_date >= NOW() - INTERVAL 5 DAY AND work_create_by_user_id = $userID AND ";
 $countStmt = $pdo->query($sql_count);
 $total_item = $countStmt->fetchColumn();
 $total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
@@ -62,7 +82,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         <a href="workrequest" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg mb-2"><i class="fas fa-clipboard-list mr-3"></i>สร้างใบสั่งงาน</a>
         <a href="report" class="flex items-center px-4 py-3 hover:bg-gray-200 rounded-lg mb-2"><i class="fas fa-chart-line mr-3"></i>รายงาน</a>
     </div>
-
+    
     <!-- Main Content -->
     <div class="ml-64 p-8">
         <div class="flex justify-between items-center mb-6">
@@ -207,7 +227,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     </div>
                     <div class="overflow-y-auto h-[400px] pr-2 scrollbar-hide">
                         <div class="mt-4 grid grid-cols-3 gap-4">
-                            <?php foreach ($data as $row): ?>
+                            <?php foreach ($data2 as $row): ?>
                             <?php if (in_array($row['work_status'], ['C', 'D'])): ?>
                                 <div class="p-4 rounded-lg <?= $row['work_status'] === 'C' ? 'bg-green-100' : 'bg-red-100' ?>">
                                 <p class="font-semibold"><?= htmlspecialchars($row['work_name']) ?></p>

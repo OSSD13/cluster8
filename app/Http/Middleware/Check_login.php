@@ -21,7 +21,7 @@ class Check_login
         }
         elseif ($user['user_ro_id'] != 0) {
             if ($request->path() !== 'home') {
-                return redirect('/home');
+                return $next($request);
             }
         } else {
             if ($request->path() !== 'manage') {

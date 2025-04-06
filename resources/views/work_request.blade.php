@@ -12,12 +12,13 @@ unset($_SESSION['user_id']);
 
 
 // ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
+$userID = session('users')->user_id;
 $sql = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id, work_status,
         user_fname, user_lname, department_name
         FROM work_request_order
         LEFT JOIN users ON work_create_by_user_id = user_id
         LEFT JOIN departments ON work_created_by_department_id = department_id
-        WHERE work_submit_date >= NOW() - INTERVAL 5 DAY 
+        WHERE work_create_by_user_id = $userID
         LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
 
 $stmt = $pdo->prepare($sql);
@@ -26,11 +27,29 @@ $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
+$sql2 = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id, work_status,
+        user_fname, user_lname, department_name
+        FROM work_request_order
+        LEFT JOIN users ON work_create_by_user_id = user_id
+        LEFT JOIN departments ON work_created_by_department_id = department_id
+        WHERE work_create_by_user_id = $userID AND work_submit_date >= NOW() - INTERVAL 5 DAY
+        LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
+
+$stmt2 = $pdo->prepare($sql2);
+
+$stmt2->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt2->execute();
+$data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
 // คำนวณจำนวนหน้าทั้งหมด
-$sql_count = "SELECT COUNT(*) FROM work_request_order WHERE work_submit_date >= NOW() - INTERVAL 5 DAY";
-$countStmt = $pdo->query($sql_count);
-$total_item = $countStmt->fetchColumn();
+$sql_count = "SELECT COUNT(*) FROM work_request_order WHERE work_submit_date >= NOW() - INTERVAL 5 DAY AND work_create_by_user_id = $userID AND (work_status = 'C' OR work_status = 'D')";
+$count_stmt = $pdo->query($sql_count);
+$total_item = $count_stmt->fetchColumn();
 $total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
+
+
 ?>
 
 
@@ -99,7 +118,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
     <!-- Main Content -->
     <div class="ml-64 p-8">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-blue-600">สร้างใบสั่งงาน</h1>
+            <h1 class="text-2xl font-bold text-blue-600">สร้างใบสั่งงาน </h1>
              <!-- ปุ่มเพิ่มคำขอ -->
              <button @click="isOpen = true"
              class="w-12 h-12 flex items-center justify-center bg-blue-500 text-white rounded-full hover:bg-blue-700 transition">
@@ -117,11 +136,13 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 -ms-overflow-style: none;
                 scrollbar-width: none;
             }
+            
         </style>
         
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-12 gap-6">
+
             <!-- เสร็จสิ้น -->
-            <div class="bg-white p-6 rounded-lg shadow-md h-[581px]">
+            <div class="col-span-6 bg-white p-6 rounded-lg shadow-md h-[581px]">
                 <h2 class="text-xl ">เสร็จสิ้น
                     <span class="text-gray-500 text-sm font-normal">ใบสั่งงานที่ดำเนินการเสร็จสิ้นแล้ว</span>
                 </h2>
@@ -153,7 +174,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                                 </button>
                             </div>
                             
-                            <?php elseif ($row['work_status'] === 'D'): ?>
+                            <?php elseif ($row['work_status'] === 'D' ): ?>
                             <div class="p-4 rounded-lg h-[140px] relative shadow" style="background-color: #FFF3F3;">
                                 <!-- เสร็จสิ้น badge -->
                                 <span class="absolute top-4 right-4 text-[10px] px-2 py-0.5  rounded-full border border-dashed border-[#E60000] text-[#E60000] bg-[#ffB6B6]" style="border-radius: 8px">
@@ -177,6 +198,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                                     ตกลง
                                 </button>
                             </div>
+                            
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
@@ -184,8 +206,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             </div>
             
             <!-- กำลังดำเนินการ -->
-
-            <div class="bg-white p-6 rounded-lg shadow-md h-[581px] ">
+            <div class="col-span-6 bg-white p-6 rounded-lg shadow-md h-[581px]">
                 <h2 class="text-xl ">กำลังดำเนินการ
                     <span class="text-gray-500 text-sm font-normal">ใบสั่งงานที่กำลังดำเนินการอยู่</span>
                 </h2>
@@ -222,9 +243,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             </div>
 
             <!-- ประวัติสร้างใบ -->
-
-           
-                <div class="bg-white p-6 rounded-lg shadow-md h-[506px] w-[761px]">
+            <div class="col-span-9 bg-white p-6 rounded-lg shadow-md h-[506px]">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-semibold">ประวัติ</h2>
                         <p class="text-sm text-gray-500">ใบสั่งงานที่ดำเนินการเสร็จสิ้นและถูกยกเลิก</p>
@@ -267,17 +286,16 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     </div>
     
                 </div>
-            </div>
 
-            <!-- แบบร่าง -->
+                <!-- แบบร่าง -->
 
-            <div class="bg-white p-6 rounded-lg shadow-md h-[506px] w-[280px]">
+            <div class="col-span-3 bg-white p-6 rounded-lg shadow-md h-[506px]">
                 <h2 class="text-xl font-semibold">แบบร่าง
                     <span class="text-gray-500 text-sm font-normal">ใบสั่งงานที่ร่างไว้</span>
                 </h2>
                 <div class="overflow-y-auto h-[440px] mt-4 pr-1 scrollbar-hide space-y-3">
                     <?php foreach ($data as $row): ?>
-                        <?php if ($row['work_status'] === 'P'): ?>
+                        <?php if ($row['work_status'] === 'Draft'): ?>
                         <div class="p-4 bg-white rounded-lg shadow relative">
                             <!-- Badge -->
                             <span class="absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full border border-dashed border-gray-300 text-gray-500 bg-gray-100" style="border-radius: 8px">
@@ -306,6 +324,9 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     <?php endforeach; ?>
                 </div>
             </div>
+            </div>
+
+            
         </div>
     </div>
     
@@ -379,6 +400,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                             <i class="fas fa-plus"></i> เพิ่มรายการ
                         </button>
                     </div>
+                </template>
     
                     <!-- งานย่อย template -->
                     <template x-for="(task, index) in tasks" :key="task.id">
@@ -433,8 +455,8 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 </div>
             </form>
         </div>
+        
     </div>
-    
 </body>
 
 </html>

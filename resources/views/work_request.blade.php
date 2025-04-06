@@ -84,11 +84,13 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 -ms-overflow-style: none;
                 scrollbar-width: none;
             }
+            
         </style>
         
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-12 gap-6">
+
             <!-- เสร็จสิ้น -->
-            <div class="bg-white p-6 rounded-lg shadow-md h-[581px]">
+            <div class="col-span-6 bg-white p-6 rounded-lg shadow-md h-[581px]">
                 <h2 class="text-xl ">เสร็จสิ้น
                     <span class="text-gray-500 text-sm font-normal">ใบสั่งงานที่ดำเนินการเสร็จสิ้นแล้ว</span>
                 </h2>
@@ -151,8 +153,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             </div>
             
             <!-- กำลังดำเนินการ -->
-
-            <div class="bg-white p-6 rounded-lg shadow-md h-[581px] ">
+            <div class="col-span-6 bg-white p-6 rounded-lg shadow-md h-[581px]">
                 <h2 class="text-xl ">กำลังดำเนินการ
                     <span class="text-gray-500 text-sm font-normal">ใบสั่งงานที่กำลังดำเนินการอยู่</span>
                 </h2>
@@ -189,9 +190,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             </div>
 
             <!-- ประวัติสร้างใบ -->
-
-           
-                <div class="bg-white p-6 rounded-lg shadow-md h-[506px] w-[761px]">
+            <div class="col-span-9 bg-white p-6 rounded-lg shadow-md h-[506px]">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-semibold">ประวัติ</h2>
                         <p class="text-sm text-gray-500">ใบสั่งงานที่ดำเนินการเสร็จสิ้นและถูกยกเลิก</p>
@@ -234,11 +233,10 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     </div>
     
                 </div>
-            </div>
 
-            <!-- แบบร่าง -->
+                <!-- แบบร่าง -->
 
-            <div class="bg-white p-6 rounded-lg shadow-md h-[506px] w-[280px]">
+            <div class="col-span-3 bg-white p-6 rounded-lg shadow-md h-[506px]">
                 <h2 class="text-xl font-semibold">แบบร่าง
                     <span class="text-gray-500 text-sm font-normal">ใบสั่งงานที่ร่างไว้</span>
                 </h2>
@@ -273,6 +271,9 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     <?php endforeach; ?>
                 </div>
             </div>
+            </div>
+
+            
         </div>
     </div>
     

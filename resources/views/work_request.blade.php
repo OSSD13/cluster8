@@ -286,17 +286,52 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="mt-4">
-                <label class="block text-gray-700">ชื่อคำขอ</label>
-                <input type="text" class="w-full p-2 border rounded-lg mt-1" placeholder="กรอกชื่อคำขอ">
-                <label class="block text-gray-700 mt-2">วันที่ต้องการ</label>
-                <input type="date" class="w-full p-2 border rounded-lg mt-1">
-            </div>
-            <div class="flex justify-end mt-4">
-                <button @click="isOpen = false" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 mr-2">ยกเลิก</button>
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">ส่ง</button>
-            </div>
+            <form action="{{ url('/work_request') }}" method="POST">
+                @csrf
+    
+                <!-- ชื่อเรื่อง / วันที่ร้องขอ -->
+                <div class="flex justify-between mb-4 mt-4">
+                    <div>ชื่อเรื่อง : <input type="text" name="work_name" class="border p-2 rounded w-full" placeholder="กรุณากรอกชื่อเรื่อง" required>
+                    </div>
+                    <div>วันที่ร้องขอ : </div>
+                </div>
+    
+                <!-- ผู้ส่ง / แผนก -->
+                <div class="flex justify-between items-center mb-4">
+                    <div>ผู้ส่ง : <strong></strong></div>
+                    <div class="flex items-center space-x-4">
+                        <span>แผนก <span class="text-red-500">* </span>:</span>
+                        <label><input type="radio" name="work_author_type" value="ระบุ" checked> ระบุ</label>
+                        <label><input type="radio" name="work_author_type" value="ไม่ระบุ"> ไม่ระบุ</label>
+                    </div>
+                </div>
+    
+                <hr class="mb-4">
+    
+                <!-- งานย่อยแบบ dynamic -->
+                <template x-for="(task, index) in tasks" :key="index">
+                    <div class="flex items-center bg-gray-50 p-3 rounded-lg mb-2 shadow">
+                        <input type="text" name="sub_tasks[][name]" class="w-full border p-2 rounded" x-model="task.name" placeholder="ชื่อรายการงาน">
+                        <input type="date" name="sub_tasks[][due_date]" class="ml-4 border p-2 rounded text-sm" x-model="task.due_date">
+                        <input type="text" name="sub_tasks[][department]" class="ml-4 border p-2 rounded text-sm w-20" x-model="task.department" placeholder="แผนก">
+                    </div>
+                </template>
+    
+                <!-- เพิ่มรายการใหม่ -->
+                <div class="flex space-x-2 items-center mt-3">
+                    <button type="button" @click="addTask" class="text-xl font-bold text-blue-500">+</button>
+                    <span class="text-sm">เพิ่มรายการ</span>
+                </div>
+    
+                <!-- ปุ่มส่ง -->
+                <div class="mt-6 flex justify-end space-x-4">
+                    <button type="submit" class="px-6 py-2 border border-black rounded">แบบร่าง</button>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded">ส่ง</button>
+                </div>
+            </form>
         </div>
+        
     </div>
 </body>
+
 </html>

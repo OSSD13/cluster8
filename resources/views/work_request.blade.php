@@ -12,12 +12,13 @@ unset($_SESSION['user_id']);
 
 
 // ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
+$userID = session('users')->user_id;
 $sql = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id, work_status,
-        user_fname, user_lname, department_name , work_author_type
+        user_fname, user_lname, department_name, work_author_type
         FROM work_request_order
         LEFT JOIN users ON work_create_by_user_id = user_id
         LEFT JOIN departments ON work_created_by_department_id = department_id
-        WHERE work_submit_date >= NOW() - INTERVAL 5 DAY
+        WHERE work_create_by_user_id = $userID AND work_confirm_date IS NULL
         LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
 
 $stmt = $pdo->prepare($sql);
@@ -26,17 +27,35 @@ $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
+$sql2 = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id, work_status,
+        user_fname, user_lname, department_name, work_author_type, work_confirm_date
+        FROM work_request_order
+        LEFT JOIN users ON work_create_by_user_id = user_id
+        LEFT JOIN departments ON work_created_by_department_id = department_id
+        WHERE work_create_by_user_id = $userID AND work_confirm_date >= NOW() - INTERVAL 5 DAY
+        LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
+
+$stmt2 = $pdo->prepare($sql2);
+
+$stmt2->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt2->execute();
+$data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
 // คำนวณจำนวนหน้าทั้งหมด
-$sql_count = "SELECT COUNT(*) FROM work_request_order WHERE work_submit_date >= NOW() - INTERVAL 5 DAY";
-$countStmt = $pdo->query($sql_count);
-$total_item = $countStmt->fetchColumn();
+$sql_count = "SELECT COUNT(*) FROM work_request_order WHERE work_submit_date >= NOW() - INTERVAL 5 DAY AND work_create_by_user_id = $userID AND (work_status = 'C' OR work_status = 'D') AND work_confirm_date IS NOT NULL";
+$count_stmt = $pdo->query($sql_count);
+$total_item = $count_stmt->fetchColumn();
 $total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
+
+
 ?>
 
 
 <!DOCTYPE html>
 <html lang="th">
-
+    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,29 +73,140 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
        </style>
 </head>
 
-<body class="bg-gray-100 text-gray-900" x-data="{ isOpen: false, detailModal: false, draftModal: false, currentItem: null }">
-    <!-- Sidebar -->
-    <div class="w-60 bg-white shadow-lg fixed h-full p-4">
-        <img src="public/wrslogo.png" alt="WorkRequest System Logo" class="h-13 mb-4">
-        <a href="home" class="flex items-center px-4 py-3 hover:bg-gray-200 rounded-lg mb-2"><i class="fas fa-home mr-3"></i>หน้าหลัก</a>
-        <a href="workrequest" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg mb-2"><i class="fas fa-clipboard-list mr-3"></i>สร้างใบสั่งงาน</a>
-        <a href="report" class="flex items-center px-4 py-3 hover:bg-gray-200 rounded-lg mb-2"><i class="fas fa-chart-line mr-3"></i>รายงาน</a>
+<body class="bg-gray-100 text-gray-900" x-data="{ isOpen: false }">
+<!-- เริ่มส่วน Sidebar -->
+<div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
+    <!-- โลโก้ -->
+    <div class="py-2 border-b">
+        <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-30 mx-auto">
     </div>
+    
+    <!-- เมนู -->
+    <div class="flex-1 px-3 py-6 space-y-2">
+        <a href="home" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+            <i class="fas fa-home mr-3"></i><span>หน้าหลัก</span>
+        </a>
+        <a href="workrequest" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
+            <i class="fas fa-clipboard-list mr-3"></i><span>สร้างใบสั่งงาน</span>
+        </a>
+        <a href="report" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+            <i class="fas fa-file-alt mr-3"></i><span>รายงานการดำเนินงาน</span>
+        </a>
+        <a href="dashboard" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+            <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
+        </a>
+    </div>
+    
+    <!-- โปรไฟล์ผู้ใช้ -->
+        <div class="p-4">
+            <div id="profileButton" class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800" style="cursor: pointer;">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="leading-tight text-xs">
+                            {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+                        </div>
+                        <div class="leading-tight text-xs">
+                            {{ session('users')->user_id }}
+                        </div>
+                    </div>
+                </div>
+                <i class="fas fa-arrow-right text-white text-sm"></i>
+            </div>
+        </div>
+        <!-- ป๊อปอัพยืนยันการออกจากระบบ -->
+        <div id="logoutModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+            <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+                <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
+                    <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการออกจากระบบ</div>
+                    <button class="modal-close text-gray-500 text-xl" id="closeModal">&times;</button>
+                </div>
+                <div class="modal-body text-center mb-6">
+                    <p class="text-lg text-gray-600 mb-4">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
+                    <div class="modal-buttons flex justify-center gap-4">
+                        <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmLogout">ยืนยัน</button>
+                        <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelLogout">ยกเลิก</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <script>
+            // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+            document.getElementById('profileButton').addEventListener('click', function() {
+                // เปิดป๊อปอัพยืนยันการออกจากระบบ
+                document.getElementById('logoutModal').style.display = 'flex';
+            });
+
+            // เมื่อคลิกปุ่มปิดป๊อปอัพ
+            document.getElementById('closeModal').addEventListener('click', function() {
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+            // เมื่อคลิกปุ่มยกเลิก
+            document.getElementById('cancelLogout').addEventListener('click', function() {
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+            // เมื่อคลิกปุ่มยืนยัน
+document.getElementById('confirmLogout').addEventListener('click', function() {
+// ส่งคำขอไปยัง route logout
+fetch('/logout', {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+}).then(response => {
+    if (response.ok) {
+        // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
+        window.location.href = '/login';  // หรือ URL ที่ต้องการ
+    } else {
+        alert('เกิดข้อผิดพลาดในการออกจากระบบ');
+    }
+});
+
+// ปิดป๊อปอัพ
+document.getElementById('logoutModal').style.display = 'none';
+});
+
+
+            // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('logoutModal')) {
+                    document.getElementById('logoutModal').style.display = 'none';
+                }
+            });
+    </script>
+
+</div>
+<!-- จบส่วน Sidebar -->
+    
     <!-- Main Content -->
     <div class="ml-64 p-8">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-blue-600">สร้างใบสั่งงาน</h1>
+            <h1 class="text-2xl font-bold text-blue-600">สร้างใบสั่งงาน </h1>
              <!-- ปุ่มเพิ่มคำขอ -->
-             <button @click="isOpen = true"
-             class="w-12 h-12 flex items-center justify-center bg-blue-500 text-white rounded-full hover:bg-blue-700 transition">
-             <i class="fas fa-plus"></i>
-         </button>
+            
+            <div class="flex items-center space-x-3" style="position: relative; right: 50px;">
+                <button @click="isOpen = true"
+                    class="w-12 h-12 flex items-center justify-center bg-white text-black rounded-full border-2 border-black hover:bg-black hover:text-white transition">
+                    <i class="fas fa-plus text-2xl"></i>
+                </button>
+                <h1 class="text-2xl font-bold text-black-600">สร้าง</h1>
+            </div>
+            
+                
+            
+            
         </div>
-
+        
         <!-- Hide Scroll Bar -->
         <style>
-
+             
             .scrollbar-hide::-webkit-scrollbar {
                 display: none;
             }
@@ -84,9 +214,9 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 -ms-overflow-style: none;
                 scrollbar-width: none;
             }
-
+            
         </style>
-
+        
         <div class="grid grid-cols-12 gap-6">
 
             <!-- เสร็จสิ้น -->
@@ -98,75 +228,68 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     <div class="mt-4 grid grid-cols-2 gap-4">
                         <?php foreach ($data as $row): ?>
                             <?php if ($row['work_status'] === 'C'): ?>
-                            <div @click="detailModal = true; currentItem = {
-                                id: '<?= $row['work_request_id'] ?>',
-                                name: '<?= $row['work_name'] ?>',
-                                createDate: '<?= $row['work_create_date'] ?>',
-                                submitDate: '<?= $row['work_submit_date'] ?>',
-                                userId: '<?= $row['work_create_by_user_id'] ?>'
-                                }"
-                                class="p-4 rounded-lg h-[140px] relative shadow" style="background-color: #EEFFE5;">
+                            <div class="p-4 rounded-lg h-[140px] relative shadow" style="background-color: #EEFFE5;">
                                 <!-- เสร็จสิ้น badge -->
                                 <span class="absolute top-4 right-4 text-[10px] px-2 py-0.5 rounded-full border border-dashed border-[#6E44FF] text-[#6E44FF] bg-white" style="border-radius: 8px">
                                     เสร็จสิ้น
                                 </span>
-
+                            
                                 <!-- งาน -->
                                 <p class="font-semibold text-[16px] text-[#3A3541] truncate"> <?= htmlspecialchars($row['work_name']) ?> </p>
-
+                            
                                 <!-- ผู้ใช้ -->
-                                <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></p>
-
+                                <?php if ($row['work_author_type'] === 'P'): ?>
+                                    <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></p>
+                                <?php elseif ($row['work_author_type'] === 'D'): ?>
+                                    <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['department_name']) ?></p>
+                                <?php endif; ?>
+                            
                                 <!-- วันที่กด -->
                                 <div class="flex items-center text-sm text-[#3A3541] mt-2">
                                     <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
                                     วันที่เสร็จสิ้น <?= htmlspecialchars($row['work_submit_date']) ?>
                                 </div>
-
+                            
                                 <!-- ปุ่มตกลง -->
                                 <button class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
                                     ตกลง
                                 </button>
                             </div>
-
-                            <?php elseif ($row['work_status'] === 'D'): ?>
-                            <div
-                            @click="detailModal = true; currentItem = {
-                                id: '<?= $row['work_request_id'] ?>',
-                                name: '<?= $row['work_name'] ?>',
-                                createDate: '<?= $row['work_create_date'] ?>',
-                                submitDate: '<?= $row['work_submit_date'] ?>',
-                                userId: '<?= $row['work_create_by_user_id'] ?>'
-                            }"
-                            class="p-4 rounded-lg h-[140px] relative shadow" style="background-color: #FFF3F3;">
+                            
+                            <?php elseif ($row['work_status'] === 'D' ): ?>
+                            <div class="p-4 rounded-lg h-[140px] relative shadow" style="background-color: #FFF3F3;">
                                 <!-- เสร็จสิ้น badge -->
                                 <span class="absolute top-4 right-4 text-[10px] px-2 py-0.5  rounded-full border border-dashed border-[#E60000] text-[#E60000] bg-[#ffB6B6]" style="border-radius: 8px">
                                     ปฏิเสธ
                                 </span>
-
+                            
                                 <!-- งาน -->
                                 <p class="font-semibold text-[16px] text-[#3A3541] truncate"> <?= htmlspecialchars($row['work_name']) ?> </p>
-
+                            
                                 <!-- ผู้ใช้ -->
-                                <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></p>
-
+                                <?php if ($row['work_author_type'] === 'P'): ?>
+                                    <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></p>
+                                <?php elseif ($row['work_author_type'] === 'D'): ?>
+                                    <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['department_name']) ?></p>
+                                <?php endif; ?>
                                 <!-- วันที่กด -->
                                 <div class="flex items-center text-sm text-[#3A3541] mt-2">
                                     <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
                                     วันที่เสร็จสิ้น <?= htmlspecialchars($row['work_submit_date']) ?>
                                 </div>
-
-                                <!-- ปุ่มตกลง -->
+                            
+                                <!-- ปุ่มตกลง --> 
                                 <button class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
                                     ตกลง
                                 </button>
                             </div>
+                            
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 </div>
             </div>
-
+            
             <!-- กำลังดำเนินการ -->
             <div class="col-span-6 bg-white p-6 rounded-lg shadow-md h-[581px]">
                 <h2 class="text-xl ">กำลังดำเนินการ
@@ -176,30 +299,22 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     <div class="mt-4 grid grid-cols-2 gap-4">
                         <?php foreach ($data as $row): ?>
                             <?php if ($row['work_status'] === 'P'): ?>
-                            <div
-                            @click="detailModal = true; currentItem = {
-                                id: '<?= $row['work_request_id'] ?>',
-                                name: '<?= $row['work_name'] ?>',
-                                createDate: '<?= $row['work_create_date'] ?>',
-                                submitDate: '<?= $row['work_submit_date'] ?>',
-                                userId: '<?= $row['work_create_by_user_id'] ?>'
-                                }"
-                            class="p-4 bg-white rounded-lg h-[105px] relative shadow">
+                            <div class="p-4 bg-white rounded-lg h-[105px] relative shadow">
                                 <!-- กำลังดำเนินการ badge -->
                                 <span class="absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full border border-dashed border-[#FBBC05] text-[#FBBC05] bg-[#FFF5D8]" style="border-radius: 8px">
                                     กำลังดำเนินการ
                                 </span>
-
+                            
                                 <!-- ชื่อใบสั่งงาน -->
                                 <p class="font-semibold text-[16px] text-[#3A3541] truncate">
                                     <?= htmlspecialchars($row['work_name']) ?>
                                 </p>
-
+                            
                                 <!-- ชื่อ / แผนกผู้ขอ -->
                                 <p class="text-[13px] text-[#3A3541] mt-1">
                                     <?= htmlspecialchars($row['user_fname']) ?>
                                 </p>
-
+                            
                                 <!-- ไอคอน + วันที่ -->
                                 <div class="flex items-center text-sm text-gray-700 mt-2">
                                     <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
@@ -215,56 +330,80 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             <!-- ประวัติสร้างใบ -->
             <div class="col-span-9 bg-white p-6 rounded-lg shadow-md h-[506px]">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-semibold">ประวัติ</h2>
-                        <p class="text-sm text-gray-500">ใบสั่งงานที่ดำเนินการเสร็จสิ้นและถูกยกเลิก</p>
-
-                        <div>
-                            <p class="text-sm text-gray-500"> จาก {{$total_item}}</p>
+                        <h2 class="text-xl font-semibold">ประวัติ
+                            <span class="text-gray-500 text-sm font-normal">ใบสั่งงานที่ดำเนินการเสร็จสิ้นและถูกยกเลิก</span>
+                        </h2>
+                        <div style="margin-left: 380px;">
+                            <?php if ($total_item==0): ?>
+                                <p class="text-gray-500 text-sm font-normal">0 - 0 จาก 0</p>
+                            <?php elseif ($total_item<=50): ?>
+                                <p class="text-gray-500 text-sm font-normal">{{$current_page}}-{{$total_item}} จาก {{$total_item}}</p>
+                            <?php elseif ($total_item<$current_page*50): ?>
+                                <p class="text-gray-500 text-sm font-normal">{{(($current_page-1)*50)+1}}-{{$total_item}} จาก {{$total_item}}</p>
+                            <?php else : ?>
+                                <p class="text-gray-500 text-sm font-normal">{{(($current_page-1)*50)+1}}-{{$current_page*50}} จาก {{$total_item}}</p>
+                            <?php endif; ?>
                         </div>
-                        <div class="button-container">
+                        <div class="button-container" style="margin-top: -10px;">
                             <button onclick="location.href='?page=<?= max(1, $current_page - 1) ?>'" class="px-4 py-2" style="background-image: url('public/asset/l.png'); background-repeat: no-repeat; background-position: center;" <?= $current_page === 1 ? 'disabled' : '' ?>></button>
                             <button onclick="location.href='?page=<?= min($total_pages, $current_page + 1) ?>'" class="px-4 py-2" style="background-image: url('public/asset/r.png'); background-repeat: no-repeat; background-position: center;" <?= $current_page === $total_pages ? 'disabled' : '' ?>></button>
                         </div>
-
+    
                     </div>
                     <div class="overflow-y-auto h-[400px] pr-2 scrollbar-hide">
-                        <div
-
-                         class="mt-4 grid grid-cols-3 gap-4">
-                            <?php foreach ($data as $row): ?>
-                            <?php if (in_array($row['work_status'], ['C', 'D'])): ?>
-                                <div @click="detailModal = true; currentItem = {
-                                    id: '<?= $row['work_request_id'] ?>',
-                                    name: '<?= $row['work_name'] ?>',
-                                    createDate: '<?= $row['work_create_date'] ?>',
-                                    submitDate: '<?= $row['work_submit_date'] ?>',
-                                    userId: '<?= $row['work_create_by_user_id'] ?>',
-                                    authorType :'<?= $row['work_author_type'] ?>'
-                                    }"
-                                class="p-4 rounded-lg <?= $row['work_status'] === 'C' ? 'bg-green-100' : 'bg-red-100' ?>">
-                                <p class="font-semibold"><?= htmlspecialchars($row['work_name']) ?></p>
-
-                            <?php
-                            // ตรวจสอบว่าผู้ขอเป็นบุคคลหรือแผนก
-                            $isPersonalRequest = !empty($row['user_fname']) && !empty($row['user_lname']);
-                            ?>
-
-                            <?php if ($isPersonalRequest): ?>
-                            <p class="text-sm">ชื่อ/แผนกผู้ร้องขอ: <?= htmlspecialchars($row['user_fname']) ?>
-                                <?= htmlspecialchars($row['user_lname']) ?>
-                            <?php else: ?>
-                            <p class="text-sm">แผนกผู้ร้องขอ: <?= htmlspecialchars($row['department_name']) ?></p>
-                            <?php endif; ?>
-
-                            <p class="text-sm">สถานะ: <?= $row['work_status'] === 'C' ? 'เสร็จสิ้น' : 'ยกเลิก' ?></p>
-                            <p class="text-sm">วันที่เสร็จสิ้น/ยกเลิก: <?= htmlspecialchars($row['work_submit_date']) ?></p>
+                        <div class="mt-4 grid grid-cols-3 gap-4">
+                            <?php foreach ($data2 as $row): ?>
+                                <?php if ($row['work_status'] === 'C'): ?>
+                                    <div class="p-4 rounded-lg h-[105px] relative shadow" style="background-color: #EEFFE5;">
+                                        <!-- เสร็จสิ้น badge -->
+                                        <span class="absolute top-4 right-4 text-[10px] px-2 py-0.5 rounded-full border border-dashed border-[#6E44FF] text-[#6E44FF] bg-white" style="border-radius: 8px">
+                                            เสร็จสิ้น
+                                        </span>
+                            
+                                        <!-- งาน -->
+                                        <p class="font-semibold text-[16px] text-[#3A3541] truncate"> <?= htmlspecialchars($row['work_name']) ?> </p>
+                            
+                                        <!-- ผู้ใช้ -->
+                                        <?php if ($row['work_author_type'] === 'P'): ?>
+                                            <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></p>
+                                        <?php elseif ($row['work_author_type'] === 'D'): ?>
+                                            <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['department_name']) ?></p>
+                                        <?php endif; ?>
+                            
+                                        <!-- วันที่กด -->
+                                        <div class="flex items-center text-sm text-[#3A3541] mt-2">
+                                            <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
+                                            วันที่เสร็จสิ้น <?= htmlspecialchars($row['work_submit_date']) ?>
+                                        </div>
+                                    </div>
+                                <?php elseif ($row['work_status'] === 'D' ): ?>
+                                    <div class="p-4 rounded-lg h-[105px] relative shadow" style="background-color: #FFF3F3;">
+                                        <!-- เสร็จสิ้น badge -->
+                                            <span class="absolute top-4 right-4 text-[10px] px-2 py-0.5  rounded-full border border-dashed border-[#E60000] text-[#E60000] bg-[#ffB6B6]" style="border-radius: 8px">
+                                                ปฏิเสธ
+                                            </span>
+                            
+                                        <!-- งาน -->
+                                        <p class="font-semibold text-[16px] text-[#3A3541] truncate"> <?= htmlspecialchars($row['work_name']) ?> </p>
+                            
+                                        <!-- ผู้ใช้ -->
+                                        <?php if ($row['work_author_type'] === 'P'): ?>
+                                            <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></p>
+                                        <?php elseif ($row['work_author_type'] === 'D'): ?>
+                                            <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['department_name']) ?></p>
+                                        <?php endif; ?>                            
+                                        <!-- วันที่กด -->
+                                        <div class="flex items-center text-sm text-[#3A3541] mt-2">
+                                            <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
+                                            วันที่เสร็จสิ้น <?= htmlspecialchars($row['work_submit_date']) ?>
+                                        </div>
+                                    </div>
+                            
+                                <?php endif; ?>
+                            <?php endforeach; ?>
                         </div>
-                        <?php endif; ?>
-                        <?php endforeach; ?>
-
                     </div>
-                    </div>
-
+    
                 </div>
 
                 <!-- แบบร่าง -->
@@ -281,17 +420,17 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                             <span class="absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full border border-dashed border-gray-300 text-gray-500 bg-gray-100" style="border-radius: 8px">
                                 แบบร่าง
                             </span>
-
+            
                             <!-- Work Name -->
                             <p class="font-semibold text-sm text-gray-800 truncate">
                                 <?= htmlspecialchars($row['work_name']) ?>
                             </p>
-
+            
                             <!-- User Name -->
                             <p class="text-sm text-gray-600 mt-1 truncate">
                                 <?= htmlspecialchars($row['user_fname']) ?>
                             </p>
-
+            
                             <!-- Calendar Icon + Date -->
                             <div class="flex items-center text-sm text-gray-500 mt-2">
                                 <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
@@ -306,241 +445,61 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             </div>
             </div>
 
-
+            
         </div>
     </div>
-
-    <!-- Detail Modal test-->
-    <div x-show="detailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <!-- Modal Box -->
-        <div class="bg-white p-4 rounded-xl shadow-xl w-full max-w-xl max-h-[80vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h2 class="text-lg font-semibold">รายละเอียดคำขอ</h2>
-                <button @click="detailModal = false" class="text-gray-600 hover:text-gray-900">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="mt-4 space-y-2">
-                <p><strong>รหัสคำขอ:</strong> <span x-text="currentItem?.id"></span></p>
-                <p><strong>ชื่อคำขอ:</strong> <span x-text="currentItem?.name"></span></p>
-                <p><strong>วันที่สร้าง:</strong> <span x-text="currentItem?.createDate"></span></p>
-                <p><strong>วันที่เสร็จ:</strong> <span x-text="currentItem?.submitDate"></span></p>
-                <p><strong>ผู้สร้างคำขอ:</strong> <span x-text="currentItem?.userId"></span></p>
-            </div>
-            <div class="flex justify-end mt-6">
-                <button @click="detailModal = false" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 mr-2">ปิด</button>
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">ดำเนินการ</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Draft Modal test-->
-    <div x-show="detailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <!-- Modal Box -->
-        <div class="bg-white p-4 rounded-xl shadow-xl w-full max-w-xl max-h-[80vh] overflow-y-auto">
-            <!-- Header -->
-            <div class="flex justify-between items-center border-b pb-2 mb-4">
-                <div class="text-blue-600 font-semibold text-lg">รายละเอียดใบสั่งงาน</div>
-                <div class="text-gray-500">#</div>
-                <button @click="isOpen = false" class="text-gray-600 hover:text-black text-xl">
-                    <i class="fas fa-times-circle"></i>
-                </button>
-            </div>
-
-                <!-- FORM -->
-                <form action="{{ url('/work_request') }}" method="POST">
-                    @csrf
-
-                    <!-- ชื่อเรื่อง / วันที่ร้องขอ -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 mb-4">
-                        <!-- ชื่อเรื่อง -->
-                        <div class="flex items-center space-x-2">
-                            <label for="work_name" class="text-sm font-semibold text-gray-700 whitespace-nowrap">ชื่อเรื่อง :</label>
-                            <input type="text" name="work_name" id="work_name"
-                                class="border px-3 py-2 rounded w-full" placeholder="กรุณากรอกชื่อเรื่อง" x-model="currentItem.name" required>
-                        </div>
-
-                        <!-- วันที่ร้องขอ -->
-                        <div class="flex items-center justify-end space-x-2">
-                            <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">วันที่ร้องขอ :</label>
-                            <span name="create_date" class="text-gray-900 font-medium">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</span>
-                        </div>
-                    </div>
-
-                    <!-- ผู้ส่ง / แผนก -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <!-- ผู้ส่ง -->
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm font-semibold text-gray-700 whitespace-nowrap">ผู้ส่ง :</span>
-
-                            <span class="text-gray-900 font-semibold" x-text="currentItem.userId">
-
-
-                            </span>
-                        </div>
-
-                        <!-- แผนก -->
-                        <div class="flex items-center justify-end space-x-4">
-                            <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">แผนก <span class="text-red-500">*</span> :</label>
-                            <div class="flex items-center space-x-4">
-                                <label class="flex items-center space-x-1">
-                                    <input type="radio" name="work_author_type" value="D"   class="accent-blue-600" <?= $row['work_author_type'] === 'D' ? 'checked' : '' ?>>
-                                    <span class="text-gray-700 text-sm">ระบุ</span>
-                                </label>
-                                <label class="flex items-center space-x-1">
-                                    <input type="radio" name="work_author_type" value="P"  class="accent-blue-600" <?= $row['work_author_type'] === 'P' ? 'checked' : '' ?>>
-                                    <span class="text-gray-700 text-sm">ไม่ระบุ</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="mb-4">
-
-                    <!-- งานย่อย -->
-                    <div
-                        x-data="{
-                            tasks: [{ id: 1, name: '', description: '' }],
-                            addTask() {
-                                this.tasks.push({ id: this.tasks.length + 1, name: '', description: '' });
-                            },
-                            removeTask(index) {
-                                this.tasks.splice(index, 1);
-                            }
-                        }"
-                    >
-
-                        <!-- ปุ่มเพิ่ม -->
-                        <div class="flex justify-end items-center mt-3">
-                            <button type="button" @click="addTask" class="button-button5 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700 transition">
-                                <i class="fas fa-plus"></i> เพิ่มรายการ
-                            </button>
-                        </div>
-
-                        <!-- งานย่อย template -->
-                        <template x-for="(task, index) in tasks" :key="task.id">
-                            <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
-
-                                <!-- ชื่องาน วันที่ -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <input type="text" name="task_name[]" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
-                                    <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
-                                    <i class="fas fa-calendar-alt text-blue-500"></i>
-                                    <input type="date" name="task_deadline[]" class="flex-1 outline-none" required>
-                                    </div>
-                                </div>
-
-                                <!-- ผู้รับงาน (บุคคล / แผนก) -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <!-- บุคคล -->
-                                    <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                        <input type="radio" :name="'task_recipient_type_' + index" value="P" checked class="accent-blue-500">
-                                        <span class="flex items-center w-full space-x-2">
-                                            <input type="text" name="task_recipient_user_id[]" placeholder="บุคคล" class="flex-1 outline-none" required>
-                                            <i class="fas fa-search text-gray-500"></i>
-                                        </span>
-                                    </label>
-
-                                    <!-- แผนก -->
-                                    <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                        <input type="radio" :name="'task_recipient_type_' + index" value="D" class="accent-blue-500">
-                                        <span class="flex items-center w-full space-x-2">
-                                            <input type="text" name="task_recipient_department_id[]" placeholder="แผนก" class="flex-1 outline-none" required>
-                                            <i class="fas fa-search text-gray-500"></i>
-                                        </span>
-                                    </label>
-                                </div>
-
-
-
-                                <!-- ปุ่มลบ -->
-                                <div class="flex justify-end">
-                                    <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
-                                        <i class="fas fa-trash-alt"></i> ลบ
-                                    </button>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <hr class="semibold my-6">
-
-
-                    <!-- ปุ่มส่ง -->
-                    <div class="flex justify-end space-x-4">
-                        <button type="submit" class="px-6 py-2 text-blue border border-blue  rounded">ส่ง</button>
-                        <button type="submit" name="save_draft" class="px-6 py-2 border border-black rounded">แบบร่าง</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-
-    <!-- Create Modal -->
+    
+<!-- Modal -->
 <div x-show="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <!-- Modal Box -->
-    <div class="bg-white p-4 rounded-xl shadow-xl w-full max-w-xl max-h-[80vh] overflow-y-auto">
+    <div class="bg-white p-4 rounded-xl shadow-xl max-w-3xl p-6 relative">
         <!-- Header -->
         <div class="flex justify-between items-center border-b pb-2 mb-4">
-            <div class="text-blue-600 font-semibold text-lg">รายละเอียดใบสั่งงาน</div>
-            <div class="text-gray-500">#</div>
+                <h2 class="text-xl font-bold text-blue-700 mb-4">
+                    รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#</span>
+                </h2>
             <button @click="isOpen = false" class="text-gray-600 hover:text-black text-xl">
                 <i class="fas fa-times-circle"></i>
             </button>
         </div>
-
+    
             <!-- FORM -->
-            <form action="{{ url('/work_request') }}" method="POST">
+            <form action="{{ url('/workrequest') }}" method="POST">
                 @csrf
+                
+                <!-- ข้อมูลหลัก -->
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
+                  <div>
+                      <label for="work_name" class="font-semibold">ชื่อเรื่อง :</label>
+                        <input type="text" name="work_name" id="work_name"
+                            class="border px-3 py-2 rounded w-half" placeholder="กรุณากรอกชื่อเรื่อง" required>
+                  </div>
+                  <div class="px-3 py-2">
+                      <label class="font-semibold">วันที่ร้องขอ :</label>
+                        <span name="create_date" value="" class="text-gray-900 font-medium">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</span>
+                  </div>
+                  <div>
+                    <span class="font-semibold">ผู้ส่ง :</span>
+                    {{ session('users')->user_fname }} {{ session('users')->user_lname }}                     
+                    
+                    
+                  </div>
+                  <div class="px-3">
+                        <label class="font-semibold ">แผนก <span class="text-red-500">*</span> :</label>
+                        <label class="space-x-2 px-3 py-3">
+                            <input type="radio" name="work_author_type" value="D" checked class="">
+                            <span class="">ระบุ</span>
+                        </label>
+                        <label class="space-x-2 px-3 py-3">
+                            <input type="radio" name="work_author_type" value="P" class="">
+                            <span class="">ไม่ระบุ</span>
+                        </label>
+                  </div>
+                </div>
 
-                <!-- ชื่อเรื่อง / วันที่ร้องขอ -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 mb-4">
-    <!-- ชื่อเรื่อง -->
-    <div class="flex items-center space-x-2">
-        <label for="work_name" class="text-sm font-semibold text-gray-700 whitespace-nowrap">ชื่อเรื่อง :</label>
-        <input type="text" name="work_name" id="work_name"
-            class="border px-3 py-2 rounded w-full" placeholder="กรุณากรอกชื่อเรื่อง" required>
-    </div>
-
-    <!-- วันที่ร้องขอ -->
-    <div class="flex items-center justify-end space-x-2">
-        <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">วันที่ร้องขอ :</label>
-        <span name="create_date" class="text-gray-900 font-medium">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</span>
-    </div>
-</div>
-
-<!-- ผู้ส่ง / แผนก -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-    <!-- ผู้ส่ง -->
-    <div class="flex items-center space-x-2">
-        <span class="text-sm font-semibold text-gray-700 whitespace-nowrap">ผู้ส่ง :</span>
-
-        <span class="text-gray-900 font-semibold">
-
-
-        </span>
-    </div>
-
-    <!-- แผนก -->
-    <div class="flex items-center justify-end space-x-4">
-        <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">แผนก <span class="text-red-500">*</span> :</label>
-        <div class="flex items-center space-x-4">
-            <label class="flex items-center space-x-1">
-                <input type="radio" name="work_author_type" value="D" checked class="accent-blue-600">
-                <span class="text-gray-700 text-sm">ระบุ</span>
-            </label>
-            <label class="flex items-center space-x-1">
-                <input type="radio" name="work_author_type" value="P" class="accent-blue-600">
-                <span class="text-gray-700 text-sm">ไม่ระบุ</span>
-            </label>
-        </div>
-    </div>
-</div>
-
-                <hr class="mb-4">
-
+    
                 <!-- งานย่อย -->
-                <div
+                <div 
                     x-data="{
                         tasks: [{ id: 1, name: '', description: '' }],
                         addTask() {
@@ -550,73 +509,74 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                             this.tasks.splice(index, 1);
                         }
                     }"
+                    class="max-h-80 overflow-y-auto scrollbar-hide"
                 >
-
+    
                     <!-- ปุ่มเพิ่ม -->
-                    <div class="flex justify-end items-center mt-3">
+                    <div class="flex justify-end items-center mt-1 max-h-80 overflow-y-auto">
                         <button type="button" @click="addTask" class="button-button5 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700 transition">
                             <i class="fas fa-plus"></i> เพิ่มรายการ
                         </button>
                     </div>
-
+                </template>
                     <!-- งานย่อย template -->
                     <template x-for="(task, index) in tasks" :key="task.id">
-                        <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
+                    <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
+    
+                    <!-- ชื่องาน วันที่ -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <input type="text" :name="'task_name[' + index + ']'" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
+                    <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
+                        <i class="fas fa-calendar-alt text-blue-500"></i>
+                    <input type="date" :name="'task_deadline[' + index + ']'" class="flex-1 outline-none" required>
+                    </div>
+                    </div>  
 
-                            <!-- ชื่องาน วันที่ -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <input type="text" name="task_name[]" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
-                                <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
-                                <i class="fas fa-calendar-alt text-blue-500"></i>
-                                <input type="date" name="task_deadline[]" class="flex-1 outline-none" required>
-                                </div>
-                            </div>
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 gap-2"
+                    x-data="{ selected : 'P' }"
+                >
+                <!-- บุคคล -->
+                <label class="flex items-center border rounded px-3 py-2 space-x-2">
+                    <input type="radio" :name="'task_recipient_type[' + index + ']'" value="P" x-model="selected">
+                    <input type="text" :name="'task_recipient_user_id[' + index + ']'" placeholder="บุคคล" class="flex-1 outline-none"
+                        :disabled="selected !== 'P'"
+                        :required="selected === 'P'">
+                    <i class="fas fa-search text-gray-500"></i>
+                </label>
 
-                            <!-- ผู้รับงาน (บุคคล / แผนก) -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <!-- บุคคล -->
-                                <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                    <input type="radio" :name="'task_recipient_type_' + index" value="P" checked class="accent-blue-500">
-                                    <span class="flex items-center w-full space-x-2">
-                                        <input type="text" name="task_recipient_user_id[]" placeholder="บุคคล" class="flex-1 outline-none" required>
-                                        <i class="fas fa-search text-gray-500"></i>
-                                    </span>
-                                </label>
+                <!-- แผนก -->
+                <label class="flex items-center border rounded px-3 py-2 space-x-2">
+                    <input type="radio" :name="'task_recipient_type[' + index + ']'" value="D" x-model="selected">
+                    <input type="text" :name="'task_recipient_department_id[' + index + ']'" placeholder="แผนก" class="flex-1 outline-none"
+                        :disabled="selected !== 'D'"
+                        :required="selected === 'D'">
+                    <i class="fas fa-search text-gray-500"></i>
+                </label>
+                </div>
 
-                                <!-- แผนก -->
-                                <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                    <input type="radio" :name="'task_recipient_type_' + index" value="D" class="accent-blue-500">
-                                    <span class="flex items-center w-full space-x-2">
-                                        <input type="text" name="task_recipient_department_id[]" placeholder="แผนก" class="flex-1 outline-none" required>
-                                        <i class="fas fa-search text-gray-500"></i>
-                                    </span>
-                                </label>
-                            </div>
-
-
-
-                            <!-- ปุ่มลบ -->
-                            <div class="flex justify-end">
-                                <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
-                                    <i class="fas fa-trash-alt"></i> ลบ
-                                </button>
-                            </div>
-                        </div>
-                    </template>
+                <!-- ปุ่มลบ -->
+                <div class="flex justify-end">
+                    <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
+                        <i class="fas fa-trash-alt"></i> ลบ
+                    </button>
+                </div>
+            </div>
+            </template>
+                    
                 </div>
 
                 <hr class="semibold my-6">
-
-
+                   
                 <!-- ปุ่มส่ง -->
                 <div class="flex justify-end space-x-4">
-                    <button type="submit" class="px-6 py-2 text-blue border border-blue  rounded">ส่ง</button>
-                    <button type="submit" name="save_draft" class="px-6 py-2 border border-black rounded">แบบร่าง</button>
+                    <button type="submit" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
+                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
                 </div>
             </form>
         </div>
+        
     </div>
-
 </body>
 
 </html>

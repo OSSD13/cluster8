@@ -66,13 +66,28 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
     
     <!-- CSS พื้นฐาน -->
     <style>
-        /* ตั้งค่า Font หลัก */
-        body {
+         /* ตั้งค่า Font หลัก */
+         body {
             font-family: 'Noto Sans Thai', sans-serif;
+             
         }
-        
+    .graph-container {
+        display: flex;
+        justify-content: center; /* จัดกราฟให้อยู่ตรงกลางแนวนอน */
+        align-items: center;     /* จัดกราฟให้อยู่ตรงกลางแนวตั้ง */
+        width: 100%;             /* ทำให้กราฟมีความกว้างเต็ม */
+        height: 100%;            /* ทำให้กราฟมีความสูงเต็ม */
+    }
+
+    .chart {
+        width: 70%;             /* กำหนดขนาดกราฟที่ต้องการ */
+        max-width: 600px;       /* กำหนดขนาดสูงสุด */
+        height: auto;
+    }
+
         /* สไตล์สำหรับ Popup */
         .popup {
+            position: fixed;
             display: none;
             position: fixed;
             top: 0;
@@ -80,7 +95,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
+            z-index: 9999;
             justify-content: center;
             align-items: center;
         }
@@ -102,6 +117,19 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         body.popup-open {
             overflow: hidden;
         }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollable-content {
+        max-height: 400px; /* กำหนดความสูงสูงสุด */
+        overflow-y: auto;  /* เปิดการเลื่อนในแนวตั้ง */
+        
+    }
     </style>
 </head>
 <body class="bg-[#f3f4f6] flex min-h-screen">
@@ -109,7 +137,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
     <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
         <!-- โลโก้ -->
         <div class="py-2 border-b">
-            <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-20 mx-auto">
+            <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-30 mx-auto">
         </div>
         
         <!-- เมนู -->
@@ -129,20 +157,90 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         </div>
         
         <!-- โปรไฟล์ผู้ใช้ -->
-        <div class="p-4">
-            <div class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800">
-                <div class="flex items-center">
-                    <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
-                        <i class="fas fa-user text-lg"></i>
+            <div class="p-4">
+                <div id="profileButton" class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800" style="cursor: pointer;">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="leading-tight text-xs">
+                                {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+                            </div>
+                            <div class="leading-tight text-xs">
+                                {{ session('users')->user_id }}
+                            </div>
+                        </div>
                     </div>
-                    <div class="leading-tight">
-                        <div class="text-sm font-semibold">จิรายุ คนโก้</div>
-                        <div class="text-xs">anita@commerce.com</div>
+                    <i class="fas fa-arrow-right text-white text-sm"></i>
+                </div>
+            </div>
+            <!-- ป๊อปอัพยืนยันการออกจากระบบ -->
+            <div id="logoutModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+                <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+                    <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
+                        <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการออกจากระบบ</div>
+                        <button class="modal-close text-gray-500 text-xl" id="closeModal">&times;</button>
+                    </div>
+                    <div class="modal-body text-center mb-6">
+                        <p class="text-lg text-gray-600 mb-4">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
+                        <div class="modal-buttons flex justify-center gap-4">
+                            <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmLogout">ยืนยัน</button>
+                            <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelLogout">ยกเลิก</button>
+                        </div>
                     </div>
                 </div>
-                <i class="fas fa-arrow-right text-white text-sm"></i>
             </div>
-        </div>
+
+            <script>
+                // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+                document.getElementById('profileButton').addEventListener('click', function() {
+                    // เปิดป๊อปอัพยืนยันการออกจากระบบ
+                    document.getElementById('logoutModal').style.display = 'flex';
+                });
+
+                // เมื่อคลิกปุ่มปิดป๊อปอัพ
+                document.getElementById('closeModal').addEventListener('click', function() {
+                    // ปิดป๊อปอัพ
+                    document.getElementById('logoutModal').style.display = 'none';
+                });
+
+                // เมื่อคลิกปุ่มยกเลิก
+                document.getElementById('cancelLogout').addEventListener('click', function() {
+                    // ปิดป๊อปอัพ
+                    document.getElementById('logoutModal').style.display = 'none';
+                });
+
+                // เมื่อคลิกปุ่มยืนยัน
+document.getElementById('confirmLogout').addEventListener('click', function() {
+    // ส่งคำขอไปยัง route logout
+    fetch('/logout', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).then(response => {
+        if (response.ok) {
+            // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
+            window.location.href = '/login';  // หรือ URL ที่ต้องการ
+        } else {
+            alert('เกิดข้อผิดพลาดในการออกจากระบบ');
+        }
+    });
+
+    // ปิดป๊อปอัพ
+    document.getElementById('logoutModal').style.display = 'none';
+});
+
+
+                // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+                window.addEventListener('click', function(event) {
+                    if (event.target === document.getElementById('logoutModal')) {
+                        document.getElementById('logoutModal').style.display = 'none';
+                    }
+                });
+        </script>
+
     </div>
     <!-- จบส่วน Sidebar -->
     
@@ -308,97 +406,102 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     </div>
                 </div>
                     <!-- การ์ดแสดงกราฟการทำงานส่วนตัว -->
-        <div class="bg-[#ffffff] rounded-lg shadow p-6">
-            <div class="border-b pb-2 mb-4">
-                <h2 class="text-lg font-bold">ส่วนตัว</h2>
-                <p class="text-sm text-[#6b7280]">กราฟแสดงการทำงานของส่วนตัว</p>
+                    <div class="bg-[#ffffff] rounded-lg shadow p-6">
+                        <div class="border-b pb-2 mb-4">
+                            <h2 class="text-lg font-bold">ส่วนตัว</h2>
+                            <p class="text-sm text-[#6b7280]">กราฟแสดงการทำงานของส่วนตัว</p>
+                        </div>
+                        <div class="graph-container">
+                <div class="chart">
+                    <!-- โค้ดกราฟของคุณที่ใช้แสดงกราฟที่นี่ -->
+                
+            
+                        <script>
+                            // ข้อมูลสำหรับกราฟส่วนตัว - แตกต่างจากกราฟแผนก
+                            const personalData = {
+                                waiting: 25,
+                                inProgress: 10,
+                                completed: 35
+                            };
+                            
+                            // หาค่าสูงสุดเพื่อทำ scale
+                            const personalMaxValue = Math.max(personalData.waiting, personalData.inProgress, personalData.completed);
+                            // คำนวณสเกลเพื่อให้กราฟพอดีกับความสูงที่กำหนด (200px)
+                            const personalScale = 200 / (Math.ceil(personalMaxValue / 10) * 10);
+                            
+                            // สร้างสเกลด้านซ้าย
+                            function createPersonalYAxis() {
+                                const yAxis = document.getElementById('personal-y-axis');
+                                yAxis.innerHTML = '';
+                                
+                                // คำนวณค่าสูงสุดของสเกล (ปัดขึ้นให้เป็นหลัก 10)
+                                const maxScale = Math.ceil(personalMaxValue / 10) * 10;
+                                
+                                // สร้างช่วงสเกล 6 ช่วง (0-maxScale)
+                                for (let i = 5; i >= 0; i--) {
+                                    const value = Math.round(maxScale * i / 5);
+                                    const div = document.createElement('div');
+                                    div.textContent = value;
+                                    yAxis.appendChild(div);
+                                }
+                            }
+                            
+                            // อัพเดตความสูงของกราฟและค่าที่แสดง
+                            function updatePersonalChart() {
+                                // อัพเดตความสูงของกราฟ
+                                document.getElementById('personal-bar-waiting').style.height = `${personalData.waiting * personalScale}px`;
+                                document.getElementById('personal-bar-in-progress').style.height = `${personalData.inProgress * personalScale}px`;
+                                document.getElementById('personal-bar-completed').style.height = `${personalData.completed * personalScale}px`;
+                                
+                                // อัพเดตตัวเลขที่แสดง
+                                document.getElementById('personal-value-waiting').textContent = personalData.waiting;
+                                document.getElementById('personal-value-in-progress').textContent = personalData.inProgress;
+                                document.getElementById('personal-value-completed').textContent = personalData.completed;
+                            }
+                            
+                            // เพิ่มฟังก์ชันเข้าไปในรายการที่ต้องทำเมื่อโหลดหน้า
+                            window.addEventListener('load', function() {
+                                if (document.getElementById('personal-y-axis')) {
+                                    createPersonalYAxis();
+                                    updatePersonalChart();
+                                }
+                            });
+                        </script>
+            
+           <!-- กราฟแท่งแนวตั้ง -->
+           <div class="h-64 flex items-end justify-evenly relative">
+            <!-- แกนตั้งแสดงค่า -->
+            <div id="personal-y-axis" class="absolute left-0 h-full flex flex-col justify-between text-gray-500 text-xs">
+                <!-- สเกลจะถูกสร้างด้วย JavaScript -->
             </div>
             
-            <script>
-                // ข้อมูลสำหรับกราฟส่วนตัว - แตกต่างจากกราฟแผนก
-                const personalData = {
-                    waiting: 25,
-                    inProgress: 10,
-                    completed: 35
-                };
-                
-                // หาค่าสูงสุดเพื่อทำ scale
-                const personalMaxValue = Math.max(personalData.waiting, personalData.inProgress, personalData.completed);
-                // คำนวณสเกลเพื่อให้กราฟพอดีกับความสูงที่กำหนด (200px)
-                const personalScale = 200 / (Math.ceil(personalMaxValue / 10) * 10);
-                
-                // สร้างสเกลด้านซ้าย
-                function createPersonalYAxis() {
-                    const yAxis = document.getElementById('personal-y-axis');
-                    yAxis.innerHTML = '';
-                    
-                    // คำนวณค่าสูงสุดของสเกล (ปัดขึ้นให้เป็นหลัก 10)
-                    const maxScale = Math.ceil(personalMaxValue / 10) * 10;
-                    
-                    // สร้างช่วงสเกล 6 ช่วง (0-maxScale)
-                    for (let i = 5; i >= 0; i--) {
-                        const value = Math.round(maxScale * i / 5);
-                        const div = document.createElement('div');
-                        div.textContent = value;
-                        yAxis.appendChild(div);
-                    }
-                }
-                
-                // อัพเดตความสูงของกราฟและค่าที่แสดง
-                function updatePersonalChart() {
-                    // อัพเดตความสูงของกราฟ
-                    document.getElementById('personal-bar-waiting').style.height = `${personalData.waiting * personalScale}px`;
-                    document.getElementById('personal-bar-in-progress').style.height = `${personalData.inProgress * personalScale}px`;
-                    document.getElementById('personal-bar-completed').style.height = `${personalData.completed * personalScale}px`;
-                    
-                    // อัพเดตตัวเลขที่แสดง
-                    document.getElementById('personal-value-waiting').textContent = personalData.waiting;
-                    document.getElementById('personal-value-in-progress').textContent = personalData.inProgress;
-                    document.getElementById('personal-value-completed').textContent = personalData.completed;
-                }
-                
-                // เพิ่มฟังก์ชันเข้าไปในรายการที่ต้องทำเมื่อโหลดหน้า
-                window.addEventListener('load', function() {
-                    if (document.getElementById('personal-y-axis')) {
-                        createPersonalYAxis();
-                        updatePersonalChart();
-                    }
-                });
-            </script>
+            <div class="flex flex-col items-center">
+                <div class="relative">
+                    <div id="personal-bar-waiting" class="bg-yellow-400 w-8 rounded-t"></div>
+                    <span id="personal-value-waiting" class="absolute -top-6 w-full text-center"></span>
+                </div>
+                <div class="mt-2 text-sm">รอดำเนินการ</div>
+            </div>
             
-            <!-- กราฟแท่งแนวตั้ง -->
-            <div class="h-64 flex items-end justify-evenly relative">
-                <!-- แกนตั้งแสดงค่า -->
-                <div id="personal-y-axis" class="absolute left-0 h-full flex flex-col justify-between text-gray-500 text-xs">
-                    <!-- สเกลจะถูกสร้างด้วย JavaScript -->
+            <div class="flex flex-col items-center">
+                <div class="relative">
+                    <div id="personal-bar-in-progress" class="bg-yellow-200 w-8 rounded-t"></div>
+                    <span id="personal-value-in-progress" class="absolute -top-6 w-full text-center"></span>
                 </div>
-                
-                <div class="flex flex-col items-center">
-                    <div class="relative">
-                        <div id="personal-bar-waiting" class="bg-yellow-400 w-8 rounded-t"></div>
-                        <span id="personal-value-waiting" class="absolute -top-6 w-full text-center"></span>
-                    </div>
-                    <div class="mt-2 text-sm">รอดำเนินการ</div>
+                <div class="mt-2 text-sm">กำลังดำเนินการ</div>
+            </div>
+            
+            <div class="flex flex-col items-center">
+                <div class="relative">
+                    <div id="personal-bar-completed" class="bg-green-500 w-8 rounded-t"></div>
+                    <span id="personal-value-completed" class="absolute -top-6 w-full text-center"></span>
                 </div>
-                
-                <div class="flex flex-col items-center">
-                    <div class="relative">
-                        <div id="personal-bar-in-progress" class="bg-yellow-200 w-8 rounded-t"></div>
-                        <span id="personal-value-in-progress" class="absolute -top-6 w-full text-center"></span>
-                    </div>
-                    <div class="mt-2 text-sm">กำลังดำเนินการ</div>
-                </div>
-                
-                <div class="flex flex-col items-center">
-                    <div class="relative">
-                        <div id="personal-bar-completed" class="bg-green-500 w-8 rounded-t"></div>
-                        <span id="personal-value-completed" class="absolute -top-6 w-full text-center"></span>
-                    </div>
-                    <div class="mt-2 text-sm">เสร็จสิ้น</div>
-                </div>
+                <div class="mt-2 text-sm">เสร็จสิ้น</div>
             </div>
         </div>
-            
+    </div>
+    </div>
+</div>
             <!-- การ์ดแสดงงานที่กำลังดำเนินการ (เต็มความกว้าง) -->
 <div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
     <div class="border-b pb-2 mb-4">
@@ -640,52 +743,52 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
 
 
 
-    <script>
+   
+<script>
+    // JavaScript for popup functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const workItems = document.querySelectorAll('.work-item');
+        const popup = document.getElementById('workItemPopup');
+        const closeButtons = document.querySelectorAll('.close-popup, .close-popup-btn');
+        const popupTitle = document.getElementById('popup-title');
+        const popupDate = document.getElementById('popup-date');
         
-        // JavaScript for popup functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const workItems = document.querySelectorAll('.work-item');
-            const popup = document.getElementById('workItemPopup');
-            const closeButtons = document.querySelectorAll('.close-popup, .close-popup-btn');
-            const popupTitle = document.getElementById('popup-title');
-            const popupDate = document.getElementById('popup-date');
-            
-            workItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    // Get task info from the clicked item
-                    const titleElement = this.querySelector('div > div:first-child');
-                    const dateElement = this.querySelector('div > div:last-child');
+        workItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Get task info from the clicked item
+                const titleElement = this.querySelector('div > div:first-child');
+                const dateElement = this.querySelector('div > div:last-child');
+                
+                if (titleElement && dateElement) {
+                    const title = titleElement.textContent.replace('ชื่องาน : ', '');
+                    const date = dateElement.textContent.replace('วันสิ้นสุดการทำงาน : ', '');
                     
-                    if (titleElement && dateElement) {
-                        const title = titleElement.textContent.replace('ชื่องาน : ', '');
-                        const date = dateElement.textContent.replace('วันสิ้นสุดการทำงาน : ', '');
-                        
-                        // Set info in popup
-                        popupTitle.textContent = title;
-                        popupDate.textContent = date;
-                    }
-                    
-                    // Show popup
-                    popup.style.display = 'flex';
-                    document.body.classList.add('popup-open');
-                });
-            });
-            
-            closeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    popup.style.display = 'none';
-                    document.body.classList.remove('popup-open');
-                });
-            });
-            
-            // Close popup when clicking outside the content
-            popup.addEventListener('click', function(e) {
-                if (e.target === popup) {
-                    popup.style.display = 'none';
-                    document.body.classList.remove('popup-open');
+                    // Set info in popup
+                    popupTitle.textContent = title;
+                    popupDate.textContent = date;
                 }
+                
+                // Show popup
+                popup.style.display = 'flex';
+                document.body.classList.add('popup-open');
             });
         });
-    </script>
+        
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                popup.style.display = 'none';
+                document.body.classList.remove('popup-open');
+            });
+        });
+        
+        // Close popup when clicking outside the content
+        popup.addEventListener('click', function(e) {
+            if (e.target === popup) {
+                popup.style.display = 'none';
+                document.body.classList.remove('popup-open');
+            }
+        });
+    });
+</script>   
 </body>
 </html>

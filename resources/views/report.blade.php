@@ -7,6 +7,7 @@
     <title>Work Request System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
 </head>
 <script>
     setTimeout(() => {
@@ -62,128 +63,223 @@
     </div>
 
     <!-- Main Content -->
-    <div class="ml-64 p-6 w-full">
-        <h2 class="text-2xl font-bold text-[#0012E1]">รายงานการดำเนินงาน</h2><br>
+    <div class="ml-80 p-6 ">
+        <h2 class="font-[Lato] text-[25.63px] font-bold text-[#0012E1] ">รายงานการดำเนินงาน</h2><br>
 
-        <form method="GET" action="{{ url('report') }}">
-        <div class="flex justify-between">
-            <div>
-                <select name="month" class=" border border-gray-300 mt-1 rounded-[8px] w-[330px] h-[46px] mr-8">
-                    @php
-                        $thaiMonths = [
-                            1 => 'มกราคม',
-                            2 => 'กุมภาพันธ์',
-                            3 => 'มีนาคม',
-                            4 => 'เมษายน',
-                            5 => 'พฤษภาคม',
-                            6 => 'มิถุนายน',
-                            7 => 'กรกฎาคม',
-                            8 => 'สิงหาคม',
-                            9 => 'กันยายน',
-                            10 => 'ตุลาคม',
-                            11 => 'พฤศจิกายน',
-                            12 => 'ธันวาคม',
-                        ];
-                    @endphp
-
-                    <option class="">เดือน</option>
-                    @foreach (range(1, 12) as $m)
-                        <option value="{{ $m }}" {{ $selectedMonth == $m ? 'selected' : '' }}>
-                            {{ $thaiMonths[$m] }}
-                        </option>
-                    @endforeach
+        <form method="get" action="{{ url('report') }}">
+            <div class="flex justify-between">
+                <div>
+                    <div class="relative inline-block mr-8">
 
 
+                        <i class="fa-solid fa-calendar absolute left-3 top-1/2 -translate-y-[6px] text-[#0012E1]"></i>
+                        @php
+                            /*
+                            relative คือให้วางองค์ประกอบอันอื่นๆใน กล่องนี้ได้ ซึ่งทำให้เราสามารถวางไอคอนไว้ตรงไหนก็ได้ภายใน container
+                            inline-block แสดงผลแบบ inline อยู่ในบรรทัดเดียวกับข้อความอื่นได้
+                            mr-8 ทำให้เว้นระยะด้านขวาไป 8
+                            left-3	เลื่อนจากขอบซ้ายเข้ามา ประมาณ 12px
+                            top-1/2	จัดให้ไอคอนอยู่ตรงกลางแนวแกนตั้ง (50% จากด้านบนของกล่องแม่)
+                            -translate-y-[6px]	ขยับขึ้นไปเล็กน้อยอีก 6px เพื่อให้ ดูอยู่ตรงกลางแบบเนียนๆ (เพราะไอคอนไม่ได้สูงพอดีกับ select box)
+                                                        */
+                        @endphp
+                        <select name="month"
+                            class="pl-7 border border-gray-300 mt-1 rounded-[8px] w-[330px] h-[46px] mr-1 required font-[Lato] text-[14.22px] text-gray-500 ">
+
+                            @php
+                                // padding-left (pl)คือ เว้นระยะห่างด้านซ้าย ขององค์ประกอบ เว้นจากไอคอนปฏิทิน
+                            @endphp
+                            @php
+                                $thaiMonths = [
+                                    1 => 'มกราคม',
+                                    2 => 'กุมภาพันธ์',
+                                    3 => 'มีนาคม',
+                                    4 => 'เมษายน',
+                                    5 => 'พฤษภาคม',
+                                    6 => 'มิถุนายน',
+                                    7 => 'กรกฎาคม',
+                                    8 => 'สิงหาคม',
+                                    9 => 'กันยายน',
+                                    10 => 'ตุลาคม',
+                                    11 => 'พฤศจิกายน',
+                                    12 => 'ธันวาคม',
+                                ];
+
+                            @endphp
+
+                            <option value="">เดือน</option>
+                            @foreach (range(1, 12) as $m)
+                                <option value="{{ $m }}" {{ $selectedMonth == $m ? 'selected' : '' }}>
+                                    {{ $thaiMonths[$m] }}
+                                </option>
+                            @endforeach
+
+                        </select>
+                    </div>
+
+                    <div class="relative inline-block">
+                        <i class="fa-solid fa-calendar absolute left-3 top-1/2 -translate-y-[6px] text-[#0012E1]"></i>
+                        <select name="year"
+                            class=" pl-7 rounded-[8px] w-[199px] h-[46px] border border-gray-300 mt-1 font-[Lato] text-[14.22px] text-gray-500">
+                            @php
+                                $currentYear = now()->year + 543; // ปี พ.ศ.
+                                $startYear = $currentYear - 1; // ดูย้อนหลังได้ 2 ปี
+
+                            @endphp
+
+                            <option value="">ปี</option>
+                            @foreach (range($currentYear, $startYear) as $y)
+                                <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>
+                                    {{ $y }}
+                                </option>
+                            @endforeach
 
 
-                </select>
-                <select name="year" class="rounded-[8px] w-[199px] h-[46px] border border-gray-300 mt-1">
-                    @php
-                        $currentYear = now()->year + 543; // ปี พ.ศ.
-                        $startYear = $currentYear - 1; // ดูย้อนหลังได้ 2 ปี
 
-                    @endphp
-
-                    <option value="$currentYear">ปี</option>
-                    @foreach (range($currentYear, $startYear) as $y)
-                        <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>
-                            {{ $y }}
-                        </option>
-                    @endforeach
+                        </select>
+                    </div>
 
 
 
-                </select>
+                </div>
+
+
+                <button type="submit"
+                    class="w-[111px] h-[32px] bg-white-500 text-[#0012E1]
+                rounded-lg border border-[#0012E1] mt-1 font-[Lato] text-[12.64px] ">ค้นหา</button>
+
+
             </div>
-
-
-                <button type="submit" class="w-[111px] h-[32px] bg-white-500 text-[#0012E1]
-                rounded-lg border border-[#0012E1] mt-1 ">ค้นหา</button>
-
-        </div>
         </form>
-        <div class="text-sm text-gray-500"><br>สรุปรายงานการดำเนินงาน</div>
-        <div class="bg-white shadow-md rounded-lg mt-6 p-4">
-            <h3 class="font-bold text-gray-800">สรุปรายการ Work Request ประจำเดือน กุมภาพันธ์ ปี 2568</h3>
-            <table class="w-full mt-4 border">
-                <thead>
-                    <tr class="bg-blue-500 text-white">
-                        <th class="p-2">#</th>
-                        <th class="p-2">เลขที่</th>
-                        <th class="p-2">วันที่ร้องขอ</th>
-                        <th class="p-2">ชื่อผู้ขอ</th>
-                        <th class="p-2">แผนก</th>
-                        <th class="p-2">งาน</th>
-                        <th class="p-2">ผู้ดำเนินการ</th>
-                        <th class="p-2">วันที่สิ้นสุดการทำงาน</th>
-                        <th class="p-2">สถานะ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($requests as $request) @php /*วนลูปแสดงข้อมูลแต่ละแถวจาก $requests*/ @endphp
-
-                        <tr class="border">
-                            <td class="p-2 text-center">{{ $loop->iteration }}</td>
-                            @php /*แสดงลำดับตัวเลขอัตโนมัติเมื่อมีการวนลูป 1,2,3,4...... */ @endphp
+        <div class="text-sm text-gray-500 font-[Lato] text-[14px]"><br>สรุปรายงานการดำเนินงาน</div>
 
 
-                            <td class="p-2 text-center">{{ $request->work_request_id }}</td>
-                            @php /*แสดงรหัสใบสั่งงาน (work_request_id)*/ @endphp
 
-                            <td class="p-2 text-center">{{ \Carbon\Carbon::parse($request->work_create_date)->locale('th')->addYears(543)->isoFormat('D MMM YYYY') }} </td>
-                            @php /*แปลงวันที่จากฐานข้อมูล (work_create_date) ให้อยู่ในรูปแบบ "วัน เดือน ปี เป็นไทย" โดยใช้ Carbon มี->addYear(543)เพิ่มมา เพื่อทำให้เป็น พ.ศ. */ @endphp
-
-                            <td class="p-2 text-center">{{ $request->work_create_by_user_id }}</td>
-                            @php /*แสดงรหัสผู้สร้างงาน*/ @endphp
+        <div class="bg-white shadow-md rounded-lg mt-6 p-4 w-[1077px]"><br>
+            @if($requests->count() > 0)  @php /* ถ้าพบข้อมูลสิ่งที่ดึงมาในตาราง countตัวนับจำนวน ไม่เป็น 0  */@endphp
 
 
-                            <td class="p-2 text-center">{{ $request->work_created_by_department_id }}</td>
-                            @php /*แสดงรหัสแผนก*/ @endphp
+            <h3 class="text-[Inter] text-[24px] text-gray-800 ml-4 ">
+                @if ($selectedMonth && $selectedYear)
+                    สรุปรายการ Work Request ประจำเดือน {{ $thaiMonths[$selectedMonth] }} ปี {{ $selectedYear }}
+                @elseif ($selectedMonth)
+                    สรุปรายการ Work Request ประจำเดือน {{ $thaiMonths[$selectedMonth] }}
+                @elseif ($selectedYear)
+                    สรุปรายการ Work Request ประจำปี {{ $selectedYear }}
+                @else
+                    สรุปรายการ Work Request ทั้งหมด
+                @endif
+            </h3>
 
 
-                            <td class="p-2 text-center">{{ $request->work_name }}</td>
-                            @php /*แสดงชื่อของงานที่ร้องขอ*/ @endphp
 
-                            <td class="p-2 text-center">{{ $request->work_author_type }}</td>
-                            @php /*แสดงประเภทผู้ดำเนินการ*/ @endphp
+            <div class="overflow-x-auto px-4 ">
+                @php
+                    /*
+                        overflow-x-auto ถ้าเนื้อหาภายในกล่อง (div) กว้างเกินกว่าขนาดกล่อง ก็จะมีแถบเลื่อนแนวนอนให้เลื่อนดูเนื้อหา
+                        px-4 เพิ่มระยะห่าง 16px ที่ขอบซ้ายและขวาของกล่อง ทำให้เนื้อหาภายในไม่ชิดขอบเกินไป
 
-                            <td class="p-2 text-center">
-                            @if($request->work_confirm_date && $request->work_confirm_date !== '0000-00-00')
-                            {{ \Carbon\Carbon::parse($request->work_confirm_date)->locale('th')->addYears(543)->isoFormat('D MMM YYYY') }}
-                            @else
-                            ยังไม่เสร็จ
-                            @endif
-                            @php /*แสดงวันที่เสร็จงาน ถ้าไม่เป็น 0000-00-00 ที่เป็น string จะแสดงข้อความว่า "ยังไม่เสร็จ โดยมี ->addYear(543)เพิ่มมา เพื่อทำให้เป็น พ.ศ.*/ @endphp
+                        */
+                @endphp
 
+                <table
+                    class="mt-4 border border-gray-300 border-separate border-spacing-0 text-sm rounded-md overflow-hidden  min-w-[982px] mr-1 ">
+                    @php
+                        /*
+                    margin-top ซึ่งเป็นการตั้งค่าระยะห่างด้านบนของตาราง
+                    border-separate แยกระหว่างเซลล์ของตาราง
+                    border-spacing-ตั้งค่าระยะห่างระหว่างเซลล์ของตารางให้เป็น 0 (ไม่มีช่องว่างระหว่างเซลล์)
+                    overflow-hidden  หากมีเนื้อหาที่ยาวเกินขอบตารางจะไม่แสดงออกมา
+                    min-w-[982px] ความกว้างขั้นต่ำ เป็น 982px คือ ถ้าขนาดหน้าจอเล็กเกินไป ตารางจะไม่แคบกว่านี้ แต่จะสามารถขยายได้ตามขนาดหน้าจอ
+                    mr ขยับตารางมาทางขวา ชิด container
 
-                            <td class="p-2 text-center">{{ $request->work_status }}</td>
-                            @php /*แสดงสถานะของงาน*/ @endphp
+                        */
+                    @endphp
+
+                    <div class="text-sm text-gray-500 ml font-[Inter] text-[14px]"><br>จำนวนทั้งสิ้น {{ $requests->count() }}
+                        รายการ</div>
+
+                    <thead style="height: 43px" class="font-[Inter] text-[12px]">
+                        <tr class="bg-[#0012E1] text-white text-xs">
+                            <th class="p-2 border border-gray-300 w-[48px]">#</th>
+                            <th class="p-2 border border-gray-300 w-[91px]">เลขที่</th>
+                            <th class="p-2 border border-gray-300 w-[74px] whitespace-nowrap text-[11px]">วันที่ร้องขอ
+                            </th>
+                            @php
+                                //whitespace-nowrap เพื่อป้องกันข้อความขึ้นบรรทัดใหม่
+                            @endphp
+                            <th class="p-2 border border-gray-300 w-[103px]">ชื่อผู้ขอ</th>
+                            <th class="p-2 border border-gray-300 w-[65px]">แผนก</th>
+                            <th class="p-2 border border-gray-300 w-[269px]">งาน</th>
+                            <th class="p-2 border border-gray-300 w-[84px]">ผู้ดำเนินการ</th>
+                            <th class="p-2 border border-gray-300 w-[128px] whitespace-nowrap text-[11px]">
+                                วันที่สิ้นสุดการทำงาน</th>
+                            @php
+                                //whitespace-nowrap เพื่อป้องกันข้อความขึ้นบรรทัดใหม่
+                            @endphp
+                            <th class="p-2 border border-gray-300 w-[120px]">สถานะ</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($requests as $request)
+                            <tr class="border text-xs font-[Inter] text-[12px]">
+                                <td class="p-2 border border-gray-300 text-center whitespace-nowrap">{{ $loop->iteration }}</td>
+                                <td class="p-2 border border-gray-300 text-center whitespace-nowrap">{{ $request->work_request_id }}</td>
+                                <td class="p-2 border border-gray-300 text-center whitespace-nowrap">
+                                    @php
+                                    //whitespace-nowrap เพื่อป้องกันข้อความขึ้นบรรทัดใหม่
+                                @endphp
+                                    {{ \Carbon\Carbon::parse($request->work_create_date)->locale('th')->addYears(543)->isoFormat('D MMM YYYY') }}
+                                </td>
+                                <td class="p-2 border border-gray-300 text-center whitespace-nowrap">
+                                    {{ $request->requester_name }}</td>
+                                <td class="p-2 border border-gray-300 text-center">
+                                    {{ $request->department_name }}</td>
+                                <td class="p-2 border border-gray-300 text-center">{{ $request->work_name }}</td>
+                                <td class="p-2 border border-gray-300 text-center">
+                                    @if ($request->work_author_type == 'P' )
+                                        บุคคล
+                                    @elseif ($request->work_author_type == 'D')
+                                        แผนก
+                                    @endif
+                                </td>
+                                <td class="p-2 border border-gray-300 text-center">
+                                    @if ($request->work_confirm_date && $request->work_submit_date !== '0000-00-00')
+                                        {{ \Carbon\Carbon::parse($request->work_submit_date)->locale('th')->addYears(543)->isoFormat('D MMM YYYY') }}
+                                    @else
+                                        null
+                                    @endif
+                                </td>
+                                <td class="p-2 border border-gray-300 text-center whitespace-nowrap text-[11px]">
+                                    @if ($request->work_status == 'R' )
+                                        รอดำเนินการ
+                                    @elseif ($request->work_status == 'D')
+                                        ถูกปฏิเสธ
+                                    @elseif ($request->work_status == 'C')
+                                        เสร็จสิ้น
+                                    @elseif ($request->work_status == 'P')
+                                        กำลังดำเนินการ
+                                    @else
+                                        {{ $request->work_status }}
+                                    @endif
 
+
+                                </td>
+
+                            </tr>
+
+                        @endforeach
+
+                    </tbody>
+                </table>
+                @else @php /* ถ้าไม่พบข้อมูลสิ่งที่ดึงมาในตาราง countตัวนับจำนวน เป็น 0  */@endphp
+
+                <div class="p-4 text-center text-gray-500 font-[Lato] text-[32px] top-1/2 -translate-y-[6px]">ไม่มีข้อมูล</div>
+
+                @endif
+            </div>
         </div>
+
     </div>
 </body>
 

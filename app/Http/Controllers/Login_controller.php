@@ -26,7 +26,7 @@ class Login_controller extends Controller
             // ใช้ dd() เพื่อ debug ดูค่า user_id
             // dd($user->user_id);
     
-            return redirect('/');
+            return redirect('/home');
         } else {
             return redirect('/login');
         }

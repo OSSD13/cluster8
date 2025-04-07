@@ -267,11 +267,11 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                             <?php if ($total_item==0): ?>
                                 <p class="text-gray-500 text-sm font-normal">0 - 0 จาก 0</p>
                             <?php elseif ($total_item<=50): ?>
-                                <p class="text-gray-500 text-sm font-normal">{{$current_page}} - {{$total_item}} จาก {{$total_item}}</p>
+                                <p class="text-gray-500 text-sm font-normal">{{$current_page}}-{{$total_item}} จาก {{$total_item}}</p>
                             <?php elseif ($total_item<$current_page*50): ?>
-                                <p class="text-gray-500 text-sm font-normal">{{(($current_page-1)*50)+1}} - {{$total_item}} จาก {{$total_item}}</p>
+                                <p class="text-gray-500 text-sm font-normal">{{(($current_page-1)*50)+1}}-{{$total_item}} จาก {{$total_item}}</p>
                             <?php else : ?>
-                                <p class="text-gray-500 text-sm font-normal">{{(($current_page-1)*50)+1}} - {{$current_page*50}} จาก {{$total_item}}</p>
+                                <p class="text-gray-500 text-sm font-normal">{{(($current_page-1)*50)+1}}-{{$current_page*50}} จาก {{$total_item}}</p>
                             <?php endif; ?>
                         </div>
                         <div class="button-container" style="margin-top: -10px;">
@@ -330,7 +330,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                                     </div>
                             
                                 <?php endif; ?>
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
                         </div>
                     </div>
     

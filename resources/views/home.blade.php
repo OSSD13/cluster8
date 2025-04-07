@@ -1,3 +1,34 @@
+<?php
+// เชื่อมต่อฐานข้อมูล MySQL
+$pdo = new PDO("mysql:host=10.80.6.165;dbname=cluster8;charset=utf8", "cluster8", "k4PL1Wqq");
+
+// กำหนดการตั้งค่าการแบ่งหน้า
+$items_per_page = 50; // จำนวนรายการที่จะแสดงในแต่ละหน้า (50 รายการต่อหน้า)
+$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // ตรวจสอบหน้าปัจจุบัน
+$offset = ($current_page - 1) * $items_per_page; // คำนวณ offset
+session_start(); // เริ่มต้น session
+// ลบค่า user_id ออกจาก session
+unset($_SESSION['user_id']);
+
+
+// ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
+$userID = session('users')->user_id;
+$sql = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, wro.work_name
+        FROM task
+        LEFT JOIN work_request_order AS wro ON task_work_request_id = wro.work_request_id
+        LEFT JOIN users AS userID ON task_recipient_user_id  = userID.user_id
+        WHERE task_work_request_id = wro.work_request_id
+        LIMIT :offset, :limit";
+
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt->execute();
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -118,62 +149,24 @@
                 </div>
                 
                 <div class="space-y-4">
-                    <!-- รายการงาน 1 -->
-                    <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                    <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
+                        <!-- รายการงาน 1 -->
+                        <?php foreach ($data as $row): ?>
+                            <?php if ($row['task_recipient_type'] === 'D'): ?>
+                                <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                                    <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                        <i class="fas fa-box text-white text-2xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['work_name']) ?> </div>
+                                        <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
+                                    </div>
+                                    <div>
+                                        <i class="fas fa-chevron-right text-gray-400"></i>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
-                    
-                    <!-- รายการงาน 2 -->
-                    <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                    <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-                    
-                    <!-- รายการงาน 3 -->
-                    <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                    <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-white  text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-                    
-                    <!-- รายการงาน 4 -->
-                    <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
             </div>
             
                                 <!-- การ์ดแสดงกราฟการทำงานตามแผนก -->
@@ -274,63 +267,24 @@
                         
                         <div class="space-y-4">
                             <!-- รายการงาน 1 -->
+                            <?php foreach ($data as $row): ?>
+                            <?php if ($row['task_recipient_type'] === 'P'): ?>
                             <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
                             <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
                                     <i class="fas fa-box text-[#2563eb] text-2xl "></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['work_name']) ?> </div>
+                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
                                 </div>
                                 <div>
                                     <i class="fas fa-chevron-right text-gray-400"></i>
                                 </div>
                             </div>
-                            
-                            <!-- รายการงาน 2 -->
-                            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                            <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                    <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                                </div>
-                                <div>
-                                    <i class="fas fa-chevron-right text-gray-400"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- รายการงาน 3 -->
-                            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                                <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                    <i class="fas fa-box text-[#2563eb] text-2xl "></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                                </div>
-                                <div>
-                                    <i class="fas fa-chevron-right text-gray-400"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- รายการงาน 4 -->
-                            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                            <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                    <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                                </div>
-                                <div>
-                                    <i class="fas fa-chevron-right text-gray-400"></i>
-                                </div>
-                            </div>
-                        </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
-                    
+                </div>
                     <!-- การ์ดแสดงกราฟการทำงานส่วนตัว -->
         <div class="bg-[#ffffff] rounded-lg shadow p-6">
             <div class="border-b pb-2 mb-4">

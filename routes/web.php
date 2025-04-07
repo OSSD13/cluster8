@@ -23,13 +23,13 @@ Route::get('/logout', function(){
 
 
 Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
-Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
+Route::get("/cluster8/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
 
-Route::get("/workrequest", [Work_request_controller::class, "index"]);
-Route::post("/workrequest", [Work_request_controller::class, "create"]);
-Route::get("/workrequest", [Work_request_controller::class, "show"]);
+Route::get("/cluster8/workrequest", [Work_request_controller::class, "index"]);
+Route::post("/cluster8/workrequest", [Work_request_controller::class, "create"]);
+Route::get("/cluster8/workrequest", [Work_request_controller::class, "show"]);
 
-Route::get("/report", [Report_controller::class, "index"]);
+Route::get("/cluster8/report", [Report_controller::class, "index"]);
 
-Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_login::class]);
-Route::get('/dashboard',[Dashboard_controller::class,"index"]);
+Route::get("/cluster8/manage", [Manage_controller::class, "index"])->middleware([Check_login::class]);
+Route::get('/cluster8/dashboard',[Dashboard_controller::class,"index"]);

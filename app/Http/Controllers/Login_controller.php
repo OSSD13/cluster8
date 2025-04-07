@@ -10,7 +10,7 @@ use App\Models\User;
 
 class Login_controller extends Controller
 {
-    
+
     function index(){
         return view('login');
     }

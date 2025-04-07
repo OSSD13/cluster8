@@ -9,17 +9,8 @@ use App\Http\Controllers\Report_controller;
 use App\Http\Controllers\Manage_controller;
 use App\Http\Controllers\Dashboard_controller;
 
-
-
-Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
-Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
-
-Route::get('/login', [Login_controller::class, 'index']);
-Route::post('/login', [Login_controller::class, 'login']);
-Route::get('/logout', function(){
-    session()->forget('user');
-    session()->flush();
-    return redirect('/login');
+Route::get('/', function () {
+    return view('home');
 });
 
 Route::get("/workrequest", [Work_request_controller::class, "index"]);

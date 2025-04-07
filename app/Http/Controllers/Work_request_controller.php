@@ -12,7 +12,6 @@ class Work_request_controller extends Controller
 {
     //
     function index(){
-       
         return view('work_request');
     }
     function show(){
@@ -23,8 +22,8 @@ class Work_request_controller extends Controller
 
     function create(Request $req){
         print_r($req->input());
-        $mwrq = new Work_Request_Order();
-        $mtask = new Task();
+        $mwrq = new \App\Models\Work_Request_Order;
+        $mtask = new \App\Models\Task;
 
         $mwrq->work_name = $req->input('work_name');
         $mwrq->work_create_date = now()->toDateString();

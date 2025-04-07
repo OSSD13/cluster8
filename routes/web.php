@@ -27,7 +27,7 @@ Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::cl
 
 Route::get("/workrequest", [Work_request_controller::class, "index"]);
 Route::post("/workrequest", [Work_request_controller::class, "create"]);
-Route::get("workrequest", [Work_request_controller::class, "show"]);
+Route::get("/workrequest", [Work_request_controller::class, "show"]);
 
 Route::get("/report", [Report_controller::class, "index"])->name('report');
 

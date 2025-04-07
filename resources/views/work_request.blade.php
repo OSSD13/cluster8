@@ -449,7 +449,7 @@ document.getElementById('logoutModal').style.display = 'none';
         </div>
     </div>
     
-    <!-- Modal -->
+<!-- Modal -->
 <div x-show="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <!-- Modal Box -->
     <div class="bg-white p-4 rounded-xl shadow-xl max-w-3xl p-6 relative">
@@ -519,49 +519,51 @@ document.getElementById('logoutModal').style.display = 'none';
                         </button>
                     </div>
                 </template>
-    
                     <!-- งานย่อย template -->
                     <template x-for="(task, index) in tasks" :key="task.id">
-                        <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
+                    <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
+    
+                    <!-- ชื่องาน วันที่ -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <input type="text" :name="'task_name[' + index + ']'" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
+                    <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
+                        <i class="fas fa-calendar-alt text-blue-500"></i>
+                    <input type="date" :name="'task_deadline[' + index + ']'" class="flex-1 outline-none" required>
+                    </div>
+                    </div>  
+
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 gap-2"
+                    x-data="{ selected : 'P' }"
+                >
+                <!-- บุคคล -->
+                <label class="flex items-center border rounded px-3 py-2 space-x-2">
+                    <input type="radio" :name="'task_recipient_type[' + index + ']'" value="P" x-model="selected">
+                    <input type="text" :name="'task_recipient_user_id[' + index + ']'" placeholder="บุคคล" class="flex-1 outline-none"
+                        :disabled="selected !== 'P'"
+                        :required="selected === 'P'">
+                    <i class="fas fa-search text-gray-500"></i>
+                </label>
+
+                <!-- แผนก -->
+                <label class="flex items-center border rounded px-3 py-2 space-x-2">
+                    <input type="radio" :name="'task_recipient_type[' + index + ']'" value="D" x-model="selected">
+                    <input type="text" :name="'task_recipient_department_id[' + index + ']'" placeholder="แผนก" class="flex-1 outline-none"
+                        :disabled="selected !== 'D'"
+                        :required="selected === 'D'">
+                    <i class="fas fa-search text-gray-500"></i>
+                </label>
+                </div>
+
+                <!-- ปุ่มลบ -->
+                <div class="flex justify-end">
+                    <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
+                        <i class="fas fa-trash-alt"></i> ลบ
+                    </button>
+                </div>
+            </div>
+            </template>
                     
-                            <!-- ชื่องาน วันที่ -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <input type="text" name="task_name[]" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
-                                <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
-                                <i class="fas fa-calendar-alt text-blue-500"></i>
-                                <input type="date" name="task_deadline[]" class="flex-1 outline-none" required>
-                                </div>
-                            </div>  
-                            <div
-                                class="grid grid-cols-1 md:grid-cols-2 gap-2"
-                                x-data="{ selected : 'P' }"
-                            >
-                                <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                    <input type="radio" :name="'task_recipient_type[]' + index" value="P" x-model="selected">
-                                    <input type="text" name="task_recipient_user_id[]" placeholder="บุคคล" class="flex-1 outline-none" 
-                                    :disabled="selected !== 'P' , value='-'"
-                                    :required="selected === 'P'">
-                                    <i class="fas fa-search text-gray-500"></i>
-                                </label>
-                    
-                                <!-- แผนก -->
-                                <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                    <input type="radio" :name="'task_recipient_type[]' + index" value="D" x-model="selected">
-                                    <input type="text" name="task_recipient_department_id[]" placeholder="แผนก" class="flex-1 outline-none" 
-                                    :disabled="selected !== 'D' , value='-'"
-                                    :required="selected === 'D'">
-                                    <i class="fas fa-search text-gray-500"></i>
-                                </label>
-                            </div>
-                    
-                         <!-- ปุ่มลบ -->
-                            <div class="flex justify-end">
-                                <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
-                                    <i class="fas fa-trash-alt"></i> ลบ
-                                </button>
-                            </div>
-                        </div>
-                    </template>
                 </div>
 
                 <hr class="semibold my-6">

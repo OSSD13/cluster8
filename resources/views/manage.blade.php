@@ -105,32 +105,58 @@
             color: white;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        tr {
+            border-bottom: 1px solid #ccc; /* เส้นกั้นระหว่างแถว */
         }
 
-        th, td {
-            padding: 14px;
-            border: 1px solid #ddd;
-            text-align: left;
-            font-size: 14px;
+        td {
+            border: none; /* ไม่ให้มีเส้นระหว่างคอลัมน์ */
+            padding: 8px;
         }
 
         th {
+            background-color: #eeeeee; /* สีเทาอ่อน */
+            color: #333;
+            font-weight: bold;
             background-color: #f4f4f9;
         }
 
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+        td, th {
+            padding: 14px;
+            font-size: 14px;
         }
 
-        .dropdown-sort select {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            width: 160px;
+        .dropdown-sort {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .dropdown-wrapper {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px; /* ระยะห่างภายใน */
+            background-color: #fff; /* สีพื้นหลัง */
+            /* ลบเส้นขอบและมุมโค้ง */
+            border: none;
+            border-radius: 0;
+        }   
+
+        .dropdown-wrapper i.icon-sort {
+            color: #0012E1; /* สีของไอคอน */
+            margin-right: 8px; /* ระยะห่างระหว่างไอคอนกับ select */
+        }
+
+        .dropdown-wrapper select {
+            border: none; /* เอาเส้นขอบของ select ออก */
+            outline: none; /* เอาเส้นขอบเมื่อคลิกออก */
+            font-size: 14px; /* ขนาดตัวอักษร */
+            color: #7d7d7d; /* สีตัวอักษร */
+            background: transparent; /* พื้นหลังโปร่งใส */
+            cursor: pointer;
+        }
+        .icon-sort {
+            color: #0012E1
         }
         .assign-row {
             display: flex;
@@ -230,8 +256,48 @@
                 width: 100%;
             }
         }
+        .table-container {
+            border: 1px solid rgba(128, 128, 128, 0.501); /* เส้นขอบรอบตาราง */
+            border-radius: 12px; /* มุมโค้ง */
+            padding: 10px; /* ระยะห่างภายใน */
+            margin-top: 20px; /* ระยะห่างด้านบน */
+            background-color: #fff; /* สีพื้นหลัง */
+            overflow-y: auto; /* เปิดการเลื่อนในแนวตั้ง */
+            max-height: 500px; /* กำหนดความสูงสูงสุด */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse; /* รวมเส้นขอบ */
+            background-color: white;
+            /* border: 2px solid #000; เส้นขอบรอบตาราง */
+            border-radius: 12px;
+            overflow: hidden;
+        }
 
+        th {
+            background-color: white; /* สีพื้นหลัง */
+            color: black; /* สีตัวอักษร */
+            font-size: 16px; /* ขนาดตัวอักษร */
+            text-transform: uppercase; /* ตัวพิมพ์ใหญ่ทั้งหมด */
+            padding: 12px; /* ระยะห่างภายใน */
+            padding-left: 5%; /* ระยะห่างด้านซ้าย */
+            text-align: left; /* จัดให้อยู่ตรงกลาง */
+        }
 
+        /* ปรับแต่งข้อความในข้อมูล */
+        td {
+            font-size: 14px; /* ขนาดตัวอักษร */
+            color: #7d7c7c; /* สีตัวอักษร */
+            padding: 12px; /* ระยะห่างภายใน */
+            padding-left: 5%; /* ระยะห่างด้านซ้าย */
+            text-align: left; /* จัดให้อยู่ตรงกลาง */
+        }
+
+        /* เพิ่มการจัดตำแหน่งและระยะห่างสำหรับรูปภาพในคอลัมน์ชื่อ */
+        td img {
+            margin-right: 8px; /* ระยะห่างระหว่างรูปภาพกับข้อความ */
+            vertical-align: middle; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+        }
 
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -301,50 +367,145 @@
     <div class="section-top-row">
         <h2>รายชื่อพนักงาน</h2>
         <div class="dropdown-sort">
-            <select>
-                <option>จัดเรียงโดย</option>
-                <option>ชื่อ</option>
-                <option>แผนก</option>
-                <option>เพศ</option>
-            </select>
+            <div class="dropdown-wrapper">
+                <i class="fas fa-filter icon-sort"></i>
+                <select>
+                    <option>จัดเรียงโดย</option>
+                    <option>ชื่อ</option>
+                    <option>แผนก</option>
+                    <option>เพศ</option>
+                </select>
+            </div>
         </div>
     </div>
+    <hr>
 
-    <table>
-        <thead>
-        <tr>
-            <th>รหัสพนักงาน</th>
-            <th>ชื่อ</th>
-            <th>แผนก</th>
-            <th>อีเมล</th>
-            <th>เพศ</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>25000001</td>
-            <td>กิตติพงษ์ สุวรรณโชติ</td>
-            <td>HR</td>
-            <td>kittipong.s@gmail.com</td>
-            <td>ชาย</td>
-        </tr>
-        <tr>
-            <td>25000002</td>
-            <td>วรพล มณี</td>
-            <td>IT</td>
-            <td>woraphon.s@gmail.com</td>
-            <td>ชาย</td>
-        </tr>
-        <tr>
-            <td>25000003</td>
-            <td>สุทธชา ศักดิ์ไกร</td>
-            <td>ACC</td>
-            <td>sutchada.p@gmail.com</td>
-            <td>ชาย</td>
-        </tr>
-        <!-- เพิ่มแถวอื่น ๆ ได้ตามต้องการ -->
-        </tbody>
-    </table>
+    <div class="overflow-x-auto mt-4 table-container">
+        <table class="min-w-full text-sm text-left bg-white rounded-lg overflow-hidden table-wrapper">
+            <thead>
+                <tr>
+                    <th class="text-left px-4 py-2">รหัสพนักงาน</th>
+                    <th class="text-left px-4 py-2">ชื่อ</th>
+                    <th class="text-left px-4 py-2">แผนก</th>
+                </tr>
+            </thead>
+              <tbody>
+            <tr>
+              <td class="px-6 py-3">25020003</td>
+              <td class="px-6 py-3 flex items-center gap-2">
+                <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                สุชาดา พักกิจไทย
+              </td>
+              <td class="px-6 py-3">ACC</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3">25030004</td>
+              <td class="px-6 py-3 flex items-center gap-2">
+                <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                ปรเมศว์ วิริยะกุล
+              </td>
+              <td class="px-6 py-3">MKT</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3">25050005</td>
+              <td class="px-6 py-3 flex items-center gap-2">
+                <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                พิชญณ์ ธรรมธงศัย
+              </td>
+              <td class="px-6 py-3">CS</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3">25990006</td>
+              <td class="px-6 py-3 flex items-center gap-2">
+                <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                ชัยวัฒน์ โคตรสมบูรณ์
+              </td>
+              <td class="px-6 py-3">-</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3">25030007</td>
+              <td class="px-6 py-3 flex items-center gap-2">
+                <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                ภูริชิต วัฒนานนท์
+              </td>
+              <td class="px-6 py-3">MKT</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3">25010008</td>
+              <td class="px-6 py-3 flex items-center gap-2">
+                <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                ธันยวรรณ โพธิ์แก้ว
+              </td>
+              <td class="px-6 py-3">IT</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3">25010009</td>
+              <td class="px-6 py-3 flex items-center gap-2">
+                <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;"  />
+                วศิน ทองพูล
+              </td>
+              <td class="px-6 py-3">IT</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3">25010010</td>
+              <td class="px-6 py-3 flex items-center gap-2">
+                <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;"  />
+                พิศา ธรรมสนุกร
+              </td>
+              <td class="px-6 py-3">IT</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-3">25010011</td>
+              <td class="px-6 py-3 flex items-center gap-2">
+                <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                น้ำตาล อู๋
+              </td>
+              <td class="px-6 py-3">IT</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-3">25010011</td>
+                <td class="px-6 py-3 flex items-center gap-2">
+                  <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                  น้ำตาล อู๋
+                </td>
+                <td class="px-6 py-3">IT</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-3">25010011</td>
+                <td class="px-6 py-3 flex items-center gap-2">
+                  <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                  น้ำตาล อู๋
+                </td>
+                <td class="px-6 py-3">IT</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-3">25010011</td>
+                <td class="px-6 py-3 flex items-center gap-2">
+                  <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                  น้ำตาล อู๋
+                </td>
+                <td class="px-6 py-3">IT</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-3">25010011</td>
+                <td class="px-6 py-3 flex items-center gap-2">
+                  <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                  น้ำตาล อู๋
+                </td>
+                <td class="px-6 py-3">IT</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-3">25010011</td>
+                <td class="px-6 py-3 flex items-center gap-2">
+                  <img src="https://www.svgrepo.com/show/452030/avatar-default.svg" class="w-6 h-6 rounded-full" style="width: 24px; height: 24px;" />
+                  น้ำตาล อู๋
+                </td>
+                <td class="px-6 py-3">IT</td>
+              </tr>
+          </tbody>
+        </table>
+      </div>
+
 </div>
 
 <script>

@@ -7,9 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Work_Request_Order extends Model
 {
     //
-    
-
     protected $table = 'work_request_order';
+    public $timestamps = false;
 
     protected $fillable = [
         'work_request_id',
@@ -19,7 +18,7 @@ class Work_Request_Order extends Model
         'work_create_by_user_id',
         'work_author_type',
         'work_status',
-        'work_create_by_department_id',
+        'work_created_by_department_id',
         'work_confirm_date'
     ];
 }

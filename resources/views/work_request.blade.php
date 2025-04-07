@@ -333,7 +333,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
     <!-- Modal -->
 <div x-show="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <!-- Modal Box -->
-    <div class="bg-white p-4 rounded-xl shadow-xl w-full max-w-3xl p-6 relative">
+    <div class="bg-white p-4 rounded-xl shadow-xl max-w-3xl p-6 relative">
         <!-- Header -->
         <div class="flex justify-between items-center border-b pb-2 mb-4">
                 <h2 class="text-xl font-bold text-blue-700 mb-4">
@@ -378,7 +378,6 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                   </div>
                 </div>
 
-                <hr class="mb-4">
     
                 <!-- งานย่อย -->
                 <div 
@@ -395,7 +394,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 >
     
                     <!-- ปุ่มเพิ่ม -->
-                    <div class="flex justify-end items-center mt-3 max-h-80 overflow-y-auto">
+                    <div class="flex justify-end items-center mt-1 max-h-80 overflow-y-auto">
                         <button type="button" @click="addTask" class="button-button5 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700 transition">
                             <i class="fas fa-plus"></i> เพิ่มรายการ
                         </button>
@@ -419,7 +418,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                                 x-data="{ selected : 'P' }"
                             >
                                 <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                    <input type="radio" :name="'task_recipient_type_' + index" value="P" x-model="selected">
+                                    <input type="radio" :name="'task_recipient_type[]' + index" value="P" x-model="selected">
                                     <input type="text" name="task_recipient_user_id[]" placeholder="บุคคล" class="flex-1 outline-none" 
                                     :disabled="selected !== 'P' , value='-'"
                                     :required="selected === 'P'">
@@ -428,7 +427,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     
                                 <!-- แผนก -->
                                 <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                    <input type="radio" :name="'task_recipient_type_' + index" value="D" x-model="selected">
+                                    <input type="radio" :name="'task_recipient_type[]' + index" value="D" x-model="selected">
                                     <input type="text" name="task_recipient_department_id[]" placeholder="แผนก" class="flex-1 outline-none" 
                                     :disabled="selected !== 'D' , value='-'"
                                     :required="selected === 'D'">

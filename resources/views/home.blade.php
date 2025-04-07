@@ -222,7 +222,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
     }).then(response => {
         if (response.ok) {
             // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-            window.location.href = '/login';  // หรือ URL ที่ต้องการ
+            window.location.href = 'login';  // หรือ URL ที่ต้องการ
         } else {
             alert('เกิดข้อผิดพลาดในการออกจากระบบ');
         }

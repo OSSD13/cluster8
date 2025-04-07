@@ -9,7 +9,6 @@ class Task extends Model
     //
     protected $table = 'task';
     public $timestamps = false;
-    protected $primaryKey = 'work_request_id';
 
     protected $fillable = [
         'task_id',

@@ -20,42 +20,36 @@
     <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
         <!-- โลโก้ -->
         <div class="py-2 border-b">
-            <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-10 mx-auto">
+            <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-20 mx-auto">
         </div>
-
-        <!-- Sidebar Menu -->
-        <div class="py-4">
-            <a href="home"
-                class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
-                <i class="fas fa-home mr-3"></i>
-                <span>หน้าหลัก</span>
+        
+        <!-- เมนู -->
+        <div class="flex-1 px-3 py-6 space-y-2">
+            <a href="home" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+                <i class="fas fa-home mr-3"></i><span>หน้าหลัก</span>
             </a>
-
-
-            <a href="workrequest"
-                class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
-                <i class="fas fa-clipboard-list mr-3"></i>
-                <span>สร้างใบสั่งงาน</span>
+            <a href="workrequest" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+                <i class="fas fa-clipboard-list mr-3"></i><span>สร้างใบสั่งงาน</span>
             </a>
-
-            <a href="report" class="flex items-center px-4 py-3 bg-[#3b82f6] text-[#ffffff] rounded-lg mx-2 mb-2">
-                <i class="fas fa-chart-line mr-3"></i>
-                <span>รายงานการดำเนินงาน</span>
+            <a href="report" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
+                <i class="fas fa-file-alt mr-3"></i><span>รายงานการดำเนินงาน</span>
+            </a>
+            <a href="dashboard" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+                <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
             </a>
         </div>
-
-        <!-- User Profile -->
-        <div class="absolute bottom-0 w-60 p-2">
-            <div class="flex items-center bg-[#1e3a8a] text-[#ffffff] p-2 rounded-lg">
-                <div class="relative">
-                    <img src="https://via.placeholder.com/40" alt="Profile" class="rounded-full w-10 h-10">
-                </div>
-                <div class="ml-2">
-                    <div class="font-semibold">จิรายุท คนโก้</div>
-                    <div class="text-xs">anita@commerce.com</div>
-                </div>
-                <div class="ml-auto">
-                    <i class="fas fa-ellipsis-v"></i>
+        
+        <!-- โปรไฟล์ผู้ใช้ -->
+        <div class="p-4">
+            <div class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-lg"></i>
+                    </div>
+                    <div class="leading-tight">
+                        <div class="text-sm font-semibold">จิรายุ คนโก้</div>
+                        <div class="text-xs">anita@commerce.com</div>
+                    </div>
                 </div>
                 <i class="fas fa-arrow-right text-white text-sm"></i>
             </div>

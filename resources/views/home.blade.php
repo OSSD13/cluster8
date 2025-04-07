@@ -214,7 +214,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 // เมื่อคลิกปุ่มยืนยัน
 document.getElementById('confirmLogout').addEventListener('click', function() {
     // ส่งคำขอไปยัง route logout
-    fetch('/logout', {
+    fetch('logout', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

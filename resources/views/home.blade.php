@@ -1,3 +1,56 @@
+<?php
+// เชื่อมต่อฐานข้อมูล MySQL
+$pdo = new PDO("mysql:host=10.80.6.165;dbname=cluster8;charset=utf8", "cluster8", "k4PL1Wqq");
+
+// กำหนดการตั้งค่าการแบ่งหน้า
+$items_per_page = 50; // จำนวนรายการที่จะแสดงในแต่ละหน้า (50 รายการต่อหน้า)
+$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // ตรวจสอบหน้าปัจจุบัน
+$offset = ($current_page - 1) * $items_per_page; // คำนวณ offset
+session_start(); // เริ่มต้น session
+// ลบค่า user_id ออกจาก session
+unset($_SESSION['user_id']);
+
+
+// ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
+$userID = session('users')->user_id;
+$sql = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, wro.work_name
+        FROM task
+        LEFT JOIN work_request_order AS wro ON task_work_request_id = wro.work_request_id
+        LEFT JOIN users AS userID ON task_recipient_user_id  = userID.user_id
+        WHERE task_work_request_id = wro.work_request_id
+        LIMIT :offset, :limit";
+
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt->execute();
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
+        FROM task
+        LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
+        LEFT JOIN users ON wro1.work_create_by_user_id = user_id
+        LEFT JOIN departments ON user_dept_id = department_id
+        WHERE task_recipient_user_id = $userID AND wro1.work_confirm_date >= NOW() - INTERVAL 5 DAY AND (task_status = 'C' OR task_status = 'D')
+        LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
+
+$stmt2 = $pdo->prepare($sql2);
+$stmt2->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt2->execute();
+$data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+// คำนวณจำนวนหน้าทั้งหมด
+$sql_count = "SELECT COUNT(*) FROM work_request_order 
+JOIN task ON work_request_id = task_work_request_id
+WHERE work_confirm_date >= NOW() - INTERVAL 5 DAY AND task_recipient_user_id = $userID AND (task_status = 'C' OR task_status = 'D') AND work_confirm_date IS NOT NULL";
+$count_stmt = $pdo->query($sql_count);
+$total_item = $count_stmt->fetchColumn();
+$total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
+?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -292,9 +345,35 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                     <h2 class="text-lg font-bold">แผนก</h2>
                     <p class="text-sm text-gray-500">กราฟแสดงการทำงานตามแผนก</p>
                 </div>
-            <div class="graph-container">
-                <div class="chart">
-                <!-- โค้ดกราฟของคุณที่ใช้แสดงกราฟที่นี่ -->
+                
+                <div class="space-y-4">
+                        <!-- รายการงาน 1 -->
+                        <?php foreach ($data as $row): ?>
+                            <?php if ($row['task_recipient_type'] === 'D'): ?>
+                                <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                                    <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                        <i class="fas fa-box text-white text-2xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['work_name']) ?> </div>
+                                        <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
+                                    </div>
+                                    <div>
+                                        <i class="fas fa-chevron-right text-gray-400"></i>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+            </div>
+            
+                                <!-- การ์ดแสดงกราฟการทำงานตามแผนก -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="border-b pb-2 mb-4">
+                        <h2 class="text-lg font-bold">แผนก</h2>
+                        <p class="text-sm text-gray-500">กราฟแสดงการทำงานตามแผนก</p>
+                    </div>
+                    
                     <script>
                         // ตัวอย่างข้อมูลที่จะดึงมา - สามารถเปลี่ยนเป็นการดึงข้อมูลจริงได้
                         const data = {
@@ -388,13 +467,15 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                         
                         <div class="space-y-4 scrollbar-hide scrollable-content">
                             <!-- รายการงาน 1 -->
+                            <?php foreach ($data as $row): ?>
+                            <?php if ($row['task_recipient_type'] === 'P'): ?>
                             <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
                             <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
                                     <i class="fas fa-box text-[#2563eb] text-2xl "></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['work_name']) ?> </div>
+                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
                                 </div>
                                 <div>
                                     <i class="fas fa-chevron-right text-gray-400"></i>
@@ -457,7 +538,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                             </div>
                         </div>
                     </div>
-                    
+                </div>
                     <!-- การ์ดแสดงกราฟการทำงานส่วนตัว -->
         <div class="bg-[#ffffff] rounded-lg shadow p-6">
             <div class="border-b pb-2 mb-4">
@@ -648,69 +729,75 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
             </div>
         </div>
     </div>
-</div> 
-            <!-- ส่วนประวัติการทำงาน -->
-            <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
-                <div class="flex justify-between items-center border-b pb-3 mb-4">
-                    <div>
-                        <h2 class="text-lg font-bold">ประวัติ</h2>
-                        <p class="text-sm text-gray-500">งานที่ดำเนินการเสร็จสิ้นและปฏิเสธ</p>
+</div>
+
+            
+!-- ส่วนประวัติการทำงาน -->
+<div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
+    <div class="flex justify-between items-center border-b pb-3 mb-4">
+        <div>
+            <h2 class="text-lg font-bold">ประวัติ</h2>
+            <p class="text-sm text-gray-500">งานที่ดำเนินการเสร็จสิ้นและปฏิเสธ</p>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-400">
+            <?php if ($total_item==0): ?>
+                <span>0-0 จาก 0</span>
+            <?php elseif ($total_item<=50): ?>
+                <span>{{$current_page}}-{{$total_item}} จาก {{$total_item}}</span>
+            <?php elseif ($total_item<$current_page*50): ?>
+                <span>{{(($current_page-1)*50)+1}}-{{$total_item}} จาก {{$total_item}}</span>
+            <?php else : ?>
+                <span>{{(($current_page-1)*50)+1}}-{{$current_page*50}} จาก {{$total_item}}</span>
+            <?php endif; ?>
+            <button onclick="location.href='?page=<?= max(1, $current_page - 1) ?>'" class="text-[#6366f1] hover:text-[#4338ca]">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button onclick="location.href='?page=<?= min($total_pages, $current_page + 1) ?>'" class="text-[#6366f1] hover:text-[#4338ca]">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- กริดแสดงการ์ดประวัติ -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <!-- การ์ดประวัติ -->
+        <?php foreach ($data2 as $row): ?>
+            <?php if ($row['task_status'] === 'C'): ?>
+                <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="font-semibold text-sm text-gray-800"><?= htmlspecialchars($row['task_name']) ?></div>
+                        <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
                     </div>
-                    <div class="flex items-center gap-2 text-sm text-gray-400">
-                        <span>1-50 จาก 250</span>
-                        <button class="text-[#6366f1] hover:text-[#4338ca]">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="text-[#6366f1] hover:text-[#4338ca]">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+                    <?php if ($row['work_author_type'] === 'P'): ?>
+                        <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></div>
+                    <?php elseif ($row['work_author_type'] === 'D'): ?>
+                        <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['department_name']) ?></div>
+                    <?php endif; ?>
+                    <div class="flex items-center text-xs text-gray-600">
+                        <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
+                            <?= htmlspecialchars($row['task_submit_date']) ?>
                     </div>
                 </div>
-                
-                <!-- กริดแสดงการ์ดประวัติ -->
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                    <!-- การ์ดประวัติ: เสร็จสิ้น -->
-                    <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
-                            <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
-                        </div>
-                        <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
-                        <div class="flex items-center text-xs text-gray-600">
-                            <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                            วันที่เสร็จสิ้น
-                        </div>
+            <?php elseif ($row['task_status'] === 'D'): ?>
+                <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="font-semibold text-sm text-gray-800"><?= htmlspecialchars($row['task_name']) ?></div>
+                        <span class="text-xs bg-red-200 text-red-600 px-2 py-0.5 rounded-full">ปฏิเสธ</span>
                     </div>
-                    
-                    <!-- การ์ดประวัติ: ปฏิเสธ -->
-                    <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
-                            <span class="text-xs bg-red-200 text-red-600 px-2 py-0.5 rounded-full">ปฏิเสธ</span>
-                        </div>
-                        <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
-                        <div class="flex items-center text-xs text-gray-600">
-                            <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                            วันที่ปฏิเสธ
-                        </div>
+                    <?php if ($row['work_author_type'] === 'P'): ?>
+                        <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></div>
+                    <?php elseif ($row['work_author_type'] === 'D'): ?>
+                        <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['department_name']) ?></div>
+                    <?php endif; ?>
+                    <div class="flex items-center text-xs text-gray-600">
+                        <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
+                            <?= htmlspecialchars($row['task_submit_date']) ?>
                     </div>
-                    
-                    <!-- ใช้ลูป Blade เพื่อแสดงการ์ดเพิ่มเติม -->
-                    @for ($i = 0; $i < 12; $i++)
-                    <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
-                            <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
-                        </div>
-                        <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
-                        <div class="flex items-center text-xs text-gray-600">
-                            <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                            วันที่เสร็จสิ้น
-                        </div>
-                    </div>
-                    @endfor
                 </div>
-            </div>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </div>
+</div>
 <!-- เกี่ยวกับระบบ -->
 <footer class=" border-t mt-10 px-10 py-12 col-span-2 rounded-lg shadow-sm">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-sm text-gray-700">

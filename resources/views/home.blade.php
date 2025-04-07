@@ -69,25 +69,10 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         /* ตั้งค่า Font หลัก */
         body {
             font-family: 'Noto Sans Thai', sans-serif;
-             
         }
-    .graph-container {
-        display: flex;
-        justify-content: center; /* จัดกราฟให้อยู่ตรงกลางแนวนอน */
-        align-items: center;     /* จัดกราฟให้อยู่ตรงกลางแนวตั้ง */
-        width: 100%;             /* ทำให้กราฟมีความกว้างเต็ม */
-        height: 100%;            /* ทำให้กราฟมีความสูงเต็ม */
-    }
-
-    .chart {
-        width: 70%;             /* กำหนดขนาดกราฟที่ต้องการ */
-        max-width: 600px;       /* กำหนดขนาดสูงสุด */
-        height: auto;
-    }
-
+        
         /* สไตล์สำหรับ Popup */
         .popup {
-            position: fixed;
             display: none;
             position: fixed;
             top: 0;
@@ -95,7 +80,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
-            z-index: 9999;
+            z-index: 1000;
             justify-content: center;
             align-items: center;
         }
@@ -117,19 +102,6 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         body.popup-open {
             overflow: hidden;
         }
-        
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .scrollable-content {
-        max-height: 400px; /* กำหนดความสูงสูงสุด */
-        overflow-y: auto;  /* เปิดการเลื่อนในแนวตั้ง */
-        
-    }
     </style>
 </head>
 <body class="bg-[#f3f4f6] flex min-h-screen">
@@ -137,7 +109,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
     <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
         <!-- โลโก้ -->
         <div class="py-2 border-b">
-            <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-30 mx-auto">
+            <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-20 mx-auto">
         </div>
         
         <!-- เมนู -->
@@ -157,90 +129,20 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         </div>
         
         <!-- โปรไฟล์ผู้ใช้ -->
-            <div class="p-4">
-                <div id="profileButton" class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800" style="cursor: pointer;">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-user text-lg"></i>
-                        </div>
-                        <div>
-                            <div class="leading-tight text-xs">
-                                {{ session('users')->user_fname }} {{ session('users')->user_lname }}
-                            </div>
-                            <div class="leading-tight text-xs">
-                                {{ session('users')->user_id }}
-                            </div>
-                        </div>
+        <div class="p-4">
+            <div class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-lg"></i>
                     </div>
-                    <i class="fas fa-arrow-right text-white text-sm"></i>
-                </div>
-            </div>
-            <!-- ป๊อปอัพยืนยันการออกจากระบบ -->
-            <div id="logoutModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-                <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
-                    <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
-                        <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการออกจากระบบ</div>
-                        <button class="modal-close text-gray-500 text-xl" id="closeModal">&times;</button>
-                    </div>
-                    <div class="modal-body text-center mb-6">
-                        <p class="text-lg text-gray-600 mb-4">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
-                        <div class="modal-buttons flex justify-center gap-4">
-                            <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmLogout">ยืนยัน</button>
-                            <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelLogout">ยกเลิก</button>
-                        </div>
+                    <div class="leading-tight">
+                        <div class="text-sm font-semibold">จิรายุ คนโก้</div>
+                        <div class="text-xs">anita@commerce.com</div>
                     </div>
                 </div>
+                <i class="fas fa-arrow-right text-white text-sm"></i>
             </div>
-
-            <script>
-                // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
-                document.getElementById('profileButton').addEventListener('click', function() {
-                    // เปิดป๊อปอัพยืนยันการออกจากระบบ
-                    document.getElementById('logoutModal').style.display = 'flex';
-                });
-
-                // เมื่อคลิกปุ่มปิดป๊อปอัพ
-                document.getElementById('closeModal').addEventListener('click', function() {
-                    // ปิดป๊อปอัพ
-                    document.getElementById('logoutModal').style.display = 'none';
-                });
-
-                // เมื่อคลิกปุ่มยกเลิก
-                document.getElementById('cancelLogout').addEventListener('click', function() {
-                    // ปิดป๊อปอัพ
-                    document.getElementById('logoutModal').style.display = 'none';
-                });
-
-                // เมื่อคลิกปุ่มยืนยัน
-document.getElementById('confirmLogout').addEventListener('click', function() {
-    // ส่งคำขอไปยัง route logout
-    fetch('/logout', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    }).then(response => {
-        if (response.ok) {
-            // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-            window.location.href = '/login';  // หรือ URL ที่ต้องการ
-        } else {
-            alert('เกิดข้อผิดพลาดในการออกจากระบบ');
-        }
-    });
-
-    // ปิดป๊อปอัพ
-    document.getElementById('logoutModal').style.display = 'none';
-});
-
-
-                // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
-                window.addEventListener('click', function(event) {
-                    if (event.target === document.getElementById('logoutModal')) {
-                        document.getElementById('logoutModal').style.display = 'none';
-                    }
-                });
-        </script>
-
+        </div>
     </div>
     <!-- จบส่วน Sidebar -->
     
@@ -262,88 +164,10 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
         <!-- กริดแสดงข้อมูล -->
         <div class="grid grid-cols-2 gap-6">
             <!-- การ์ดแสดงใบสั่งงานตามแผนก -->
-        <div class="bg-[#ffffff] rounded-lg shadow p-6">
-            <div class="border-b pb-2 mb-4">
-                <h2 class="text-lg font-bold">แผนก</h2>
-                <p class="text-sm text-[#6b7280]">ใบสั่งงานตามแผนก</p>
-            </div>
-    <div class="space-y-4 scrollbar-hide scrollable-content">
-        <!-- รายการงาน 1 -->
-        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                <i class="fas fa-box text-white text-2xl"></i>
-            </div>
-            <div class="flex-1">
-                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-            </div>
-            <div>
-                <i class="fas fa-chevron-right text-gray-400"></i>
-            </div>
-        </div>
-        <!-- รายการงาน 1 -->
-        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                <i class="fas fa-box text-white text-2xl"></i>
-            </div>
-            <div class="flex-1">
-                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-            </div>
-            <div>
-                <i class="fas fa-chevron-right text-gray-400"></i>
-            </div>
-        </div>
-        
-        <!-- รายการงาน 2 -->
-        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                <i class="fas fa-box text-white text-2xl"></i>
-            </div>
-            <div class="flex-1">
-                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-            </div>
-            <div>
-                <i class="fas fa-chevron-right text-gray-400"></i>
-            </div>
-        </div>
-        
-        <!-- รายการงาน 3 -->
-        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                <i class="fas fa-box text-white text-2xl"></i>
-            </div>
-            <div class="flex-1">
-                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-            </div>
-            <div>
-                <i class="fas fa-chevron-right text-gray-400"></i>
-            </div>
-        </div>
-        
-        <!-- รายการงาน 4 -->
-        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                <i class="fas fa-box text-white text-2xl"></i>
-            </div>
-            <div class="flex-1">
-                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-            </div>
-            <div>
-                <i class="fas fa-chevron-right text-gray-400"></i>
-            </div>
-        </div>
-    </div>
-</div>
-            
-        <!-- การ์ดแสดงกราฟการทำงานตามแผนก -->
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="bg-[#ffffff] rounded-lg shadow p-6">
                 <div class="border-b pb-2 mb-4">
                     <h2 class="text-lg font-bold">แผนก</h2>
-                    <p class="text-sm text-gray-500">กราฟแสดงการทำงานตามแผนก</p>
+                    <p class="text-sm text-[#6b7280]">ใบสั่งงานตามแผนก</p>
                 </div>
                 
                 <div class="space-y-4">
@@ -456,8 +280,6 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                         </div>
                     </div>
                     </div>
-                    </div>
-                    </div>
                     <!-- การ์ดแสดงใบสั่งงานส่วนตัว -->
                     <div class="bg-[#ffffff] rounded-lg shadow p-6">
                         <div class="border-b pb-2 mb-4">
@@ -465,7 +287,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                             <p class="text-sm text-[#6b7280]">ใบสั่งงานส่วนตัว</p>
                         </div>
                         
-                        <div class="space-y-4 scrollbar-hide scrollable-content">
+                        <div class="space-y-4">
                             <!-- รายการงาน 1 -->
                             <?php foreach ($data as $row): ?>
                             <?php if ($row['task_recipient_type'] === 'P'): ?>
@@ -481,62 +303,8 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                                     <i class="fas fa-chevron-right text-gray-400"></i>
                                 </div>
                             </div>
-                            
-                            <!-- รายการงาน 2 -->
-                            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                            <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                    <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                                </div>
-                                <div>
-                                    <i class="fas fa-chevron-right text-gray-400"></i>
-                                </div>
-                            </div>
-                        
-                            <!-- รายการงาน 3 -->
-                            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                                <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                    <i class="fas fa-box text-[#2563eb] text-2xl "></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                                </div>
-                                <div>
-                                    <i class="fas fa-chevron-right text-gray-400"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- รายการงาน 4 -->
-                            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                            <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                    <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                                </div>
-                                <div>
-                                    <i class="fas fa-chevron-right text-gray-400"></i>
-                                </div>
-                            </div>
-                             <!-- รายการงาน 5 -->
-                             <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                            <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                    <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                                </div>
-                                <div>
-                                    <i class="fas fa-chevron-right text-gray-400"></i>
-                                </div>
-                            </div>
-                        </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
                 </div>
                     <!-- การ์ดแสดงกราฟการทำงานส่วนตัว -->
@@ -545,11 +313,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                 <h2 class="text-lg font-bold">ส่วนตัว</h2>
                 <p class="text-sm text-[#6b7280]">กราฟแสดงการทำงานของส่วนตัว</p>
             </div>
-            <div class="graph-container">
-    <div class="chart">
-        <!-- โค้ดกราฟของคุณที่ใช้แสดงกราฟที่นี่ -->
-    
-
+            
             <script>
                 // ข้อมูลสำหรับกราฟส่วนตัว - แตกต่างจากกราฟแผนก
                 const personalData = {
@@ -634,8 +398,6 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                 </div>
             </div>
         </div>
-        </div>
-</div>
             
             <!-- การ์ดแสดงงานที่กำลังดำเนินการ (เต็มความกว้าง) -->
 <div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
@@ -644,7 +406,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
         <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
     </div>
     
-    <div class="space-y-2 scrollbar-hide scrollable-content ">
+    <div class="space-y-2">
         <!-- รายการงานที่กำลังดำเนินการ 1 -->
         <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
             <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
@@ -697,22 +459,6 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
         </div>
 
         <!-- รายการงานที่กำลังดำเนินการ 4 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
-        <!-- รายการงานที่กำลังดำเนินการ 5 -->
         <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
             <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
                 <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
@@ -804,7 +550,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
     <div>
       <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
         <span>เกี่ยวกับเรา</span>
-        <img src="{{ asset('public/wrslogo.png') }}" alt="WRS" class="inline-block h-10 ml-2">
+        <img src="{{ asset('public/wrslogo.png') }}" alt="WRS" class="inline-block h-5 ml-2">
       </h3>
       <p class="leading-relaxed mb-2">
         จัดการงานง่ายขึ้น เพิ่มประสิทธิภาพองค์กร ด้วย <strong>WRS</strong>
@@ -860,10 +606,10 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
         <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
     </div>
     <div>
-        <span class="font-semibold">ผู้ส่ง :</span>  {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+        <span class="font-semibold">ผู้ส่ง :</span> วิรายุ คนโก้
     </div>
     <div>
-        <span class="font-semibold">แผนก :</span> 
+        <span class="font-semibold">แผนก :</span> HR
     </div>
     </div>
 
@@ -895,6 +641,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
 
 
     <script>
+        
         // JavaScript for popup functionality
         document.addEventListener('DOMContentLoaded', function() {
             const workItems = document.querySelectorAll('.work-item');
@@ -940,7 +687,5 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
             });
         });
     </script>
-    
-
 </body>
 </html>

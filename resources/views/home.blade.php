@@ -13,23 +13,40 @@ unset($_SESSION['user_id']);
 
 // ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
 $userID = session('users')->user_id;
-$sql = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
-               task_notation, task_recipient_type, task_submit_date, task_work_request_id, wro.work_name
+$user_dept_ID = session('users')->user_dept_id;
+$sql = "SELECT 
+            task.task_id, 
+            task.task_deadline, 
+            task.task_status, 
+            task.task_recipient_user_id, 
+            task.task_name, 
+            task.task_recipient_department_id, 
+            task.task_notation, 
+            task.task_recipient_type, 
+            task.task_submit_date, 
+            task.task_work_request_id, 
+            wro.work_name, 
+            wro.work_request_id
         FROM task
-        LEFT JOIN work_request_order AS wro ON task_work_request_id = wro.work_request_id
-        LEFT JOIN users AS userID ON task_recipient_user_id  = userID.user_id
-        LEFT JOIN departments AS userDPT ON task_recipient_department_id = userDPT.department_id
-        WHERE task_recipient_user_id = userID.user_id
-        AND task_recipient_department_id = userDPT.department_id
-        AND task_work_request_id = wro.work_request_id
+        LEFT JOIN work_request_order AS wro 
+            ON task.task_work_request_id = wro.work_request_id
+        LEFT JOIN users AS userID 
+            ON task.task_recipient_user_id = userID.user_id
+        LEFT JOIN departments 
+            ON task.task_recipient_department_id = departments.department_id
+        WHERE 
+            (task.task_recipient_department_id = :user_dept_ID 
+            OR task.task_recipient_user_id = :userID)
+        AND task.task_work_request_id = wro.work_request_id
         LIMIT :offset, :limit";
 
 $stmt = $pdo->prepare($sql);
+$stmt->bindParam(':user_dept_ID', $user_dept_ID, PDO::PARAM_INT);
+$stmt->bindParam(':userID', $userID, PDO::PARAM_INT);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 $sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
                task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
         FROM task
@@ -217,7 +234,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 // เมื่อคลิกปุ่มยืนยัน
 document.getElementById('confirmLogout').addEventListener('click', function() {
     // ส่งคำขอไปยัง route logout
-    fetch('logout', {
+    fetch('/logout', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -225,7 +242,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
     }).then(response => {
         if (response.ok) {
             // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-            window.location.href = 'login';  // หรือ URL ที่ต้องการ
+            window.location.href = '/login';  // หรือ URL ที่ต้องการ
         } else {
             alert('เกิดข้อผิดพลาดในการออกจากระบบ');
         }
@@ -265,7 +282,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
         <!-- กริดแสดงข้อมูล -->
         <div class="grid grid-cols-2 gap-6">
             <!-- การ์ดแสดงใบสั่งงานตามแผนก -->
-            <div class="bg-[#ffffff] rounded-lg shadow p-6">
+            <div class="bg-[#ffffff] rounded-lg shadow p-6 h-[420px]">
                 <div class="border-b pb-2 mb-4">
                     <h2 class="text-lg font-bold">แผนก</h2>
                     <p class="text-sm text-[#6b7280]">ใบสั่งงานตามแผนก</p>
@@ -274,19 +291,21 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                 <div class="space-y-4">
                         <!-- รายการงาน 1 -->
                         <?php foreach ($data as $row): ?>
-                            <?php if ($row['task_recipient_type'] === 'D'): ?>
-                                <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                                    <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                        <i class="fas fa-box text-white text-2xl"></i>
+                            <?php if ($row['task_status'] === 'R'): ?>
+                                <?php if ($row['task_recipient_type'] === 'D'): ?>
+                                    <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                                        <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                            <i class="fas fa-box text-white text-2xl"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['task_name']) ?> </div>
+                                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-chevron-right text-gray-400"></i>
+                                        </div>
                                     </div>
-                                    <div class="flex-1">
-                                        <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['work_name']) ?> </div>
-                                        <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
-                                    </div>
-                                    <div>
-                                        <i class="fas fa-chevron-right text-gray-400"></i>
-                                    </div>
-                                </div>
+                                <?php endif; ?>
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
@@ -382,7 +401,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                     </div>
                     </div>
                     <!-- การ์ดแสดงใบสั่งงานส่วนตัว -->
-                    <div class="bg-[#ffffff] rounded-lg shadow p-6">
+                    <div class="bg-[#ffffff] rounded-lg shadow p-6 h-[420px]">
                         <div class="border-b pb-2 mb-4">
                             <h2 class="text-lg font-bold">ส่วนตัว</h2>
                             <p class="text-sm text-[#6b7280]">ใบสั่งงานส่วนตัว</p>
@@ -391,19 +410,21 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                         <div class="space-y-4">
                             <!-- รายการงาน 1 -->
                             <?php foreach ($data as $row): ?>
-                            <?php if ($row['task_recipient_type'] === 'P'): ?>
-                            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                            <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                    <i class="fas fa-box text-[#2563eb] text-2xl "></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['work_name']) ?> </div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
-                                </div>
-                                <div>
-                                    <i class="fas fa-chevron-right text-gray-400"></i>
-                                </div>
-                            </div>
+                            <?php if ($row['task_status'] === 'R'): ?>
+                                <?php if ($row['task_recipient_type'] === 'P'): ?>
+                                    <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                            <i class="fas fa-box text-[#2563eb] text-2xl "></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['task_name']) ?>  </div>
+                                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-chevron-right text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
@@ -506,7 +527,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
     </div>
 </div>
             <!-- การ์ดแสดงงานที่กำลังดำเนินการ (เต็มความกว้าง) -->
-<div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
+<div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2 h-[420px]">
     <div class="border-b pb-2 mb-4">
         <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
         <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
@@ -514,72 +535,25 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
     
     <div class="space-y-2">
         <!-- รายการงานที่กำลังดำเนินการ 1 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
-
-       <!-- รายการงานที่กำลังดำเนินการ 2 -->
-       <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- รายการงานที่กำลังดำเนินการ 3 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- รายการงานที่กำลังดำเนินการ 4 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
+        <?php foreach ($data as $row): ?>
+            <?php if ($row['task_status'] === 'P'): ?>
+                    <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
+                        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['task_name']) ?></div>
+                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
+                            </div>
+                            <div class="flex items-center">
+                                <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
+                                <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                            </div>
+                        </div>
+                    </div>
+            <?php endif; ?>
+        <?php endforeach; ?>
     </div>
 </div>
 
@@ -737,8 +711,18 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
 
         <!-- ปุ่ม -->
     <div class="flex justify-center mt-6 gap-3">
-    <button onclick="closePopup()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">ปฏิเสธ</button>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">รับงาน</button>
+        <form method="POST" action="{{ url('/home') }}">
+            @csrf
+            <input type="hidden" name="decline_work_id" value="<?= $row['work_request_id'] ?>">
+            <button onclick="closePopup()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">ปฏิเสธ</button>
+        </form> 
+        
+        <form method="POST" action="{{ url('/home') }}">
+            @csrf
+            <input type="hidden" name="accept_work_id" value="<?= $row['work_request_id'] ?>">
+            <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">รับงาน</button>
+        </form>
+        
     </div>
 
   </div>

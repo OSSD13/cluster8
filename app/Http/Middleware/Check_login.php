@@ -18,8 +18,8 @@ class Check_login
         $user = session('users');
         if ($user == null || $user->user_id == null){
             return redirect('/login');
-
-        }elseif ($user['user_ro_id'] != 0) {
+        }
+        elseif ($user['user_ro_id'] != 0) {
             if ($request->path() !== 'home') {
                 return redirect('/home');
             }
@@ -28,6 +28,7 @@ class Check_login
                 return redirect('/manage');
             }
         }
+
         return $next($request);
     }
 }

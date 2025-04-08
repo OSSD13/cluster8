@@ -465,8 +465,6 @@
         <div class="graph-container">
         <div class="chart">
         <!-- โค้ดกราฟของคุณที่ใช้แสดงกราฟที่นี่ -->
-
-
             <script>
                 // ข้อมูลสำหรับกราฟส่วนตัว - แตกต่างจากกราฟแผนก
                 const personalData = {
@@ -552,10 +550,10 @@
             </div>
         </div>
         </div>
-</div>
+    </div>
 
-            <!-- การ์ดแสดงงานที่กำลังดำเนินการ (เต็มความกว้าง) -->
-<div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
+    <!-- การ์ดแสดงงานที่กำลังดำเนินการ (เต็มความกว้าง) -->
+    <div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
     <div class="border-b pb-2 mb-4">
         <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
         <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
@@ -682,9 +680,10 @@
     </div>
     </div>
 
+
 <!-- Popup รายละเอียดใบสั่งงาน -->
 <div id="workItemPopup" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
 
     <!-- ปุ่มปิด -->
     <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
@@ -711,17 +710,6 @@
             <span class="font-semibold">แผนก :</span>
         </div>
     </div>
-    <div>
-        <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
-    </div>
-    <div>
-        <span class="font-semibold">ผู้ส่ง :</span>  {{ session('users')->user_fname }} {{ session('users')->user_lname }}
-    </div>
-    <div>
-        <span class="font-semibold">แผนก :</span>
-    </div>
-    </div>
-
 
     <!-- การ์ดย่อยของงาน -->
     <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">

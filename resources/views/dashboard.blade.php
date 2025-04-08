@@ -104,44 +104,116 @@
   </style>
 </head>
 <body class="flex min-h-screen bg-[#f3f4f6]">
-  <!-- Sidebar - Fixed Position -->
-  <div class="w-60 bg-[#ffffff] shadow-lg fixed h-full">
-    <div class="p-4 border-b">
-      <div class="flex items-center">
-        <img src="{{ asset('public/wrslogo.png') }}" alt="WorkRequest System Logo" class="mr-3 h-13">
-      </div>
+  <!-- เริ่มส่วน Sidebar -->
+  <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
+    <!-- โลโก้ -->
+    <div class="py-2 border-b">
+        <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-30 mx-auto">
     </div>
-    <!-- Sidebar Menu -->
-    <div class="py-4">
-      <a href="home" class="flex items-center px-4 py-3 bg-[#3b82f6] text-[#ffffff] rounded-lg mx-2 mb-2">
-        <i class="fas fa-home mr-3"></i>
-        <span>หน้าหลัก</span>
-      </a>
-      <a href="workrequest" class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
-        <i class="fas fa-clipboard-list mr-3"></i>
-        <span>สร้างใบสั่งงาน</span>
-      </a>
-      <a href="report" class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
-        <i class="fas fa-chart-line mr-3"></i>
-        <span>รายงานการดำเนินงาน</span>
-      </a>
+    
+    <!-- เมนู -->
+    <div class="flex-1 px-3 py-6 space-y-2">
+        <a href="home" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+            <i class="fas fa-home mr-3"></i><span>หน้าหลัก</span>
+        </a>
+        <a href="workrequest" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+            <i class="fas fa-clipboard-list mr-3"></i><span>สร้างใบสั่งงาน</span>
+        </a>
+        <a href="report" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+            <i class="fas fa-file-alt mr-3"></i><span>รายงานการดำเนินงาน</span>
+        </a>
+        <a href="dashboard" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
+            <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
+        </a>
     </div>
-    <!-- User Profile -->
-    <div class="absolute bottom-0 w-60 p-2">
-      <div class="flex items-center bg-[#1e3a8a] text-[#ffffff] p-2 rounded-lg">
-        <div class="relative">
-          <img src="https://via.placeholder.com/40" alt="Profile" class="rounded-full w-10 h-10">
+    
+    <!-- โปรไฟล์ผู้ใช้ -->
+        <div class="p-4">
+            <div id="profileButton" class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800" style="cursor: pointer;">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="leading-tight text-xs">
+                            {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+                        </div>
+                        <div class="leading-tight text-xs">
+                            {{ session('users')->user_id }}
+                        </div>
+                    </div>
+                </div>
+                <i class="fas fa-arrow-right text-white text-sm"></i>
+            </div>
         </div>
-        <div class="ml-2">
-          <div class="font-semibold">จิรายุท คนโก้</div>
-          <div class="text-xs">anita@commerce.com</div>
+        <!-- ป๊อปอัพยืนยันการออกจากระบบ -->
+        <div id="logoutModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+            <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+                <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
+                    <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการออกจากระบบ</div>
+                    <button class="modal-close text-gray-500 text-xl" id="closeModal">&times;</button>
+                </div>
+                <div class="modal-body text-center mb-6">
+                    <p class="text-lg text-gray-600 mb-4">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
+                    <div class="modal-buttons flex justify-center gap-4">
+                        <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmLogout">ยืนยัน</button>
+                        <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelLogout">ยกเลิก</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="ml-auto">
-          <i class="fas fa-ellipsis-v"></i>
-        </div>
-      </div>
-    </div>
-  </div>
+
+        <script>
+            // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+            document.getElementById('profileButton').addEventListener('click', function() {
+                // เปิดป๊อปอัพยืนยันการออกจากระบบ
+                document.getElementById('logoutModal').style.display = 'flex';
+            });
+
+            // เมื่อคลิกปุ่มปิดป๊อปอัพ
+            document.getElementById('closeModal').addEventListener('click', function() {
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+            // เมื่อคลิกปุ่มยกเลิก
+            document.getElementById('cancelLogout').addEventListener('click', function() {
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+            // เมื่อคลิกปุ่มยืนยัน
+document.getElementById('confirmLogout').addEventListener('click', function() {
+// ส่งคำขอไปยัง route logout
+fetch('logout', {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+}).then(response => {
+    if (response.ok) {
+        // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
+        window.location.href = 'login';  // หรือ URL ที่ต้องการ
+    } else {
+        alert('เกิดข้อผิดพลาดในการออกจากระบบ');
+    }
+});
+
+// ปิดป๊อปอัพ
+document.getElementById('logoutModal').style.display = 'none';
+});
+
+
+            // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('logoutModal')) {
+                    document.getElementById('logoutModal').style.display = 'none';
+                }
+            });
+    </script>
+
+</div>
+<!-- จบส่วน Sidebar -->
 
   <!-- Main Content; เพิ่มคลาส ml-60 เพื่อขยับออกจาก sidebar -->
   <div class="ml-60 w-full">

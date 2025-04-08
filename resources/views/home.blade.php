@@ -217,7 +217,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 // เมื่อคลิกปุ่มยืนยัน
 document.getElementById('confirmLogout').addEventListener('click', function() {
     // ส่งคำขอไปยัง route logout
-    fetch('/logout', {
+    fetch('logout', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -225,7 +225,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
     }).then(response => {
         if (response.ok) {
             // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-            window.location.href = '/login';  // หรือ URL ที่ต้องการ
+            window.location.href = 'login';  // หรือ URL ที่ต้องการ
         } else {
             alert('เกิดข้อผิดพลาดในการออกจากระบบ');
         }
@@ -280,7 +280,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                                         <i class="fas fa-box text-white text-2xl"></i>
                                     </div>
                                     <div class="flex-1">
-                                        <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['task_name']) ?> </div>
+                                        <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['work_name']) ?> </div>
                                         <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
                                     </div>
                                     <div>
@@ -397,7 +397,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                                     <i class="fas fa-box text-[#2563eb] text-2xl "></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['task_name']) ?> </div>
+                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['work_name']) ?> </div>
                                     <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
                                 </div>
                                 <div>

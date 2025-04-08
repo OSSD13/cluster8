@@ -10,3 +10,4 @@ services:
       - /var/www/html/vendor
     env_file:
       - .env
+

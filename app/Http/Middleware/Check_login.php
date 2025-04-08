@@ -23,12 +23,14 @@ class Check_login
             if ($request->path() !== 'home') {
                 return $next($request);
             }
+            return $next($request);
         } else {
             if ($request->path() !== 'manage') {
                 return redirect('/manage');
             }
+            return $next($request);
         }
-
         return $next($request);
+        
     }
 }

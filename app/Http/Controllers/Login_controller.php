@@ -10,7 +10,7 @@ use App\Models\User;
 
 class Login_controller extends Controller
 {
-    
+
     function index(){
         return view('login');
     }
@@ -21,11 +21,12 @@ class Login_controller extends Controller
         if($user != null && Hash::check($req->user_password, $user->user_password)){
             $req->session()->put('users', $user);
             $req->session()->put('user_id', $user->user_id); // เก็บ user_id แยกไว้ใน session ด้วย
+            $req->session()->put('user_dept_id', $user->user_dept_id); // เก็บ user_dept_id แยกไว้ใน session ด้วย
     
             // ใช้ dd() เพื่อ debug ดูค่า user_id
             // dd($user->user_id);
     
-            return redirect('/');
+            return redirect('/home');
         } else {
             return redirect('/login');
         }

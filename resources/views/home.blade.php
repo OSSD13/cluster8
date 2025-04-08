@@ -58,18 +58,18 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work Request System</title>
-    
+
     <!-- การนำเข้า CSS และ Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    
+
     <!-- CSS พื้นฐาน -->
     <style>
          /* ตั้งค่า Font หลัก */
          body {
             font-family: 'Noto Sans Thai', sans-serif;
-             
+
         }
     .graph-container {
         display: flex;
@@ -117,7 +117,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         body.popup-open {
             overflow: hidden;
         }
-        
+
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
@@ -128,7 +128,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         .scrollable-content {
         max-height: 400px; /* กำหนดความสูงสูงสุด */
         overflow-y: auto;  /* เปิดการเลื่อนในแนวตั้ง */
-        
+
     }
     </style>
 </head>
@@ -139,7 +139,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         <div class="py-2 border-b">
             <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-30 mx-auto">
         </div>
-        
+
         <!-- เมนู -->
         <div class="flex-1 px-3 py-6 space-y-2">
             <a href="home" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
@@ -155,7 +155,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
             </a>
         </div>
-        
+
         <!-- โปรไฟล์ผู้ใช้ -->
             <div class="p-4">
                 <div id="profileButton" class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800" style="cursor: pointer;">
@@ -233,6 +233,9 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
 });
 
 
+                    // ปิดป๊อปอัพ
+                    document.getElementById('logoutModal').style.display = 'none';
+                });
                 // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
                 window.addEventListener('click', function(event) {
                     if (event.target === document.getElementById('logoutModal')) {
@@ -243,13 +246,13 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
 
     </div>
     <!-- จบส่วน Sidebar -->
-    
+
     <!-- เริ่มส่วนเนื้อหาหลัก -->
     <div class="flex-1 p-8 ml-60">
         <!-- หัวข้อและช่องค้นหา -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-[#0012E1]">หน้าหลัก</h1>
-            
+
             <!-- ช่องค้นหา -->
             <!-- <div class="relative">
                 <input type="text" placeholder="Search anything here..." class="pl-4 pr-10 py-2 border rounded-full w-80">
@@ -258,11 +261,89 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                 </button>
             </div>  -->
         </div>
-        
+
         <!-- กริดแสดงข้อมูล -->
         <div class="grid grid-cols-2 gap-6">
             <!-- การ์ดแสดงใบสั่งงานตามแผนก -->
-            <div class="bg-[#ffffff] rounded-lg shadow p-6">
+        <div class="bg-[#ffffff] rounded-lg shadow p-6">
+            <div class="border-b pb-2 mb-4">
+                <h2 class="text-lg font-bold">แผนก</h2>
+                <p class="text-sm text-[#6b7280]">ใบสั่งงานตามแผนก</p>
+            </div>
+    <div class="space-y-4 scrollbar-hide scrollable-content">
+        <!-- รายการงาน 1 -->
+        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                <i class="fas fa-box text-white text-2xl"></i>
+            </div>
+            <div class="flex-1">
+                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+            </div>
+            <div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+        <!-- รายการงาน 1 -->
+        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                <i class="fas fa-box text-white text-2xl"></i>
+            </div>
+            <div class="flex-1">
+                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+            </div>
+            <div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+
+        <!-- รายการงาน 2 -->
+        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                <i class="fas fa-box text-white text-2xl"></i>
+            </div>
+            <div class="flex-1">
+                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+            </div>
+            <div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+
+        <!-- รายการงาน 3 -->
+        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                <i class="fas fa-box text-white text-2xl"></i>
+            </div>
+            <div class="flex-1">
+                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+            </div>
+            <div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+
+        <!-- รายการงาน 4 -->
+        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                <i class="fas fa-box text-white text-2xl"></i>
+            </div>
+            <div class="flex-1">
+                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+            </div>
+            <div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- การ์ดแสดงกราฟการทำงานตามแผนก -->
+            <div class="bg-white rounded-lg shadow p-6">
                 <div class="border-b pb-2 mb-4">
                     <h2 class="text-lg font-bold">แผนก</h2>
                     <p class="text-sm text-[#6b7280]">ใบสั่งงานตามแผนก</p>
@@ -303,20 +384,20 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                         inProgress: 5,
                         completed: 48
                         };
-                        
+
                         // หาค่าสูงสุดเพื่อทำ scale
                         const maxValue = Math.max(data.waiting, data.inProgress, data.completed);
                         // คำนวณสเกลเพื่อให้กราฟพอดีกับความสูงที่กำหนด (200px)
                         const scale = 200 / (Math.ceil(maxValue / 10) * 10);
-                        
+
                         // สร้างสเกลด้านซ้าย
                         function createYAxis() {
                         const yAxis = document.getElementById('y-axis');
                         yAxis.innerHTML = '';
-                        
+
                         // คำนวณค่าสูงสุดของสเกล (ปัดขึ้นให้เป็นหลัก 10)
                         const maxScale = Math.ceil(maxValue / 10) * 10;
-                        
+
                         // สร้างช่วงสเกล 6 ช่วง (0-maxScale)
                         for (let i = 5; i >= 0; i--) {
                             const value = Math.round(maxScale * i / 5);
@@ -325,34 +406,34 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                             yAxis.appendChild(div);
                         }
                         }
-                        
+
                         // อัพเดตความสูงของกราฟและค่าที่แสดง
                         function updateChart() {
                         // อัพเดตความสูงของกราฟ
                         document.getElementById('bar-waiting').style.height = `${data.waiting * scale}px`;
                         document.getElementById('bar-in-progress').style.height = `${data.inProgress * scale}px`;
                         document.getElementById('bar-completed').style.height = `${data.completed * scale}px`;
-                        
+
                         // อัพเดตตัวเลขที่แสดง
                         document.getElementById('value-waiting').textContent = data.waiting;
                         document.getElementById('value-in-progress').textContent = data.inProgress;
                         document.getElementById('value-completed').textContent = data.completed;
                         }
-                        
+
                         // รันฟังก์ชันเมื่อโหลดหน้า
                         window.onload = function() {
                         createYAxis();
                         updateChart();
                         };
                     </script>
-                    
+
                     <!-- กราฟแท่งแนวตั้ง -->
                     <div class="h-64 flex items-end justify-evenly relative">
                         <!-- แกนตั้งแสดงค่า -->
                         <div id="y-axis" class="absolute left-0 h-full flex flex-col justify-between text-gray-500 text-xs">
                         <!-- สเกลจะถูกสร้างด้วย JavaScript -->
                         </div>
-                        
+
                         <div class="flex flex-col items-center">
                         <div class="relative">
                             <div id="bar-waiting" class="bg-yellow-400 w-8 rounded-t"></div>
@@ -360,7 +441,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                         </div>
                         <div class="mt-2 text-sm">รอดำเนินการ</div>
                         </div>
-                        
+
                         <div class="flex flex-col items-center">
                         <div class="relative">
                             <div id="bar-in-progress" class="bg-yellow-200 w-8 rounded-t"></div>
@@ -368,7 +449,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                         </div>
                         <div class="mt-2 text-sm">กำลังดำเนินการ</div>
                         </div>
-                        
+
                         <div class="flex flex-col items-center">
                         <div class="relative">
                             <div id="bar-completed" class="bg-green-500 w-8 rounded-t"></div>
@@ -384,8 +465,8 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                             <h2 class="text-lg font-bold">ส่วนตัว</h2>
                             <p class="text-sm text-[#6b7280]">ใบสั่งงานส่วนตัว</p>
                         </div>
-                        
-                        <div class="space-y-4">
+
+                        <div class="space-y-4 scrollbar-hide scrollable-content">
                             <!-- รายการงาน 1 -->
                             <?php foreach ($data as $row): ?>
                             <?php if ($row['task_recipient_type'] === 'P'): ?>
@@ -508,11 +589,11 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
         <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
         <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
     </div>
-    
-    <div class="space-y-2">
+
+    <div class="space-y-2 scrollbar-hide scrollable-content ">
         <!-- รายการงานที่กำลังดำเนินการ 1 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+        <div class="flex items-center justify-between pb-2 cursor-pointer work-item-doing w-full">
+            <div class="work-item-doing flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
                 <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
                     <i class="fas fa-box text-[#533FE4] text-2xl"></i>
                 </div>
@@ -527,39 +608,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
             </div>
         </div>
 
-       <!-- รายการงานที่กำลังดำเนินการ 2 -->
-       <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
 
-        <!-- รายการงานที่กำลังดำเนินการ 3 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
 
         <!-- รายการงานที่กำลังดำเนินการ 4 -->
         <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
@@ -681,29 +730,38 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
   </div>
   <div class="text-center text-xs text-gray-400 mt-10">© [2025] Work Request System. All rights reserved.</div>
 </footer>
-        </div>
+    </div>
     </div>
 
 
-    <!-- Popup รายละเอียดใบสั่งงาน -->
+<!-- Popup รายละเอียดใบสั่งงาน -->
 <div id="workItemPopup" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
-    
-    <!-- ปุ่มปิด -->
-            <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
-        <i class="fas fa-times text-xl"></i>
-        </button>
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
 
+    <!-- ปุ่มปิด -->
+    <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+        <i class="fas fa-times text-xl"></i>
+    </button>
 
     <!-- หัวข้อ -->
     <h2 class="text-xl font-bold text-blue-700 mb-4">
       รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
     </h2>
 
-        <!-- ข้อมูลหลัก -->
+    <!-- ข้อมูลหลัก -->
     <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
-    <div>
-        <span class="font-semibold">ชื่อเรื่อง :</span> <span id="popup-title">-</span>
+        <div>
+            <span class="font-semibold">ชื่อเรื่อง :</span> <span id="popup-title">-</span>
+        </div>
+        <div>
+            <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
+        </div>
+        <div>
+            <span class="font-semibold">ผู้ส่ง :</span>  {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+        </div>
+        <div>
+            <span class="font-semibold">แผนก :</span>
+        </div>
     </div>
     <div>
         <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
@@ -719,53 +777,233 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
 
     <!-- การ์ดย่อยของงาน -->
     <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
-      @for ($i = 0; $i < 6; $i++)
-        <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-          <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
-          <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
-          <div class="flex items-center text-xs text-gray-600">
-            <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
-            อังคาร, 1 ธันวาคม 2025
-          </div>
-          <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
+        @for ($i = 0; $i < 6; $i++)
+        <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition relative work-item"
+            data-title="สมัครอีเมลพนักงาน"
+            data-owner="จิรายุ คนโก้"
+            data-date="อังคาร, 1 ธันวาคม 2025">
+            <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
+            <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
+            <div class="flex items-center text-xs text-gray-600">
+                <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
+                อังคาร, 1 ธันวาคม 2025
+            </div>
+            <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
+
+            <!-- กล่อง Popover ที่ซ่อนอยู่ -->
+            <div class="popover-content absolute z-50 top-full mt-2 left-0 bg-white border rounded-lg shadow-lg text-sm text-gray-700 w-64 p-3 hidden">
+                <strong class="block mb-1 text-gray-800">รายละเอียดการทำงาน</strong>
+                <p>สมัครอีเมลพนักงานให้พนักงานใหม่ และแจ้งเจ้าหน้าที่ HR.</p>
+                <p class="text-xs text-gray-500 mt-2">คลิกอีกครั้งเพื่อปิด</p>
+            </div>
         </div>
-      @endfor
+        @endfor
     </div>
 
-        <!-- ปุ่ม -->
+    <!-- ✅ ปุ่มรับงาน / ปฏิเสธ -->
     <div class="flex justify-center mt-6 gap-3">
-    <button onclick="closePopup()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">ปฏิเสธ</button>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">รับงาน</button>
+        <button onclick="closePopup()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
+            ปฏิเสธ
+        </button>
+        <button onclick="acceptWork()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            รับงาน
+        </button>
     </div>
 
   </div>
 </div>
+<!-- Popup รายละเอียดใบสั่งงาน(กำลังดำนินการ) -->
+<div id="workItemPopupDoing" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
+
+      <!-- ปุ่มปิด -->
+              <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+          <i class="fas fa-times text-xl"></i>
+          </button>
 
 
+      <!-- หัวข้อ -->
+      <h2 class="text-xl font-bold text-blue-700 mb-4">
+        รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
+      </h2>
 
-   
+          <!-- ข้อมูลหลัก -->
+      <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
+      <div>
+          <span class="font-semibold">ชื่อเรื่อง :</span> <span id="popup-title">-</span>
+      </div>
+      <div>
+          <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
+      </div>
+      <div>
+          <span class="font-semibold">ผู้ส่ง :</span>  {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+      </div>
+      <div>
+          <span class="font-semibold">แผนก :</span>
+      </div>
+      </div>
+
+
+      <!-- การ์ดย่อยของงาน -->
+      <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
+        @for ($i = 0; $i < 6; $i++)
+          <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+            <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
+            <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
+            <div class="flex items-center text-xs text-gray-600">
+              <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
+              อังคาร, 1 ธันวาคม 2025
+            </div>
+            <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
+          </div>
+        @endfor
+      </div>
+
+          <!-- ปุ่ม -->
+      <div class="flex justify-center mt-6 gap-3">
+        <button onclick="closePopup()"  class="px-4 py-2 border border-black text-black rounded-md hover:bg-black hover:text-white transition">ปฏิเสธ</button>
+        <button class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition">ส่งคืนงาน</button>
+        <button id = "submit" class="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition">เสร็จสิ้น</button>
+      </div>
+
+
+    </div>
+</div>
+<!-- ป๊อปอัพยืนยันส่งงาน-->
+<div id="confirmSubmitModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+        <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
+            <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการส่งาน</div>
+            <button class="modal-close text-gray-500 text-xl" id="close-popup">&times;</button>
+        </div>
+        <div class="modal-body text-center mb-6">
+            <p class="text-left text-lg text-gray-600 mb-4">หมายเหตุ <span style="color: red;">*</span> :</p>
+            <p class="text-right text-xs text-gray-400"><span id="charCount">0</span>/100</p>
+            <textarea id="notation" class="border border-gray-300 rounded-lg w-full p-2 mb-4" style="height: 100px; resize: none;" maxlength="100" oninput="updateCounter()" placeholder="กรุณากรอกหมายเหตุ"></textarea>
+            <hr>
+            <br>
+            <div class="modal-buttons flex justify-center gap-4">
+                <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmSubmit">ยืนยัน</button>
+                <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelSubmit">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // JavaScript for popup functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const workItems = document.querySelectorAll('.work-item');
-        const popup = document.getElementById('workItemPopup');
-        const closeButtons = document.querySelectorAll('.close-popup, .close-popup-btn');
-        const popupTitle = document.getElementById('popup-title');
-        const popupDate = document.getElementById('popup-date');
-        
-        workItems.forEach(item => {
-            item.addEventListener('click', function() {
-                // Get task info from the clicked item
-                const titleElement = this.querySelector('div > div:first-child');
-                const dateElement = this.querySelector('div > div:last-child');
-                
-                if (titleElement && dateElement) {
-                    const title = titleElement.textContent.replace('ชื่องาน : ', '');
-                    const date = dateElement.textContent.replace('วันสิ้นสุดการทำงาน : ', '');
-                    
-                    // Set info in popup
-                    popupTitle.textContent = title;
-                    popupDate.textContent = date;
+    function updateCounter() {
+    	let input = document.getElementById("notation");
+    	let maxLength = input.maxLength;
+    	let remaining = input.value.length;
+    	document.getElementById("charCount").textContent = remaining;
+	}
+    // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+    document.getElementById('submit').addEventListener('click', function() {
+        // เปิดป๊อปอัพยืนยันการออกจากระบบ
+        document.getElementById('confirmSubmitModal').style.display = 'flex';
+    });
+
+    // เมื่อคลิกปุ่มปิดป๊อปอัพ
+    document.getElementById('close-popup').addEventListener('click', function() {
+        // ปิดป๊อปอัพ
+        document.getElementById('confirmSubmitModal').style.display = 'none';
+        document.body.classList.remove('popup-open');
+    });
+
+    // เมื่อคลิกปุ่มยกเลิก
+    document.getElementById('cancelSubmit').addEventListener('click', function() {
+        // ปิดป๊อปอัพ
+        document.getElementById('confirmSubmitModal').style.display = 'none';
+    });
+
+    // เมื่อคลิกปุ่มยืนยัน
+    document.getElementById('confirmSubmit').addEventListener('click', function() {
+    // แจ้งเตือนการส่งงาน
+    (response => {
+        document.getElementById('workItemPopupDoing').style.display = 'none';
+        alert('ส่งงานสำเร็จ');
+    });
+
+    // ปิดป๊อปอัพ
+        document.getElementById('confirmSubmitModal').style.display = 'none';
+    });
+
+
+    // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+    window.addEventListener('click', function(event) {
+        if (event.target === document.getElementById('confirmSubmitModal')) {
+            document.getElementById('confirmSubmitModal').style.display = 'none';
+        }
+    });
+</script>
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const workItems = document.querySelectorAll('.work-item');
+            const workItemsDoing = document.querySelectorAll('.work-item-doing');
+            const popup = document.getElementById('workItemPopup');
+            const popupDoing = document.getElementById('workItemPopupDoing');
+            const closeButtons = document.querySelectorAll('.close-popup, .close-popup-btn');
+            const popupTitle = document.getElementById('popup-title');
+            const popupDate = document.getElementById('popup-date');
+
+            workItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const titleElement = this.querySelector('div > div:first-child');
+                    const dateElement = this.querySelector('div > div:last-child');
+
+                    if (titleElement && dateElement) {
+                        const title = titleElement.textContent.replace('ชื่องาน : ', '');
+                        const date = dateElement.textContent.replace('วันสิ้นสุดการทำงาน : ', '');
+
+                        // Set info in popup
+                        popupTitle.textContent = title;
+                        popupDate.textContent = date;
+                    }
+
+                    // Show popup
+                    popup.style.display = 'flex';
+                    document.body.classList.add('popup-open');
+                });
+            });
+            workItemsDoing.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Get task info from the clicked item
+                    const titleElement = this.querySelector('div > div:first-child');
+                    const dateElement = this.querySelector('div > div:last-child');
+
+                    if (titleElement && dateElement) {
+                        const title = titleElement.textContent.replace('ชื่องาน : ', '');
+                        const date = dateElement.textContent.replace('วันสิ้นสุดการทำงาน : ', '');
+
+                        // Set info in popup
+                        popupTitle.textContent = title;
+                        popupDate.textContent = date;
+                    }
+
+                    // Show popup
+                    popupDoing.style.display = 'flex';
+                    document.body.classList.add('popup-open');
+                });
+            });
+
+
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    popup.style.display = 'none';
+                    popupDoing.style.display = 'none';
+                    document.body.classList.remove('popup-open');
+                });
+            });
+
+            // Close popup when clicking outside the content
+            popup.addEventListener('click', function(e) {
+                if (e.target === popup) {
+                    popup.style.display = 'none';
+                    popupDoing.style.display = 'none';
+                    document.body.classList.remove('popup-open');
                 }
                 
                 // Show popup
@@ -773,22 +1011,46 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                 document.body.classList.add('popup-open');
             });
         });
-        
-        closeButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                popup.style.display = 'none';
-                document.body.classList.remove('popup-open');
+
+        function acceptWork() {
+            const popup = document.getElementById('workItemPopup');
+            popup.style.display = 'none';
+            document.body.classList.remove('popup-open');
+        }
+
+        function closePopup() {
+            const popup = document.getElementById('workItemPopup');
+            popup.style.display = 'none';
+            document.body.classList.remove('popup-open');
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const items = document.querySelectorAll('.work-item');
+
+            items.forEach(item => {
+                item.addEventListener('click', function (e) {
+                    e.stopPropagation();
+
+                    document.querySelectorAll('.popover-content').forEach(p => p.classList.add('hidden'));
+
+                    const popover = this.querySelector('.popover-content');
+                    if (popover.classList.contains('hidden')) {
+                        popover.classList.remove('hidden');
+                    } else {
+                        popover.classList.add('hidden');
+                    }
+                });
+            });
+
+            document.addEventListener('click', function () {
+                document.querySelectorAll('.popover-content').forEach(p => p.classList.add('hidden'));
             });
         });
-        
-        // Close popup when clicking outside the content
-        popup.addEventListener('click', function(e) {
-            if (e.target === popup) {
-                popup.style.display = 'none';
-                document.body.classList.remove('popup-open');
-            }
-        });
-    });
-</script>   
+    </script>
+</div>
+
+
 </body>
 </html>

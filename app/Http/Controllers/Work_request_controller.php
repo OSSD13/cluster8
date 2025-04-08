@@ -66,4 +66,63 @@ class Work_request_controller extends Controller
     
         return redirect('/workrequest');
     }
+
+    public function store(Request $req)
+    {
+        // ดึงข้อมูล work_request_id จากฟอร์ม
+        $work_request_id = $req->input('confirm_work_id');
+
+        // ค้นหา Work_Request_Order ที่ต้องการอัปเดต
+        $mwrq = \App\Models\Work_Request_Order::find($work_request_id);
+
+        if ($mwrq) {
+            // อัปเดต work_confirm_date เป็นวันที่ปัจจุบัน
+            $mwrq->work_confirm_date = now();
+            $mwrq->save();
+        }
+
+        // Redirect กลับไปที่หน้า workrequest
+        return redirect('/workrequest');
+    }
+
+    public function decline(Request $req) 
+    {
+        // ดึงข้อมูล task_id จากฟอร์ม
+        $decline_work_id = $req->input('decline_work_id');
+
+        // ค้นหา Work_Request_Order ที่ต้องการอ
+        $mwrq = new \App\Models\Work_Request_Order;
+
+        // ค้นหา Task ที่ต้องการปฏิเสธ
+        $mtask = new \App\Models\Task;
+
+
+
+        if ($mwrq) {
+            // อัปเดต work_confirm_date เป็นวันที่ปัจจุบัน
+            $mwrq->work_submit_date = now();
+            $mtask->work_status = 'D';
+            $mwrq->save();
+        }
+
+        // Redirect กลับไปที่หน้า workrequest
+        return redirect('/home');
+    }
+
+    public function accept(Request $req)
+    {
+        // ดึงข้อมูล work_request_id จากฟอร์ม
+        $work_request_id = $req->input('accept_work_id');
+
+        // ค้นหา Work_Request_Order ที่ต้องการลบ
+        $mwrq = \App\Models\Work_Request_Order::find($work_request_id);
+        $mtask = \App\Models\Task;
+        if ($mwrq) {
+            // ลบ Work_Request_Order
+            
+        }
+
+        // Redirect กลับไปที่หน้า workrequest
+        return redirect('/workrequest');
+    }
 }

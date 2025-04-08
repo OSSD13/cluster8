@@ -20,46 +20,44 @@
 </head>
 
 <body class="flex min-h-screen bg-[#f3f4f6]">
-    <!-- Sidebar - Fixed Position -->
-    <div class="w-60 bg-[#ffffff] shadow-lg fixed h-full">
-        <div class="p-4 border-b">
-            <div class="flex items-center">
-                <img src="{{ asset('public/wrslogo.png') }}" alt="WorkRequest System Logo">
-            </div>
-        </div>
-        <!-- Sidebar Menu -->
-        <div class="py-4">
-            <a href="home" class="flex items-center px-4 py-3 bg-[#3b82f6] text-[#ffffff] rounded-lg mx-2 mb-2">
-                <i class="fas fa-home mr-3"></i>
-                <span>หน้าหลัก</span>
-            </a>
-            <a href="workrequest"
-                class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
-                <i class="fas fa-clipboard-list mr-3"></i>
-                <span>สร้างใบสั่งงาน</span>
-            </a>
-            <a href="report"
-                class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
-                <i class="fas fa-chart-line mr-3"></i>
-                <span>รายงานการดำเนินงาน</span>
-            </a>
-        </div>
-        <!-- User Profile -->
-        <div class="absolute bottom-0 w-60 p-2">
-            <div class="flex items-center bg-[#1e3a8a] text-[#ffffff] p-2 rounded-lg">
-                <div class="relative">
-                    <img src="https://via.placeholder.com/40" alt="Profile" class="rounded-full w-10 h-10">
-                </div>
-                <div class="ml-2">
-                    <div class="font-semibold">จิรายุท คนโก้</div>
-                    <div class="text-xs">anita@commerce.com</div>
-                </div>
-                <div class="ml-auto">
-                    <i class="fas fa-ellipsis-v"></i>
-                </div>
-            </div>
-        </div>
+  <!-- Sidebar - Fixed Position -->
+  <div class="w-60 bg-[#ffffff] shadow-lg fixed h-full">
+    <div class="p-4 border-b">
+      <div class="flex items-center">
+        <img src="{{ asset('public/wrslogo.png') }}" alt="WorkRequest System Logo" class="mr-3 h-13">
+      </div>
     </div>
+    <!-- Sidebar Menu -->
+    <div class="py-4">
+      <a href="home" class="flex items-center px-4 py-3 bg-[#3b82f6] text-[#ffffff] rounded-lg mx-2 mb-2">
+        <i class="fas fa-home mr-3"></i>
+        <span>หน้าหลัก</span>
+      </a>
+      <a href="workrequest" class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
+        <i class="fas fa-clipboard-list mr-3"></i>
+        <span>สร้างใบสั่งงาน</span>
+      </a>
+      <a href="report" class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
+        <i class="fas fa-chart-line mr-3"></i>
+        <span>รายงานการดำเนินงาน</span>
+      </a>
+    </div>
+    <!-- User Profile -->
+    <div class="absolute bottom-0 w-60 p-2">
+      <div class="flex items-center bg-[#1e3a8a] text-[#ffffff] p-2 rounded-lg">
+        <div class="relative">
+          <img src="https://via.placeholder.com/40" alt="Profile" class="rounded-full w-10 h-10">
+        </div>
+        <div class="ml-2">
+          <div class="font-semibold">จิรายุท คนโก้</div>
+          <div class="text-xs">anita@commerce.com</div>
+        </div>
+        <div class="ml-auto">
+          <i class="fas fa-ellipsis-v"></i>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <!-- Main Content; เพิ่มคลาส ml-60 เพื่อขยับออกจาก sidebar -->
     <div class="ml-60 w-full">

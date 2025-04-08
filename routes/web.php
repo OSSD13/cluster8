@@ -11,8 +11,7 @@ use App\Http\Controllers\Dashboard_controller;
 
 
 
-Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
-Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
+
 
 Route::get('/login', [Login_controller::class, 'index']);
 Route::post('/login', [Login_controller::class, 'login']);
@@ -22,9 +21,16 @@ Route::get('/logout', function(){
     return redirect('/login');
 });
 
-Route::get("/workrequest", [Work_request_controller::class, "index"]);
 
-Route::get("/report", [Report_controller::class, "index"]);
+Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
+Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
+
+Route::get("/workrequest", [Work_request_controller::class, "index"]);
+Route::post("/workrequest", [Work_request_controller::class, "create"]);
+Route::get("/workrequest", [Work_request_controller::class, "show"]);
+
+Route::get("/report", [Report_controller::class, "index"])->name('report');
 
 Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_login::class]);
+
 Route::get('/dashboard',[Dashboard_controller::class,"index"]);

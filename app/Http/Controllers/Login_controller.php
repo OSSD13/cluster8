@@ -10,7 +10,7 @@ use App\Models\User;
 
 class Login_controller extends Controller
 {
-    
+
     function index(){
         return view('login');
     }
@@ -23,7 +23,7 @@ class Login_controller extends Controller
             $req->session()->put('users', $user);
             return redirect('/');
         }else {
-            
+
             return redirect('/login');
         }
     }

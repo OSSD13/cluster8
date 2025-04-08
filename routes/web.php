@@ -24,6 +24,9 @@ Route::get('/logout', function(){
 
 Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
 Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
+Route::post("/home",[Home_controller::class,'decline'])->middleware([Check_login::class]);
+
+
 
 Route::get("/workrequest", [Work_request_controller::class, "index"]);
 Route::post("/workrequest", [Work_request_controller::class, "create"]);
@@ -36,4 +39,3 @@ Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_lo
 Route::get('/dashboard',[Dashboard_controller::class,"index"]);
 
 Route::post("/workrequest", [Work_request_controller::class, "store"])->middleware([Check_login::class]);
-Route::post("/home", [Work_request_controller::class, "decline"])->middleware([Check_login::class]);

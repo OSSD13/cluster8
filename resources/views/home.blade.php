@@ -674,7 +674,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
 
     <!-- หัวข้อ -->
     <h2 class="text-xl font-bold text-blue-700 mb-4">
-      รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
+      รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal"></span>
     </h2>
 
         <!-- ข้อมูลหลัก -->
@@ -686,10 +686,10 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
         <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
     </div>
     <div>
-        <span class="font-semibold">ผู้ส่ง :</span> วิรายุ คนโก้
+        <span class="font-semibold">ผู้ส่ง :</span>
     </div>
     <div>
-        <span class="font-semibold">แผนก :</span> HR
+        <span class="font-semibold">แผนก :</span> 
     </div>
     </div>
 
@@ -711,26 +711,52 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
 
         <!-- ปุ่ม -->
     <div class="flex justify-center mt-6 gap-3">
-        <form method="POST" action="{{ url('/home') }}">
-            @csrf
-            <input type="hidden" name="decline_work_id" value="<?= $row['work_request_id'] ?>">
-            <button onclick="closePopup()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">ปฏิเสธ</button>
-        </form> 
-        
+        <button type="button" id="openDeclinePopup" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">ปฏิเสธ</button>
         <form method="POST" action="{{ url('/home') }}">
             @csrf
             <input type="hidden" name="accept_work_id" value="<?= $row['work_request_id'] ?>">
             <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">รับงาน</button>
         </form>
-        
+  
     </div>
 
   </div>
 </div>
 
+<div id="declinePopup" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
+        <!-- ปุ่มปิด -->
+        <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+        <!-- หัวข้อ -->
+        <h2 class="text-xl font-bold text-blue-700 mb-4">
+            ยืนยันการปฏิเสธงาน <span class="text-gray-400 text-base font-normal"></span>
+        </h2>
+        <!-- ข้อมูลหลัก -->
+        <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
+            <div>
+                <span class="font-semibold">เหตุผล :</span>
+            </div>
+            <div class="">
+                <textarea name="task_notation" id="task_notation" cols="30" rows="5" class="border border-black"></textarea>
+            </div>
 
+        </div>
+        <div class="flex justify-center mt-6 gap-3">
+            <form method="POST" action="{{ url('/home') }}">
+                @csrf
+                <input type="hidden" name="decline_work_id" value="<?= $row['work_request_id'] ?>">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ยืนยัน</button>
+            </form>
+            
+            <button onclick="closePopup()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">ยกเลิก</button>
+            
+            
+            
+    </div>   
+</div>
 
-   
 <script>
     // JavaScript for popup functionality
     document.addEventListener('DOMContentLoaded', function() {
@@ -740,6 +766,13 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
         const popupTitle = document.getElementById('popup-title');
         const popupDate = document.getElementById('popup-date');
         
+        // Decline popup
+        const openDeclineBtn = document.getElementById('openDeclinePopup');
+        const declinePopup = document.getElementById('declinePopup');
+
+       
+
+
         workItems.forEach(item => {
             item.addEventListener('click', function() {
                 // Get task info from the clicked item
@@ -764,6 +797,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
         closeButtons.forEach(button => {
             button.addEventListener('click', function() {
                 popup.style.display = 'none';
+                declinedPopup.style.display = 'none';
                 document.body.classList.remove('popup-open');
             });
         });
@@ -775,6 +809,27 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                 document.body.classList.remove('popup-open');
             }
         });
+        
+        // Open decline popup
+        openDeclineBtn.addEventListener('click', function() {
+            declinePopup.style.display = 'flex';
+            
+        });
+        // Close decline popup when clicking outside the content
+        declinePopup.addEventListener('click', function(e) {
+            if (e.target === declinePopup) {
+                declinePopup.style.display = 'none';
+                
+            }
+        });
+        // Close decline popup when clicking the close button
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                declinePopup.style.display = 'none';
+                
+            });
+        });
+
     });
 </script>   
 </body>

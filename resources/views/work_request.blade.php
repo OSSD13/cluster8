@@ -528,10 +528,10 @@ document.getElementById('logoutModal').style.display = 'none';
     
                     <!-- ชื่องาน วันที่ -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <input type="text" :name="'task_name[' + index + ']'" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required="work_status === 'R'">
+                        <input type="text" :name="'task_name[' + index + ']'" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2">
                     <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
                         <i class="fas fa-calendar-alt text-blue-500"></i>
-                    <input type="date" :name="'task_deadline[' + index + ']'" class="flex-1 outline-none" required="work_status === 'R'">
+                    <input type="date" :name="'task_deadline[' + index + ']'" class="flex-1 outline-none" >
                     </div>
                     </div>  
 
@@ -573,8 +573,8 @@ document.getElementById('logoutModal').style.display = 'none';
                    
                 <!-- ปุ่มส่ง -->
                 <div class="flex justify-end space-x-4 mt-4">
-                    <button type="submit" @click="work_status = 'R'" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
-                    <button type="submit" @click="work_status = 'Draft'" name="work_status" value="Draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
+                    <button name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
+                    <button name="work_status" value="Draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
                 </div>
             </form>
         </div>

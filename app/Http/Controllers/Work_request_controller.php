@@ -37,4 +37,12 @@ class Work_request_controller extends Controller
     
         return redirect('/work_request')->with('status', 'Work request created successfully');
     }
+
+    public function store(Request $req)
+    {
+        // Logic สำหรับบันทึกข้อมูล
+        $workId = $req->input('confirm_work_id');
+        // บันทึก work_confirm_date หรือข้อมูลอื่นๆ
+        return redirect('/workrequest');
+    }
 }

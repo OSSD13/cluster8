@@ -43,11 +43,30 @@ $stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt2->execute();
 $data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
+
 // คำนวณจำนวนหน้าทั้งหมด
 $sql_count = "SELECT COUNT(*) FROM work_request_order WHERE work_submit_date >= NOW() - INTERVAL 5 DAY AND work_create_by_user_id = $userID AND (work_status = 'C' OR work_status = 'D') AND work_confirm_date IS NOT NULL";
 $count_stmt = $pdo->query($sql_count);
 $total_item = $count_stmt->fetchColumn();
 $total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_work_id'])) {
+    $work_id = $_POST['confirm_work_id'];
+    $confirm_date = date('Y-m-d H:i:s'); // วันที่และเวลาปัจจุบัน
+
+    $update_sql = "UPDATE work_request_order SET work_confirm_date = :confirm_date WHERE work_request_id = :work_id";
+    $update_stmt = $pdo->prepare($update_sql);
+    $update_stmt->bindParam(':confirm_date', $confirm_date);
+    $update_stmt->bindParam(':work_id', work_id, PDO::PARAM_INT);
+
+    if ($updateStmt->execute()) {
+        // Redirect to avoid form resubmission
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        echo "เกิดข้อผิดพลาดในการบันทึกข้อมูล";
+    }
+}
 
 
 ?>
@@ -72,7 +91,6 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
        }
        </style>
 </head>
-
 <body class="bg-gray-100 text-gray-900" x-data="{ isOpen: false }">
     <!-- เริ่มส่วน Sidebar -->
     <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
@@ -181,9 +199,14 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                                 </div>
                             
                                 <!-- ปุ่มตกลง -->
-                                <button class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
-                                    ตกลง
-                                </button>
+                                <form method="POST" action="{{ url('/workrequest') }}">
+                                    @csrf
+                                    <input type="hidden" name="confirm_work_id" value="<?= $row['work_request_id'] ?>">
+                                    <button type="submit" class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
+                                        ตกลง
+                                    </button>
+                                </form>
+                                
                             </div>
                             
                             <?php elseif ($row['work_status'] === 'D' ): ?>
@@ -209,9 +232,13 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                                 </div>
                             
                                 <!-- ปุ่มตกลง --> 
-                                <button class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
-                                    ตกลง
-                                </button>
+                                <form method="POST" action="{{ url('/workrequest') }}">
+                                    @csrf
+                                    <input type="hidden" name="confirm_work_id" value="<?= $row['work_request_id'] ?>">
+                                    <button type="submit" class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
+                                        ตกลง 
+                                    </button>
+                                </form>
                             </div>
                             
                             <?php endif; ?>
@@ -388,7 +415,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form action="{{ url('/work_request') }}" method="POST">
+            <form action="{{ url('/workrequest') }}" method="POST">
                 @csrf
     
                 <!-- ชื่อเรื่อง / วันที่ร้องขอ -->

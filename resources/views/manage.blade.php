@@ -15,7 +15,7 @@ $sql = "SELECT user_id, CONCAT(user_fname,' ',user_lname) AS user_name, departme
         LEFT JOIN departments ON user_dept_id = department_id";
 
 $stmt = $pdo->prepare($sql);
-
+  
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

@@ -25,12 +25,16 @@ class Work_request_controller extends Controller
         $mwrq = new \App\Models\Work_Request_Order;
         $mtask = new \App\Models\Task;
 
+        $status = $req->input('work_status');
+
+        
+
         $mwrq->work_name = $req->input('work_name');
         $mwrq->work_create_date = now()->toDateString();
         $mwrq->work_submit_date = null;
         $mwrq->work_create_by_user_id = session('users')->user_id;
         $mwrq->work_author_type = $req->input('work_author_type');
-        $mwrq->work_status = $req->input('work_status');
+        $mwrq->work_status = $status;
         $mwrq->work_created_by_department_id = session('users')->user_dept_id;
         $mwrq->work_confirm_date = null;
         $mwrq->save();
@@ -49,7 +53,7 @@ class Work_request_controller extends Controller
             $mtask->task_work_request_id = $workRequestId;
             $mtask->task_name = $name;
             $mtask->task_deadline = $taskDeadlines[$i] ?? null;
-            $mtask->task_status = 'R';
+            $mtask->task_status = $status;
             $mtask->task_recipient_type = $taskRecipientTypes[$i] ?? null;
             $mtask->task_recipient_user_id = ($taskRecipientUserIds[$i] ?? '-') !== '-' ? $taskRecipientUserIds[$i] : null;
             $mtask->task_recipient_department_id = ($taskRecipientDepartmentIds[$i] ?? '-') !== '-' ? $taskRecipientDepartmentIds[$i] : null;

@@ -155,7 +155,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             // เมื่อคลิกปุ่มยืนยัน
 document.getElementById('confirmLogout').addEventListener('click', function() {
 // ส่งคำขอไปยัง route logout
-fetch('/logout', {
+fetch('logout', {
     method: 'GET',
     headers: {
         'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ fetch('/logout', {
 }).then(response => {
     if (response.ok) {
         // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-        window.location.href = '/login';  // หรือ URL ที่ต้องการ
+        window.location.href = 'login';  // หรือ URL ที่ต้องการ
     } else {
         alert('เกิดข้อผิดพลาดในการออกจากระบบ');
     }
@@ -464,9 +464,10 @@ document.getElementById('logoutModal').style.display = 'none';
         </div>
     
             <!-- FORM -->
-            <form action="{{ url('/workrequest') }}" method="POST">
+            <form x-data="{ work_status: 'work_status' }"
+                action="{{ url('/workrequest') }}" method="POST">
                 @csrf
-                
+                <input type="hidden" name="work_status" x-model="work_status">
                 <!-- ข้อมูลหลัก -->
                 <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
                   <div>
@@ -508,6 +509,8 @@ document.getElementById('logoutModal').style.display = 'none';
                         removeTask(index) {
                             this.tasks.splice(index, 1);
                         }
+
+
                     }"
                     class="max-h-80 overflow-y-auto scrollbar-hide"
                 >
@@ -525,10 +528,10 @@ document.getElementById('logoutModal').style.display = 'none';
     
                     <!-- ชื่องาน วันที่ -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <input type="text" :name="'task_name[' + index + ']'" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
+                        <input type="text" :name="'task_name[' + index + ']'" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required="work_status === 'R'">
                     <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
                         <i class="fas fa-calendar-alt text-blue-500"></i>
-                    <input type="date" :name="'task_deadline[' + index + ']'" class="flex-1 outline-none" required>
+                    <input type="date" :name="'task_deadline[' + index + ']'" class="flex-1 outline-none" required="work_status === 'R'">
                     </div>
                     </div>  
 
@@ -541,7 +544,7 @@ document.getElementById('logoutModal').style.display = 'none';
                     <input type="radio" :name="'task_recipient_type[' + index + ']'" value="P" x-model="selected">
                     <input type="text" :name="'task_recipient_user_id[' + index + ']'" placeholder="บุคคล" class="flex-1 outline-none"
                         :disabled="selected !== 'P'"
-                        :required="selected === 'P'">
+                        :required="selected === 'P' && work_status === 'R'">
                     <i class="fas fa-search text-gray-500"></i>
                 </label>
 
@@ -550,7 +553,7 @@ document.getElementById('logoutModal').style.display = 'none';
                     <input type="radio" :name="'task_recipient_type[' + index + ']'" value="D" x-model="selected">
                     <input type="text" :name="'task_recipient_department_id[' + index + ']'" placeholder="แผนก" class="flex-1 outline-none"
                         :disabled="selected !== 'D'"
-                        :required="selected === 'D'">
+                        :required="selected === 'D' && work_status === 'R'" >
                     <i class="fas fa-search text-gray-500"></i>
                 </label>
                 </div>
@@ -569,9 +572,9 @@ document.getElementById('logoutModal').style.display = 'none';
                 <hr class="semibold my-6">
                    
                 <!-- ปุ่มส่ง -->
-                <div class="flex justify-end space-x-4">
-                    <button type="submit" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
-                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
+                <div class="flex justify-end space-x-4 mt-4">
+                    <button type="submit" @click="work_status = 'R'" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
+                    <button type="submit" @click="work_status = 'Draft'" name="work_status" value="Draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
                 </div>
             </form>
         </div>

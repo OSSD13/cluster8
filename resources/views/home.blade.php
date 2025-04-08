@@ -581,7 +581,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
 </div>
 
             
-!-- ส่วนประวัติการทำงาน -->
+<!-- ส่วนประวัติการทำงาน -->
 <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
     <div class="flex justify-between items-center border-b pb-3 mb-4">
         <div>

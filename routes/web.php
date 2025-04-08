@@ -3,30 +3,12 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\LoginController;
-
-Route::get('/', function () {
-    return view('home');});
-
-Route::get("/home",[HomeController::class,'home']);
-
-Route::get('/login', [LoginController::class, 'index']);
-Route::post('/login', [LoginController::class, 'login']);
-
-// Route::get('/',
-//     [HomeController::class, 'index'])-> middleware([CheckLogin::class]);
-
-
-
 use App\Http\Controllers\Login_controller;
 use App\Http\Controllers\Home_controller;
 use App\Http\Middleware\Check_login;
 use App\Http\Controllers\Work_request_controller;
 use App\Http\Controllers\Report_controller;
 use App\Http\Controllers\Manage_controller;
-
-
 
 Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
 Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
@@ -44,7 +26,6 @@ Route::get("/workrequest", [Work_request_controller::class, "index"]);
 Route::get("/report", [Report_controller::class, "index"]);
 
 Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_login::class]);
-Route::post('/manage', [Manage_controller::class, 'manage']);
+Route::get('/manage/search-users', [Manage_controller::class, 'searchUsers']);
 
-
-
+Route::post('/manage/edit-dept', [Manage_controller::class, 'edit_dept'])->name('edit.dept');

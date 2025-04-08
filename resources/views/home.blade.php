@@ -5,18 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work Request System</title>
-    
+
     <!-- การนำเข้า CSS และ Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    
+
     <!-- CSS พื้นฐาน -->
     <style>
         /* ตั้งค่า Font หลัก */
         body {
             font-family: 'Noto Sans Thai', sans-serif;
-             
+
         }
     .graph-container {
         display: flex;
@@ -64,7 +64,7 @@
         body.popup-open {
             overflow: hidden;
         }
-        
+
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
@@ -75,7 +75,7 @@
         .scrollable-content {
         max-height: 400px; /* กำหนดความสูงสูงสุด */
         overflow-y: auto;  /* เปิดการเลื่อนในแนวตั้ง */
-        
+
     }
     </style>
 </head>
@@ -86,7 +86,7 @@
         <div class="py-2 border-b">
             <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-30 mx-auto">
         </div>
-        
+
         <!-- เมนู -->
         <div class="flex-1 px-3 py-6 space-y-2">
             <a href="home" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
@@ -102,7 +102,7 @@
                 <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
             </a>
         </div>
-        
+
         <!-- โปรไฟล์ผู้ใช้ -->
             <div class="p-4">
                 <div id="profileButton" class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800" style="cursor: pointer;">
@@ -188,13 +188,13 @@
 
     </div>
     <!-- จบส่วน Sidebar -->
-    
+
     <!-- เริ่มส่วนเนื้อหาหลัก -->
     <div class="flex-1 p-8 ml-60">
         <!-- หัวข้อและช่องค้นหา -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-[#0012E1]">หน้าหลัก</h1>
-            
+
             <!-- ช่องค้นหา -->
             <!-- <div class="relative">
                 <input type="text" placeholder="Search anything here..." class="pl-4 pr-10 py-2 border rounded-full w-80">
@@ -203,7 +203,7 @@
                 </button>
             </div>  -->
         </div>
-        
+
         <!-- กริดแสดงข้อมูล -->
         <div class="grid grid-cols-2 gap-6">
             <!-- การ์ดแสดงใบสั่งงานตามแผนก -->
@@ -239,7 +239,7 @@
                 <i class="fas fa-chevron-right text-gray-400"></i>
             </div>
         </div>
-        
+
         <!-- รายการงาน 2 -->
         <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
             <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
@@ -253,7 +253,7 @@
                 <i class="fas fa-chevron-right text-gray-400"></i>
             </div>
         </div>
-        
+
         <!-- รายการงาน 3 -->
         <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
             <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
@@ -267,7 +267,7 @@
                 <i class="fas fa-chevron-right text-gray-400"></i>
             </div>
         </div>
-        
+
         <!-- รายการงาน 4 -->
         <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
             <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
@@ -283,7 +283,7 @@
         </div>
     </div>
 </div>
-            
+
         <!-- การ์ดแสดงกราฟการทำงานตามแผนก -->
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="border-b pb-2 mb-4">
@@ -300,20 +300,20 @@
                         inProgress: 5,
                         completed: 48
                         };
-                        
+
                         // หาค่าสูงสุดเพื่อทำ scale
                         const maxValue = Math.max(data.waiting, data.inProgress, data.completed);
                         // คำนวณสเกลเพื่อให้กราฟพอดีกับความสูงที่กำหนด (200px)
                         const scale = 200 / (Math.ceil(maxValue / 10) * 10);
-                        
+
                         // สร้างสเกลด้านซ้าย
                         function createYAxis() {
                         const yAxis = document.getElementById('y-axis');
                         yAxis.innerHTML = '';
-                        
+
                         // คำนวณค่าสูงสุดของสเกล (ปัดขึ้นให้เป็นหลัก 10)
                         const maxScale = Math.ceil(maxValue / 10) * 10;
-                        
+
                         // สร้างช่วงสเกล 6 ช่วง (0-maxScale)
                         for (let i = 5; i >= 0; i--) {
                             const value = Math.round(maxScale * i / 5);
@@ -322,34 +322,34 @@
                             yAxis.appendChild(div);
                         }
                         }
-                        
+
                         // อัพเดตความสูงของกราฟและค่าที่แสดง
                         function updateChart() {
                         // อัพเดตความสูงของกราฟ
                         document.getElementById('bar-waiting').style.height = `${data.waiting * scale}px`;
                         document.getElementById('bar-in-progress').style.height = `${data.inProgress * scale}px`;
                         document.getElementById('bar-completed').style.height = `${data.completed * scale}px`;
-                        
+
                         // อัพเดตตัวเลขที่แสดง
                         document.getElementById('value-waiting').textContent = data.waiting;
                         document.getElementById('value-in-progress').textContent = data.inProgress;
                         document.getElementById('value-completed').textContent = data.completed;
                         }
-                        
+
                         // รันฟังก์ชันเมื่อโหลดหน้า
                         window.onload = function() {
                         createYAxis();
                         updateChart();
                         };
                     </script>
-                    
+
                     <!-- กราฟแท่งแนวตั้ง -->
                     <div class="h-64 flex items-end justify-evenly relative">
                         <!-- แกนตั้งแสดงค่า -->
                         <div id="y-axis" class="absolute left-0 h-full flex flex-col justify-between text-gray-500 text-xs">
                         <!-- สเกลจะถูกสร้างด้วย JavaScript -->
                         </div>
-                        
+
                         <div class="flex flex-col items-center">
                         <div class="relative">
                             <div id="bar-waiting" class="bg-yellow-400 w-8 rounded-t"></div>
@@ -357,7 +357,7 @@
                         </div>
                         <div class="mt-2 text-sm">รอดำเนินการ</div>
                         </div>
-                        
+
                         <div class="flex flex-col items-center">
                         <div class="relative">
                             <div id="bar-in-progress" class="bg-yellow-200 w-8 rounded-t"></div>
@@ -365,7 +365,7 @@
                         </div>
                         <div class="mt-2 text-sm">กำลังดำเนินการ</div>
                         </div>
-                        
+
                         <div class="flex flex-col items-center">
                         <div class="relative">
                             <div id="bar-completed" class="bg-green-500 w-8 rounded-t"></div>
@@ -383,7 +383,7 @@
                             <h2 class="text-lg font-bold">ส่วนตัว</h2>
                             <p class="text-sm text-[#6b7280]">ใบสั่งงานส่วนตัว</p>
                         </div>
-                        
+
                         <div class="space-y-4 scrollbar-hide scrollable-content">
                             <!-- รายการงาน 1 -->
                             <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
@@ -398,7 +398,7 @@
                                     <i class="fas fa-chevron-right text-gray-400"></i>
                                 </div>
                             </div>
-                            
+
                             <!-- รายการงาน 2 -->
                             <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
                             <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
@@ -412,7 +412,7 @@
                                     <i class="fas fa-chevron-right text-gray-400"></i>
                                 </div>
                             </div>
-                        
+
                             <!-- รายการงาน 3 -->
                             <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
                                 <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
@@ -426,7 +426,7 @@
                                     <i class="fas fa-chevron-right text-gray-400"></i>
                                 </div>
                             </div>
-                            
+
                             <!-- รายการงาน 4 -->
                             <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
                             <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
@@ -455,7 +455,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- การ์ดแสดงกราฟการทำงานส่วนตัว -->
         <div class="bg-[#ffffff] rounded-lg shadow p-6">
             <div class="border-b pb-2 mb-4">
@@ -472,20 +472,20 @@
                     inProgress: 10,
                     completed: 35
                 };
-                
+
                 // หาค่าสูงสุดเพื่อทำ scale
                 const personalMaxValue = Math.max(personalData.waiting, personalData.inProgress, personalData.completed);
                 // คำนวณสเกลเพื่อให้กราฟพอดีกับความสูงที่กำหนด (200px)
                 const personalScale = 200 / (Math.ceil(personalMaxValue / 10) * 10);
-                
+
                 // สร้างสเกลด้านซ้าย
                 function createPersonalYAxis() {
                     const yAxis = document.getElementById('personal-y-axis');
                     yAxis.innerHTML = '';
-                    
+
                     // คำนวณค่าสูงสุดของสเกล (ปัดขึ้นให้เป็นหลัก 10)
                     const maxScale = Math.ceil(personalMaxValue / 10) * 10;
-                    
+
                     // สร้างช่วงสเกล 6 ช่วง (0-maxScale)
                     for (let i = 5; i >= 0; i--) {
                         const value = Math.round(maxScale * i / 5);
@@ -494,20 +494,20 @@
                         yAxis.appendChild(div);
                     }
                 }
-                
+
                 // อัพเดตความสูงของกราฟและค่าที่แสดง
                 function updatePersonalChart() {
                     // อัพเดตความสูงของกราฟ
                     document.getElementById('personal-bar-waiting').style.height = `${personalData.waiting * personalScale}px`;
                     document.getElementById('personal-bar-in-progress').style.height = `${personalData.inProgress * personalScale}px`;
                     document.getElementById('personal-bar-completed').style.height = `${personalData.completed * personalScale}px`;
-                    
+
                     // อัพเดตตัวเลขที่แสดง
                     document.getElementById('personal-value-waiting').textContent = personalData.waiting;
                     document.getElementById('personal-value-in-progress').textContent = personalData.inProgress;
                     document.getElementById('personal-value-completed').textContent = personalData.completed;
                 }
-                
+
                 // เพิ่มฟังก์ชันเข้าไปในรายการที่ต้องทำเมื่อโหลดหน้า
                 window.addEventListener('load', function() {
                     if (document.getElementById('personal-y-axis')) {
@@ -516,14 +516,14 @@
                     }
                 });
             </script>
-            
+
             <!-- กราฟแท่งแนวตั้ง -->
             <div class="h-64 flex items-end justify-evenly relative">
                 <!-- แกนตั้งแสดงค่า -->
                 <div id="personal-y-axis" class="absolute left-0 h-full flex flex-col justify-between text-gray-500 text-xs">
                     <!-- สเกลจะถูกสร้างด้วย JavaScript -->
                 </div>
-                
+
                 <div class="flex flex-col items-center">
                     <div class="relative">
                         <div id="personal-bar-waiting" class="bg-yellow-400 w-8 rounded-t"></div>
@@ -531,7 +531,7 @@
                     </div>
                     <div class="mt-2 text-sm">รอดำเนินการ</div>
                 </div>
-                
+
                 <div class="flex flex-col items-center">
                     <div class="relative">
                         <div id="personal-bar-in-progress" class="bg-yellow-200 w-8 rounded-t"></div>
@@ -539,7 +539,7 @@
                     </div>
                     <div class="mt-2 text-sm">กำลังดำเนินการ</div>
                 </div>
-                
+
                 <div class="flex flex-col items-center">
                     <div class="relative">
                         <div id="personal-bar-completed" class="bg-green-500 w-8 rounded-t"></div>
@@ -558,11 +558,11 @@
         <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
         <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
     </div>
-    
+
     <div class="space-y-2 scrollbar-hide scrollable-content ">
         <!-- รายการงานที่กำลังดำเนินการ 1 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+        <div class="flex items-center justify-between pb-2 cursor-pointer work-item-doing w-full">
+            <div class="work-item-doing flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
                 <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
                     <i class="fas fa-box text-[#533FE4] text-2xl"></i>
                 </div>
@@ -577,74 +577,10 @@
             </div>
         </div>
 
-       <!-- รายการงานที่กำลังดำเนินการ 2 -->
-       <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
 
-        <!-- รายการงานที่กำลังดำเนินการ 3 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
 
-        <!-- รายการงานที่กำลังดำเนินการ 4 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
-        <!-- รายการงานที่กำลังดำเนินการ 5 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
     </div>
-</div> 
+</div>
             <!-- ส่วนประวัติการทำงาน -->
             <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
                 <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -662,7 +598,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- กริดแสดงการ์ดประวัติ -->
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                     <!-- การ์ดประวัติ: เสร็จสิ้น -->
@@ -677,7 +613,7 @@
                             วันที่เสร็จสิ้น
                         </div>
                     </div>
-                    
+
                     <!-- การ์ดประวัติ: ปฏิเสธ -->
                     <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
                         <div class="flex justify-between items-center mb-2">
@@ -690,7 +626,7 @@
                             วันที่ปฏิเสธ
                         </div>
                     </div>
-                    
+
                     <!-- ใช้ลูป Blade เพื่อแสดงการ์ดเพิ่มเติม -->
                     @for ($i = 0; $i < 12; $i++)
                     <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
@@ -810,42 +746,199 @@
         </button>
     </div>
 
+  </div>
+</div>
+<!-- Popup รายละเอียดใบสั่งงาน(กำลังดำนินการ) -->
+<div id="workItemPopupDoing" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
+
+      <!-- ปุ่มปิด -->
+              <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+          <i class="fas fa-times text-xl"></i>
+          </button>
+
+
+      <!-- หัวข้อ -->
+      <h2 class="text-xl font-bold text-blue-700 mb-4">
+        รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
+      </h2>
+
+          <!-- ข้อมูลหลัก -->
+      <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
+      <div>
+          <span class="font-semibold">ชื่อเรื่อง :</span> <span id="popup-title">-</span>
+      </div>
+      <div>
+          <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
+      </div>
+      <div>
+          <span class="font-semibold">ผู้ส่ง :</span>  {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+      </div>
+      <div>
+          <span class="font-semibold">แผนก :</span>
+      </div>
+      </div>
+
+
+      <!-- การ์ดย่อยของงาน -->
+      <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
+        @for ($i = 0; $i < 6; $i++)
+          <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+            <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
+            <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
+            <div class="flex items-center text-xs text-gray-600">
+              <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
+              อังคาร, 1 ธันวาคม 2025
+            </div>
+            <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
+          </div>
+        @endfor
+      </div>
+
+          <!-- ปุ่ม -->
+      <div class="flex justify-center mt-6 gap-3">
+        <button onclick="closePopup()"  class="px-4 py-2 border border-black text-black rounded-md hover:bg-black hover:text-white transition">ปฏิเสธ</button>
+        <button class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition">ส่งคืนงาน</button>
+        <button id = "submit" class="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition">เสร็จสิ้น</button>
+      </div>
+
+
+    </div>
+</div>
+<!-- ป๊อปอัพยืนยันส่งงาน-->
+<div id="confirmSubmitModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+        <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
+            <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการส่งาน</div>
+            <button class="modal-close text-gray-500 text-xl" id="close-popup">&times;</button>
+        </div>
+        <div class="modal-body text-center mb-6">
+            <p class="text-left text-lg text-gray-600 mb-4">หมายเหตุ <span style="color: red;">*</span> :</p>
+            <p class="text-right text-xs text-gray-400"><span id="charCount">0</span>/100</p>
+            <textarea id="notation" class="border border-gray-300 rounded-lg w-full p-2 mb-4" style="height: 100px; resize: none;" maxlength="100" oninput="updateCounter()" placeholder="กรุณากรอกหมายเหตุ"></textarea>
+            <hr>
+            <br>
+            <div class="modal-buttons flex justify-center gap-4">
+                <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmSubmit">ยืนยัน</button>
+                <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelSubmit">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateCounter() {
+    	let input = document.getElementById("notation");
+    	let maxLength = input.maxLength;
+    	let remaining = input.value.length;
+    	document.getElementById("charCount").textContent = remaining;
+	}
+    // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+    document.getElementById('submit').addEventListener('click', function() {
+        // เปิดป๊อปอัพยืนยันการออกจากระบบ
+        document.getElementById('confirmSubmitModal').style.display = 'flex';
+    });
+
+    // เมื่อคลิกปุ่มปิดป๊อปอัพ
+    document.getElementById('close-popup').addEventListener('click', function() {
+        // ปิดป๊อปอัพ
+        document.getElementById('confirmSubmitModal').style.display = 'none';
+        document.body.classList.remove('popup-open');
+    });
+
+    // เมื่อคลิกปุ่มยกเลิก
+    document.getElementById('cancelSubmit').addEventListener('click', function() {
+        // ปิดป๊อปอัพ
+        document.getElementById('confirmSubmitModal').style.display = 'none';
+    });
+
+    // เมื่อคลิกปุ่มยืนยัน
+    document.getElementById('confirmSubmit').addEventListener('click', function() {
+    // แจ้งเตือนการส่งงาน
+    (response => {
+        document.getElementById('workItemPopupDoing').style.display = 'none';
+        alert('ส่งงานสำเร็จ');
+    });
+
+    // ปิดป๊อปอัพ
+        document.getElementById('confirmSubmitModal').style.display = 'none';
+    });
+
+
+    // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+    window.addEventListener('click', function(event) {
+        if (event.target === document.getElementById('confirmSubmitModal')) {
+            document.getElementById('confirmSubmitModal').style.display = 'none';
+        }
+    });
+</script>
+
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const workItems = document.querySelectorAll('.work-item');
+            const workItemsDoing = document.querySelectorAll('.work-item-doing');
             const popup = document.getElementById('workItemPopup');
+            const popupDoing = document.getElementById('workItemPopupDoing');
             const closeButtons = document.querySelectorAll('.close-popup, .close-popup-btn');
             const popupTitle = document.getElementById('popup-title');
             const popupDate = document.getElementById('popup-date');
-            
+
             workItems.forEach(item => {
                 item.addEventListener('click', function() {
                     const titleElement = this.querySelector('div > div:first-child');
                     const dateElement = this.querySelector('div > div:last-child');
-                    
+
                     if (titleElement && dateElement) {
                         const title = titleElement.textContent.replace('ชื่องาน : ', '');
                         const date = dateElement.textContent.replace('วันสิ้นสุดการทำงาน : ', '');
-                        
+
+                        // Set info in popup
                         popupTitle.textContent = title;
                         popupDate.textContent = date;
                     }
 
+                    // Show popup
                     popup.style.display = 'flex';
                     document.body.classList.add('popup-open');
                 });
             });
+            workItemsDoing.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Get task info from the clicked item
+                    const titleElement = this.querySelector('div > div:first-child');
+                    const dateElement = this.querySelector('div > div:last-child');
+
+                    if (titleElement && dateElement) {
+                        const title = titleElement.textContent.replace('ชื่องาน : ', '');
+                        const date = dateElement.textContent.replace('วันสิ้นสุดการทำงาน : ', '');
+
+                        // Set info in popup
+                        popupTitle.textContent = title;
+                        popupDate.textContent = date;
+                    }
+
+                    // Show popup
+                    popupDoing.style.display = 'flex';
+                    document.body.classList.add('popup-open');
+                });
+            });
+
 
             closeButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     popup.style.display = 'none';
+                    popupDoing.style.display = 'none';
                     document.body.classList.remove('popup-open');
                 });
             });
 
+            // Close popup when clicking outside the content
             popup.addEventListener('click', function(e) {
                 if (e.target === popup) {
                     popup.style.display = 'none';
+                    popupDoing.style.display = 'none';
                     document.body.classList.remove('popup-open');
                 }
             });

@@ -3,7 +3,7 @@
 $pdo = new PDO("mysql:host=10.80.6.165;dbname=cluster8;charset=utf8", "cluster8", "k4PL1Wqq");
 
 // 2. ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา
-$sql = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id FROM work_request_order 
+$sql = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id FROM work_request_order
         WHERE work_submit_date >= NOW() - INTERVAL 5 DAY";
 
 $stmt = $pdo->query($sql);
@@ -32,7 +32,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <img src="{{ asset('public/wrslogo.png') }}" alt="WorkRequest System Logo" class="mr-3 h-13">
             </div>
         </div>
-        
+
         <!-- Sidebar Menu -->
         <div class="py-4">
             <a href="home" class="flex items-center px-4 py-3 text-[#374151] hover:bg-[#f3f4f6] rounded-lg mx-2 mb-2">
@@ -49,7 +49,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </a>
         </div>
     </div>
-    
+
     <!-- Main Content -->
     <div class="flex-1 p-8 ml-60">
         <div class="flex justify-between items-center mb-6">
@@ -102,14 +102,14 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <form action="{{ url('/work_request') }}" method="POST">
                 @csrf
-    
+
                 <!-- ชื่อเรื่อง / วันที่ร้องขอ -->
                 <div class="flex justify-between mb-4 mt-4">
                     <div>ชื่อเรื่อง : <input type="text" name="work_name" class="border p-2 rounded w-full" placeholder="กรุณากรอกชื่อเรื่อง" required>
                     </div>
                     <div>วันที่ร้องขอ : </div>
                 </div>
-    
+
                 <!-- ผู้ส่ง / แผนก -->
                 <div class="flex justify-between items-center mb-4">
                     <div>ผู้ส่ง : <strong></strong></div>
@@ -119,9 +119,9 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <label><input type="radio" name="work_author_type" value="ไม่ระบุ"> ไม่ระบุ</label>
                     </div>
                 </div>
-    
+
                 <hr class="mb-4">
-    
+
                 <!-- งานย่อยแบบ dynamic -->
                 <template x-for="(task, index) in tasks" :key="index">
                     <div class="flex items-center bg-gray-50 p-3 rounded-lg mb-2 shadow">
@@ -130,13 +130,13 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <input type="text" name="sub_tasks[][department]" class="ml-4 border p-2 rounded text-sm w-20" x-model="task.department" placeholder="แผนก">
                     </div>
                 </template>
-    
+
                 <!-- เพิ่มรายการใหม่ -->
                 <div class="flex space-x-2 items-center mt-3">
                     <button type="button" @click="addTask" class="text-xl font-bold text-blue-500">+</button>
                     <span class="text-sm">เพิ่มรายการ</span>
                 </div>
-    
+
                 <!-- ปุ่มส่ง -->
                 <div class="mt-6 flex justify-end space-x-4">
                     <button type="submit" class="px-6 py-2 border border-black rounded">แบบร่าง</button>
@@ -144,7 +144,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </form>
         </div>
-        
+
     </div>
 </body>
 

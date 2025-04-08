@@ -34,7 +34,7 @@ class Work_request_controller extends Controller
         $mtask->task_recipient_type = $req->input('');
         $mwrq->task_submit_date = $req->input('');
         $mtask->save();
-    
+
         return redirect('/work_request')->with('status', 'Work request created successfully');
     }
 }

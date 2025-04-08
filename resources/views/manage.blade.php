@@ -22,7 +22,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
     <!-- CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -50,7 +49,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             padding: 30px;
         }
-
         .container-bottom {
             width: 75%;
             height: 80%;
@@ -110,7 +108,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: white;
             border-color: black;
         }
-
         .clickable.active .icon-blue {
             color: white;
         }
@@ -305,7 +302,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border: 1px solid #ccc;
             border-radius: 8px;
         }
-
         .search-button {
             position: absolute;
             top: 50%;
@@ -318,7 +314,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             padding: 0;
             font-size: 16px;
         }
-
         @media screen and (max-width: 768px) {
             .assign-row {
                 flex-direction: column;
@@ -405,6 +400,13 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         #searchResults ul li:hover {
             background-color: #f0f0f0;
         }
+
+        /* เพิ่มการจัดตำแหน่งและระยะห่างสำหรับรูปภาพในคอลัมน์ชื่อ */
+        td img {
+            margin-right: 8px; /* ระยะห่างระหว่างรูปภาพกับข้อความ */
+            vertical-align: middle; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+        }
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 

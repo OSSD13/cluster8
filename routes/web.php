@@ -10,7 +10,7 @@ use App\Http\Controllers\Work_request_controller;
 use App\Http\Controllers\Report_controller;
 use App\Http\Controllers\Manage_controller;
 use App\Http\Controllers\Dashboard_controller;
-
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
 Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
@@ -37,3 +37,5 @@ Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_lo
 Route::get('/manage/search-users', [Manage_controller::class, 'searchUsers']);
 
 Route::post('/manage/edit-dept', [Manage_controller::class, 'edit_dept'])->name('edit.dept');
+
+Route::get("/dashboard",[Dashboard_controller::class, 'index']);

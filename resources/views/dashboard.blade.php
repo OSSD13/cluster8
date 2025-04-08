@@ -185,7 +185,7 @@
             // เมื่อคลิกปุ่มยืนยัน
 document.getElementById('confirmLogout').addEventListener('click', function() {
 // ส่งคำขอไปยัง route logout
-fetch('/logout', {
+fetch('logout', {
     method: 'GET',
     headers: {
         'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ fetch('/logout', {
 }).then(response => {
     if (response.ok) {
         // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-        window.location.href = '/login';  // หรือ URL ที่ต้องการ
+        window.location.href = 'login';  // หรือ URL ที่ต้องการ
     } else {
         alert('เกิดข้อผิดพลาดในการออกจากระบบ');
     }

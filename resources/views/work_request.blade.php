@@ -477,6 +477,16 @@ document.getElementById('logoutModal').style.display = 'none';
     </div>
     
     <!-- Modal -->
+<<<<<<< HEAD
+    <div x-show="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 class="text-lg font-semibold">สร้างคำขอใหม่</h2>
+                <button @click="isOpen = false" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+=======
 <div x-show="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <!-- Modal Box -->
     <div class="bg-white p-4 rounded-xl shadow-xl max-w-3xl p-6 relative">
@@ -491,6 +501,7 @@ document.getElementById('logoutModal').style.display = 'none';
         </div>
     
             <!-- FORM -->
+>>>>>>> main
             <form action="{{ url('/workrequest') }}" method="POST">
                 @csrf
                 

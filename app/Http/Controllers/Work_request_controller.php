@@ -64,9 +64,19 @@ class Work_request_controller extends Controller
 
     public function store(Request $req)
     {
-        // Logic สำหรับบันทึกข้อมูล
-        $workId = $req->input('confirm_work_id');
-        // บันทึก work_confirm_date หรือข้อมูลอื่นๆ
+        // ดึงข้อมูล work_request_id จากฟอร์ม
+        $workRequestId = $req->input('confirm_work_id');
+
+        // ค้นหา Work_Request_Order ที่ต้องการอัปเดต
+        $mwrq = \App\Models\Work_Request_Order::find($workRequestId);
+
+        if ($mwrq) {
+            // อัปเดต work_confirm_date เป็นวันที่ปัจจุบัน
+            $mwrq->work_confirm_date = now();
+            $mwrq->save();
+        }
+
+        // Redirect กลับไปที่หน้า workrequest
         return redirect('/workrequest');
     }
 }

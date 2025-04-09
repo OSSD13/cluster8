@@ -44,6 +44,7 @@ Route::get('/manage/search-users', [Manage_controller::class, 'searchUsers']);
 
 Route::post('/manage/edit-dept', [Manage_controller::class, 'edit_dept'])->name('edit.dept');
 
+Route::post('/manage/filter-by-department', [Manage_controller::class, 'filterByDepartment']);
 
 Route::get('/dashboard',[Dashboard_controller::class,"index"]);
 Route::post('/update-userclick', function (Request $request) {
@@ -75,4 +76,6 @@ Route::post('/update-userclick', function (Request $request) {
         'decrydingDepartmentTasks' => $decrydingDepartmentTasks,
     ]);
 });
+
+
 

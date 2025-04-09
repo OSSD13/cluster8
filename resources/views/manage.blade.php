@@ -353,7 +353,7 @@
                     <button class="icon-right search-button" onclick="handleSearch()">
                       <i class="fas fa-search"></i>
                     </button>
-                  </div>
+                </div>
 
 
                 <div class="input-icon-both">

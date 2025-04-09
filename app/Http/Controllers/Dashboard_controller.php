@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class Dashboard_controller extends Controller
 {
     /**
-     * แสดงหน้าแดชบอร์ด
+     * แสดงหน้าแดชบอร์ดพร้อมข้อมูลสถานะงาน
      */
-     function index()
+    public function index(Request $request)
     {
-        // ส่งข้อมูลไปยัง View
         return view('dashboard');
     }
 }

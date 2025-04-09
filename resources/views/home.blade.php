@@ -1,19 +1,18 @@
 <?php
 // เชื่อมต่อฐานข้อมูล MySQL
-$pdo = new PDO("mysql:host=10.80.6.165;dbname=cluster8;charset=utf8", "cluster8", "k4PL1Wqq");
+$pdo = new PDO('mysql:host=10.80.6.165;dbname=cluster8;charset=utf8', 'cluster8', 'k4PL1Wqq');
 
 // กำหนดการตั้งค่าการแบ่งหน้า
 $items_per_page = 50; // จำนวนรายการที่จะแสดงในแต่ละหน้า (50 รายการต่อหน้า)
-$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // ตรวจสอบหน้าปัจจุบัน
+$current_page = isset($_GET['page']) ? (int) $_GET['page'] : 1; // ตรวจสอบหน้าปัจจุบัน
 $offset = ($current_page - 1) * $items_per_page; // คำนวณ offset
 session_start(); // เริ่มต้น session
 // ลบค่า user_id ออกจาก session
 unset($_SESSION['user_id']);
 
-
 // ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
 $userID = session('users')->user_id;
-$sql = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
+$sql = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id,
                task_notation, task_recipient_type, task_submit_date, task_work_request_id, wro.work_name
         FROM task
         LEFT JOIN work_request_order AS wro ON task_work_request_id = wro.work_request_id
@@ -27,7 +26,7 @@ $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
+$sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id,
                task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
         FROM task
         LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
@@ -43,7 +42,7 @@ $stmt2->execute();
 $data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
 // คำนวณจำนวนหน้าทั้งหมด
-$sql_count = "SELECT COUNT(*) FROM work_request_order 
+$sql_count = "SELECT COUNT(*) FROM work_request_order
 JOIN task ON work_request_id = task_work_request_id
 WHERE work_confirm_date >= NOW() - INTERVAL 5 DAY AND task_recipient_user_id = $userID AND (task_status = 'C' OR task_status = 'D') AND work_confirm_date IS NOT NULL";
 $count_stmt = $pdo->query($sql_count);
@@ -53,37 +52,45 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <!-- Meta tags และ Fonts -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work Request System</title>
-    
+
     <!-- การนำเข้า CSS และ Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    
+
     <!-- CSS พื้นฐาน -->
     <style>
-         /* ตั้งค่า Font หลัก */
-         body {
+        /* ตั้งค่า Font หลัก */
+        body {
             font-family: 'Noto Sans Thai', sans-serif;
-             
-        }
-    .graph-container {
-        display: flex;
-        justify-content: center; /* จัดกราฟให้อยู่ตรงกลางแนวนอน */
-        align-items: center;     /* จัดกราฟให้อยู่ตรงกลางแนวตั้ง */
-        width: 100%;             /* ทำให้กราฟมีความกว้างเต็ม */
-        height: 100%;            /* ทำให้กราฟมีความสูงเต็ม */
-    }
 
-    .chart {
-        width: 70%;             /* กำหนดขนาดกราฟที่ต้องการ */
-        max-width: 600px;       /* กำหนดขนาดสูงสุด */
-        height: auto;
-    }
+        }
+
+        .graph-container {
+            display: flex;
+            justify-content: center;
+            /* จัดกราฟให้อยู่ตรงกลางแนวนอน */
+            align-items: center;
+            /* จัดกราฟให้อยู่ตรงกลางแนวตั้ง */
+            width: 100%;
+            /* ทำให้กราฟมีความกว้างเต็ม */
+            height: 100%;
+            /* ทำให้กราฟมีความสูงเต็ม */
+        }
+
+        .chart {
+            width: 70%;
+            /* กำหนดขนาดกราฟที่ต้องการ */
+            max-width: 600px;
+            /* กำหนดขนาดสูงสุด */
+            height: auto;
+        }
 
         /* สไตล์สำหรับ Popup */
         .popup {
@@ -94,44 +101,52 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 9999;
             justify-content: center;
             align-items: center;
         }
+
         .popup-content {
             background-color: white;
             padding: 20px;
             border-radius: 8px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             position: relative;
         }
+
         .close-popup {
             position: absolute;
             top: 10px;
             right: 10px;
             cursor: pointer;
         }
+
         body.popup-open {
             overflow: hidden;
         }
-        
+
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
+
         .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
         .scrollable-content {
-        max-height: 400px; /* กำหนดความสูงสูงสุด */
-        overflow-y: auto;  /* เปิดการเลื่อนในแนวตั้ง */
-        
-    }
+            max-height: 400px;
+            /* กำหนดความสูงสูงสุด */
+            overflow-y: auto;
+            /* เปิดการเลื่อนในแนวตั้ง */
+
+        }
     </style>
 </head>
+
 <body class="bg-[#f3f4f6] flex min-h-screen">
     <!-- เริ่มส่วน Sidebar -->
     <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
@@ -139,7 +154,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         <div class="py-2 border-b">
             <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-30 mx-auto">
         </div>
-        
+
         <!-- เมนู -->
         <div class="flex-1 px-3 py-6 space-y-2">
             <a href="home" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
@@ -155,101 +170,107 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
             </a>
         </div>
-        
+
         <!-- โปรไฟล์ผู้ใช้ -->
-            <div class="p-4">
-                <div id="profileButton" class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800" style="cursor: pointer;">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-user text-lg"></i>
-                        </div>
-                        <div>
-                            <div class="leading-tight text-xs">
-                                {{ session('users')->user_fname }} {{ session('users')->user_lname }}
-                            </div>
-                            <div class="leading-tight text-xs">
-                                {{ session('users')->user_id }}
-                            </div>
-                        </div>
+        <div class="p-4">
+            <div id="profileButton"
+                class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800"
+                style="cursor: pointer;">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-lg"></i>
                     </div>
-                    <i class="fas fa-arrow-right text-white text-sm"></i>
-                </div>
-            </div>
-            <!-- ป๊อปอัพยืนยันการออกจากระบบ -->
-            <div id="logoutModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-                <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
-                    <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
-                        <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการออกจากระบบ</div>
-                        <button class="modal-close text-gray-500 text-xl" id="closeModal">&times;</button>
-                    </div>
-                    <div class="modal-body text-center mb-6">
-                        <p class="text-lg text-gray-600 mb-4">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
-                        <div class="modal-buttons flex justify-center gap-4">
-                            <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmLogout">ยืนยัน</button>
-                            <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelLogout">ยกเลิก</button>
+                    <div>
+                        <div class="leading-tight text-xs">
+                            {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+                        </div>
+                        <div class="leading-tight text-xs">
+                            {{ session('users')->user_id }}
                         </div>
                     </div>
                 </div>
+                <i class="fas fa-arrow-right text-white text-sm"></i>
             </div>
+        </div>
+        <!-- ป๊อปอัพยืนยันการออกจากระบบ -->
+        <div id="logoutModal"
+            class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+            <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+                <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
+                    <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการออกจากระบบ</div>
+                    <button class="modal-close text-gray-500 text-xl" id="closeModal">&times;</button>
+                </div>
+                <div class="modal-body text-center mb-6">
+                    <p class="text-lg text-gray-600 mb-4">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
+                    <div class="modal-buttons flex justify-center gap-4">
+                        <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700"
+                            id="confirmLogout">ยืนยัน</button>
+                        <button
+                            class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100"
+                            id="cancelLogout">ยกเลิก</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <script>
-                // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
-                document.getElementById('profileButton').addEventListener('click', function() {
-                    // เปิดป๊อปอัพยืนยันการออกจากระบบ
-                    document.getElementById('logoutModal').style.display = 'flex';
-                });
+        <script>
+            // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+            document.getElementById('profileButton').addEventListener('click', function() {
+                // เปิดป๊อปอัพยืนยันการออกจากระบบ
+                document.getElementById('logoutModal').style.display = 'flex';
+            });
 
-                // เมื่อคลิกปุ่มปิดป๊อปอัพ
-                document.getElementById('closeModal').addEventListener('click', function() {
-                    // ปิดป๊อปอัพ
-                    document.getElementById('logoutModal').style.display = 'none';
-                });
+            // เมื่อคลิกปุ่มปิดป๊อปอัพ
+            document.getElementById('closeModal').addEventListener('click', function() {
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
 
-                // เมื่อคลิกปุ่มยกเลิก
-                document.getElementById('cancelLogout').addEventListener('click', function() {
-                    // ปิดป๊อปอัพ
-                    document.getElementById('logoutModal').style.display = 'none';
-                });
+            // เมื่อคลิกปุ่มยกเลิก
+            document.getElementById('cancelLogout').addEventListener('click', function() {
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
 
-                // เมื่อคลิกปุ่มยืนยัน
-document.getElementById('confirmLogout').addEventListener('click', function() {
-    // ส่งคำขอไปยัง route logout
-    fetch('logout', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    }).then(response => {
-        if (response.ok) {
-            // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-            window.location.href = 'login';  // หรือ URL ที่ต้องการ
-        } else {
-            alert('เกิดข้อผิดพลาดในการออกจากระบบ');
-        }
-    });
-
-    // ปิดป๊อปอัพ
-    document.getElementById('logoutModal').style.display = 'none';
-});
-
-
-                // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
-                window.addEventListener('click', function(event) {
-                    if (event.target === document.getElementById('logoutModal')) {
-                        document.getElementById('logoutModal').style.display = 'none';
+            // เมื่อคลิกปุ่มยืนยัน
+            document.getElementById('confirmLogout').addEventListener('click', function() {
+                // ส่งคำขอไปยัง route logout
+                fetch('logout', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
+                        window.location.href = 'login'; // หรือ URL ที่ต้องการ
+                    } else {
+                        alert('เกิดข้อผิดพลาดในการออกจากระบบ');
                     }
                 });
+
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+
+            // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('logoutModal')) {
+                    document.getElementById('logoutModal').style.display = 'none';
+                }
+            });
         </script>
 
     </div>
     <!-- จบส่วน Sidebar -->
-    
+
     <!-- เริ่มส่วนเนื้อหาหลัก -->
     <div class="flex-1 p-8 ml-60">
         <!-- หัวข้อและช่องค้นหา -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-[#0012E1]">หน้าหลัก</h1>
-            
+
             <!-- ช่องค้นหา -->
             <!-- <div class="relative">
                 <input type="text" placeholder="Search anything here..." class="pl-4 pr-10 py-2 border rounded-full w-80">
@@ -258,7 +279,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                 </button>
             </div>  -->
         </div>
-        
+
         <!-- กริดแสดงข้อมูล -->
         <div class="grid grid-cols-2 gap-6">
             <!-- การ์ดแสดงใบสั่งงานตามแผนก -->
@@ -267,56 +288,59 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                     <h2 class="text-lg font-bold">แผนก</h2>
                     <p class="text-sm text-[#6b7280]">ใบสั่งงานตามแผนก</p>
                 </div>
-                
+
                 <div class="space-y-4">
-                        <!-- รายการงาน 1 -->
-                        <?php foreach ($data as $row): ?>
-                            <?php if ($row['task_recipient_type'] === 'D'): ?>
-                                <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                                    <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                        <i class="fas fa-box text-white text-2xl"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['work_name']) ?> </div>
-                                        <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
-                                    </div>
-                                    <div>
-                                        <i class="fas fa-chevron-right text-gray-400"></i>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
+                    <!-- รายการงาน 1 -->
+                    <?php foreach ($data as $row): ?>
+                    <?php if ($row['task_recipient_type'] === 'D'): ?>
+                    <div
+                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                        <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                            <i class="fas fa-box text-white text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold text-gray-800">ชื่องาน :
+                                <?= htmlspecialchars($row['work_name']) ?> </div>
+                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน :
+                                <?= htmlspecialchars($row['task_deadline']) ?></div>
+                        </div>
+                        <div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
                     </div>
+                    <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
             </div>
-            
-                                <!-- การ์ดแสดงกราฟการทำงานตามแผนก -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                    <div class="border-b pb-2 mb-4">
-                        <h2 class="text-lg font-bold">แผนก</h2>
-                        <p class="text-sm text-gray-500">กราฟแสดงการทำงานตามแผนก</p>
-                    </div>
-                    
-                    <script>
-                        // ตัวอย่างข้อมูลที่จะดึงมา - สามารถเปลี่ยนเป็นการดึงข้อมูลจริงได้
-                        const data = {
+
+            <!-- การ์ดแสดงกราฟการทำงานตามแผนก -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="border-b pb-2 mb-4">
+                    <h2 class="text-lg font-bold">แผนก</h2>
+                    <p class="text-sm text-gray-500">กราฟแสดงการทำงานตามแผนก</p>
+                </div>
+
+                <script>
+                    // ตัวอย่างข้อมูลที่จะดึงมา - สามารถเปลี่ยนเป็นการดึงข้อมูลจริงได้
+                    const data = {
                         waiting: 55,
                         inProgress: 5,
                         completed: 48
-                        };
-                        
-                        // หาค่าสูงสุดเพื่อทำ scale
-                        const maxValue = Math.max(data.waiting, data.inProgress, data.completed);
-                        // คำนวณสเกลเพื่อให้กราฟพอดีกับความสูงที่กำหนด (200px)
-                        const scale = 200 / (Math.ceil(maxValue / 10) * 10);
-                        
-                        // สร้างสเกลด้านซ้าย
-                        function createYAxis() {
+                    };
+
+                    // หาค่าสูงสุดเพื่อทำ scale
+                    const maxValue = Math.max(data.waiting, data.inProgress, data.completed);
+                    // คำนวณสเกลเพื่อให้กราฟพอดีกับความสูงที่กำหนด (200px)
+                    const scale = 200 / (Math.ceil(maxValue / 10) * 10);
+
+                    // สร้างสเกลด้านซ้าย
+                    function createYAxis() {
                         const yAxis = document.getElementById('y-axis');
                         yAxis.innerHTML = '';
-                        
+
                         // คำนวณค่าสูงสุดของสเกล (ปัดขึ้นให้เป็นหลัก 10)
                         const maxScale = Math.ceil(maxValue / 10) * 10;
-                        
+
                         // สร้างช่วงสเกล 6 ช่วง (0-maxScale)
                         for (let i = 5; i >= 0; i--) {
                             const value = Math.round(maxScale * i / 5);
@@ -324,98 +348,102 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                             div.textContent = value;
                             yAxis.appendChild(div);
                         }
-                        }
-                        
-                        // อัพเดตความสูงของกราฟและค่าที่แสดง
-                        function updateChart() {
+                    }
+
+                    // อัพเดตความสูงของกราฟและค่าที่แสดง
+                    function updateChart() {
                         // อัพเดตความสูงของกราฟ
                         document.getElementById('bar-waiting').style.height = `${data.waiting * scale}px`;
                         document.getElementById('bar-in-progress').style.height = `${data.inProgress * scale}px`;
                         document.getElementById('bar-completed').style.height = `${data.completed * scale}px`;
-                        
+
                         // อัพเดตตัวเลขที่แสดง
                         document.getElementById('value-waiting').textContent = data.waiting;
                         document.getElementById('value-in-progress').textContent = data.inProgress;
                         document.getElementById('value-completed').textContent = data.completed;
-                        }
-                        
-                        // รันฟังก์ชันเมื่อโหลดหน้า
-                        window.onload = function() {
+                    }
+
+                    // รันฟังก์ชันเมื่อโหลดหน้า
+                    window.onload = function() {
                         createYAxis();
                         updateChart();
-                        };
-                    </script>
-                    
-                    <!-- กราฟแท่งแนวตั้ง -->
-                    <div class="h-64 flex items-end justify-evenly relative">
-                        <!-- แกนตั้งแสดงค่า -->
-                        <div id="y-axis" class="absolute left-0 h-full flex flex-col justify-between text-gray-500 text-xs">
+                    };
+                </script>
+
+                <!-- กราฟแท่งแนวตั้ง -->
+                <div class="h-64 flex items-end justify-evenly relative">
+                    <!-- แกนตั้งแสดงค่า -->
+                    <div id="y-axis"
+                        class="absolute left-0 h-full flex flex-col justify-between text-gray-500 text-xs">
                         <!-- สเกลจะถูกสร้างด้วย JavaScript -->
-                        </div>
-                        
-                        <div class="flex flex-col items-center">
+                    </div>
+
+                    <div class="flex flex-col items-center">
                         <div class="relative">
                             <div id="bar-waiting" class="bg-yellow-400 w-8 rounded-t"></div>
                             <span id="value-waiting" class="absolute -top-6 w-full text-center"></span>
                         </div>
                         <div class="mt-2 text-sm">รอดำเนินการ</div>
-                        </div>
-                        
-                        <div class="flex flex-col items-center">
+                    </div>
+
+                    <div class="flex flex-col items-center">
                         <div class="relative">
                             <div id="bar-in-progress" class="bg-yellow-200 w-8 rounded-t"></div>
                             <span id="value-in-progress" class="absolute -top-6 w-full text-center"></span>
                         </div>
                         <div class="mt-2 text-sm">กำลังดำเนินการ</div>
-                        </div>
-                        
-                        <div class="flex flex-col items-center">
+                    </div>
+
+                    <div class="flex flex-col items-center">
                         <div class="relative">
                             <div id="bar-completed" class="bg-green-500 w-8 rounded-t"></div>
                             <span id="value-completed" class="absolute -top-6 w-full text-center"></span>
                         </div>
                         <div class="mt-2 text-sm">เสร็จสิ้น</div>
-                        </div>
-                    </div>
-                    </div>
-                    <!-- การ์ดแสดงใบสั่งงานส่วนตัว -->
-                    <div class="bg-[#ffffff] rounded-lg shadow p-6">
-                        <div class="border-b pb-2 mb-4">
-                            <h2 class="text-lg font-bold">ส่วนตัว</h2>
-                            <p class="text-sm text-[#6b7280]">ใบสั่งงานส่วนตัว</p>
-                        </div>
-                        
-                        <div class="space-y-4">
-                            <!-- รายการงาน 1 -->
-                            <?php foreach ($data as $row): ?>
-                            <?php if ($row['task_recipient_type'] === 'P'): ?>
-                            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                            <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                    <i class="fas fa-box text-[#2563eb] text-2xl "></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['work_name']) ?> </div>
-                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
-                                </div>
-                                <div>
-                                    <i class="fas fa-chevron-right text-gray-400"></i>
-                                </div>
-                            </div>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
                     </div>
                 </div>
-                    <!-- การ์ดแสดงกราฟการทำงานส่วนตัว -->
-                    <div class="bg-[#ffffff] rounded-lg shadow p-6">
-                        <div class="border-b pb-2 mb-4">
-                            <h2 class="text-lg font-bold">ส่วนตัว</h2>
-                            <p class="text-sm text-[#6b7280]">กราฟแสดงการทำงานของส่วนตัว</p>
+            </div>
+            <!-- การ์ดแสดงใบสั่งงานส่วนตัว -->
+            <div class="bg-[#ffffff] rounded-lg shadow p-6">
+                <div class="border-b pb-2 mb-4">
+                    <h2 class="text-lg font-bold">ส่วนตัว</h2>
+                    <p class="text-sm text-[#6b7280]">ใบสั่งงานส่วนตัว</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- รายการงาน 1 -->
+                    <?php foreach ($data as $row): ?>
+                    <?php if ($row['task_recipient_type'] === 'P'): ?>
+                    <div
+                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                            <i class="fas fa-box text-[#2563eb] text-2xl "></i>
                         </div>
-                        <div class="graph-container">
-                <div class="chart">
-                    <!-- โค้ดกราฟของคุณที่ใช้แสดงกราฟที่นี่ -->
-                
-            
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold text-gray-800">ชื่องาน :
+                                <?= htmlspecialchars($row['work_name']) ?> </div>
+                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน :
+                                <?= htmlspecialchars($row['task_deadline']) ?></div>
+                        </div>
+                        <div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <!-- การ์ดแสดงกราฟการทำงานส่วนตัว -->
+            <div class="bg-[#ffffff] rounded-lg shadow p-6">
+                <div class="border-b pb-2 mb-4">
+                    <h2 class="text-lg font-bold">ส่วนตัว</h2>
+                    <p class="text-sm text-[#6b7280]">กราฟแสดงการทำงานของส่วนตัว</p>
+                </div>
+                <div class="graph-container">
+                    <div class="chart">
+                        <!-- โค้ดกราฟของคุณที่ใช้แสดงกราฟที่นี่ -->
+
+
                         <script>
                             // ข้อมูลสำหรับกราฟส่วนตัว - แตกต่างจากกราฟแผนก
                             const personalData = {
@@ -423,20 +451,20 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                                 inProgress: 10,
                                 completed: 35
                             };
-                            
+
                             // หาค่าสูงสุดเพื่อทำ scale
                             const personalMaxValue = Math.max(personalData.waiting, personalData.inProgress, personalData.completed);
                             // คำนวณสเกลเพื่อให้กราฟพอดีกับความสูงที่กำหนด (200px)
                             const personalScale = 200 / (Math.ceil(personalMaxValue / 10) * 10);
-                            
+
                             // สร้างสเกลด้านซ้าย
                             function createPersonalYAxis() {
                                 const yAxis = document.getElementById('personal-y-axis');
                                 yAxis.innerHTML = '';
-                                
+
                                 // คำนวณค่าสูงสุดของสเกล (ปัดขึ้นให้เป็นหลัก 10)
                                 const maxScale = Math.ceil(personalMaxValue / 10) * 10;
-                                
+
                                 // สร้างช่วงสเกล 6 ช่วง (0-maxScale)
                                 for (let i = 5; i >= 0; i--) {
                                     const value = Math.round(maxScale * i / 5);
@@ -445,20 +473,21 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                                     yAxis.appendChild(div);
                                 }
                             }
-                            
+
                             // อัพเดตความสูงของกราฟและค่าที่แสดง
                             function updatePersonalChart() {
                                 // อัพเดตความสูงของกราฟ
                                 document.getElementById('personal-bar-waiting').style.height = `${personalData.waiting * personalScale}px`;
-                                document.getElementById('personal-bar-in-progress').style.height = `${personalData.inProgress * personalScale}px`;
+                                document.getElementById('personal-bar-in-progress').style.height =
+                                    `${personalData.inProgress * personalScale}px`;
                                 document.getElementById('personal-bar-completed').style.height = `${personalData.completed * personalScale}px`;
-                                
+
                                 // อัพเดตตัวเลขที่แสดง
                                 document.getElementById('personal-value-waiting').textContent = personalData.waiting;
                                 document.getElementById('personal-value-in-progress').textContent = personalData.inProgress;
                                 document.getElementById('personal-value-completed').textContent = personalData.completed;
                             }
-                            
+
                             // เพิ่มฟังก์ชันเข้าไปในรายการที่ต้องทำเมื่อโหลดหน้า
                             window.addEventListener('load', function() {
                                 if (document.getElementById('personal-y-axis')) {
@@ -467,328 +496,355 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                                 }
                             });
                         </script>
-            
-           <!-- กราฟแท่งแนวตั้ง -->
-           <div class="h-64 flex items-end justify-evenly relative">
-            <!-- แกนตั้งแสดงค่า -->
-            <div id="personal-y-axis" class="absolute left-0 h-full flex flex-col justify-between text-gray-500 text-xs">
-                <!-- สเกลจะถูกสร้างด้วย JavaScript -->
-            </div>
-            
-            <div class="flex flex-col items-center">
-                <div class="relative">
-                    <div id="personal-bar-waiting" class="bg-yellow-400 w-8 rounded-t"></div>
-                    <span id="personal-value-waiting" class="absolute -top-6 w-full text-center"></span>
+
+                        <!-- กราฟแท่งแนวตั้ง -->
+                        <div class="h-64 flex items-end justify-evenly relative">
+                            <!-- แกนตั้งแสดงค่า -->
+                            <div id="personal-y-axis"
+                                class="absolute left-0 h-full flex flex-col justify-between text-gray-500 text-xs">
+                                <!-- สเกลจะถูกสร้างด้วย JavaScript -->
+                            </div>
+
+                            <div class="flex flex-col items-center">
+                                <div class="relative">
+                                    <div id="personal-bar-waiting" class="bg-yellow-400 w-8 rounded-t"></div>
+                                    <span id="personal-value-waiting"
+                                        class="absolute -top-6 w-full text-center"></span>
+                                </div>
+                                <div class="mt-2 text-sm">รอดำเนินการ</div>
+                            </div>
+
+                            <div class="flex flex-col items-center">
+                                <div class="relative">
+                                    <div id="personal-bar-in-progress" class="bg-yellow-200 w-8 rounded-t"></div>
+                                    <span id="personal-value-in-progress"
+                                        class="absolute -top-6 w-full text-center"></span>
+                                </div>
+                                <div class="mt-2 text-sm">กำลังดำเนินการ</div>
+                            </div>
+
+                            <div class="flex flex-col items-center">
+                                <div class="relative">
+                                    <div id="personal-bar-completed" class="bg-green-500 w-8 rounded-t"></div>
+                                    <span id="personal-value-completed"
+                                        class="absolute -top-6 w-full text-center"></span>
+                                </div>
+                                <div class="mt-2 text-sm">เสร็จสิ้น</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mt-2 text-sm">รอดำเนินการ</div>
             </div>
-            
-            <div class="flex flex-col items-center">
-                <div class="relative">
-                    <div id="personal-bar-in-progress" class="bg-yellow-200 w-8 rounded-t"></div>
-                    <span id="personal-value-in-progress" class="absolute -top-6 w-full text-center"></span>
-                </div>
-                <div class="mt-2 text-sm">กำลังดำเนินการ</div>
-            </div>
-            
-            <div class="flex flex-col items-center">
-                <div class="relative">
-                    <div id="personal-bar-completed" class="bg-green-500 w-8 rounded-t"></div>
-                    <span id="personal-value-completed" class="absolute -top-6 w-full text-center"></span>
-                </div>
-                <div class="mt-2 text-sm">เสร็จสิ้น</div>
-            </div>
-        </div>
-    </div>
-    </div>
-</div>
             <!-- การ์ดแสดงงานที่กำลังดำเนินการ (เต็มความกว้าง) -->
-<div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
-    <div class="border-b pb-2 mb-4">
-        <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
-        <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
-    </div>
-    
-    <div class="space-y-2">
-        <!-- รายการงานที่กำลังดำเนินการ 1 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+            <div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
+                <div class="border-b pb-2 mb-4">
+                    <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
+                    <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
                 </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
 
-       <!-- รายการงานที่กำลังดำเนินการ 2 -->
-       <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- รายการงานที่กำลังดำเนินการ 3 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- รายการงานที่กำลังดำเนินการ 4 -->
-        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                </div>
-                <div class="flex items-center">
-                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-            
-!-- ส่วนประวัติการทำงาน -->
-<div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
-    <div class="flex justify-between items-center border-b pb-3 mb-4">
-        <div>
-            <h2 class="text-lg font-bold">ประวัติ</h2>
-            <p class="text-sm text-gray-500">งานที่ดำเนินการเสร็จสิ้นและปฏิเสธ</p>
-        </div>
-        <div class="flex items-center gap-2 text-sm text-gray-400">
-            <?php if ($total_item==0): ?>
-                <span>0-0 จาก 0</span>
-            <?php elseif ($total_item<=50): ?>
-                <span>{{$current_page}}-{{$total_item}} จาก {{$total_item}}</span>
-            <?php elseif ($total_item<$current_page*50): ?>
-                <span>{{(($current_page-1)*50)+1}}-{{$total_item}} จาก {{$total_item}}</span>
-            <?php else : ?>
-                <span>{{(($current_page-1)*50)+1}}-{{$current_page*50}} จาก {{$total_item}}</span>
-            <?php endif; ?>
-            <button onclick="location.href='?page=<?= max(1, $current_page - 1) ?>'" class="text-[#6366f1] hover:text-[#4338ca]">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button onclick="location.href='?page=<?= min($total_pages, $current_page + 1) ?>'" class="text-[#6366f1] hover:text-[#4338ca]">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-    </div>
-    
-    <!-- กริดแสดงการ์ดประวัติ -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        <!-- การ์ดประวัติ -->
-        <?php foreach ($data2 as $row): ?>
-            <?php if ($row['task_status'] === 'C'): ?>
-                <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-semibold text-sm text-gray-800"><?= htmlspecialchars($row['task_name']) ?></div>
-                        <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
+                <div class="space-y-2">
+                    <!-- รายการงานที่กำลังดำเนินการ 1 -->
+                    <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
+                        <div
+                            class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+                            </div>
+                            <div class="flex items-center">
+                                <button
+                                    class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
+                                <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                            </div>
+                        </div>
                     </div>
-                    <?php if ($row['work_author_type'] === 'P'): ?>
-                        <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></div>
-                    <?php elseif ($row['work_author_type'] === 'D'): ?>
+
+                    <!-- รายการงานที่กำลังดำเนินการ 2 -->
+                    <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
+                        <div
+                            class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+                            </div>
+                            <div class="flex items-center">
+                                <button
+                                    class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
+                                <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- รายการงานที่กำลังดำเนินการ 3 -->
+                    <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
+                        <div
+                            class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+                            </div>
+                            <div class="flex items-center">
+                                <button
+                                    class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
+                                <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- รายการงานที่กำลังดำเนินการ 4 -->
+                    <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
+                        <div
+                            class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+                            </div>
+                            <div class="flex items-center">
+                                <button
+                                    class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
+                                <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            !-- ส่วนประวัติการทำงาน -->
+            <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
+                <div class="flex justify-between items-center border-b pb-3 mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold">ประวัติ</h2>
+                        <p class="text-sm text-gray-500">งานที่ดำเนินการเสร็จสิ้นและปฏิเสธ</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-400">
+                        <?php if ($total_item==0): ?>
+                        <span>0-0 จาก 0</span>
+                        <?php elseif ($total_item<=50): ?>
+                        <span>{{ $current_page }}-{{ $total_item }} จาก {{ $total_item }}</span>
+                        <?php elseif ($total_item<$current_page*50): ?>
+                        <span>{{ ($current_page - 1) * 50 + 1 }}-{{ $total_item }} จาก {{ $total_item }}</span>
+                        <?php else : ?>
+                        <span>{{ ($current_page - 1) * 50 + 1 }}-{{ $current_page * 50 }} จาก {{ $total_item }}</span>
+                        <?php endif; ?>
+                        <button onclick="location.href='?page=<?= max(1, $current_page - 1) ?>'"
+                            class="text-[#6366f1] hover:text-[#4338ca]">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button onclick="location.href='?page=<?= min($total_pages, $current_page + 1) ?>'"
+                            class="text-[#6366f1] hover:text-[#4338ca]">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- กริดแสดงการ์ดประวัติ -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                    <!-- การ์ดประวัติ -->
+                    <?php foreach ($data2 as $row): ?>
+                    <?php if ($row['task_status'] === 'C'): ?>
+                    <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="font-semibold text-sm text-gray-800"><?= htmlspecialchars($row['task_name']) ?>
+                            </div>
+                            <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
+                        </div>
+                        <?php if ($row['work_author_type'] === 'P'): ?>
+                        <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['user_fname']) ?>
+                            <?= htmlspecialchars($row['user_lname']) ?></div>
+                        <?php elseif ($row['work_author_type'] === 'D'): ?>
                         <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['department_name']) ?></div>
-                    <?php endif; ?>
-                    <div class="flex items-center text-xs text-gray-600">
-                        <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
+                        <?php endif; ?>
+                        <div class="flex items-center text-xs text-gray-600">
+                            <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
                             <?= htmlspecialchars($row['task_submit_date']) ?>
+                        </div>
                     </div>
-                </div>
-            <?php elseif ($row['task_status'] === 'D'): ?>
-                <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-semibold text-sm text-gray-800"><?= htmlspecialchars($row['task_name']) ?></div>
-                        <span class="text-xs bg-red-200 text-red-600 px-2 py-0.5 rounded-full">ปฏิเสธ</span>
-                    </div>
-                    <?php if ($row['work_author_type'] === 'P'): ?>
-                        <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></div>
-                    <?php elseif ($row['work_author_type'] === 'D'): ?>
+                    <?php elseif ($row['task_status'] === 'D'): ?>
+                    <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="font-semibold text-sm text-gray-800"><?= htmlspecialchars($row['task_name']) ?>
+                            </div>
+                            <span class="text-xs bg-red-200 text-red-600 px-2 py-0.5 rounded-full">ปฏิเสธ</span>
+                        </div>
+                        <?php if ($row['work_author_type'] === 'P'): ?>
+                        <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['user_fname']) ?>
+                            <?= htmlspecialchars($row['user_lname']) ?></div>
+                        <?php elseif ($row['work_author_type'] === 'D'): ?>
                         <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['department_name']) ?></div>
-                    <?php endif; ?>
-                    <div class="flex items-center text-xs text-gray-600">
-                        <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
+                        <?php endif; ?>
+                        <div class="flex items-center text-xs text-gray-600">
+                            <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
                             <?= htmlspecialchars($row['task_submit_date']) ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <!-- เกี่ยวกับระบบ -->
+            <footer class=" border-t mt-10 px-10 py-12 col-span-2 rounded-lg shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-sm text-gray-700">
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                            <span>เกี่ยวกับเรา</span>
+                            <img src="{{ asset('public/wrslogo.png') }}" alt="WRS"
+                                class="inline-block h-5 ml-2">
+                        </h3>
+                        <p class="leading-relaxed mb-2">
+                            จัดการงานง่ายขึ้น เพิ่มประสิทธิภาพองค์กร ด้วย <strong>WRS</strong>
+                        </p>
+                        <p class="text-gray-600">
+                            <span class="text-blue-700 font-medium">Work Request System (WRS)</span>
+                            คือระบบบริหารงานที่ช่วยองค์กรจัดระเบียบงานภายใน ลดเวลาการทำงานซ้ำซ้อน
+                            และเพิ่มความคล่องตัวให้กับงาน รองรับการติดตามงาน การแจ้งเตือนอัตโนมัติ
+                            และการจัดสรรทรัพยากรในองค์กรอย่างมีประสิทธิภาพ
+                            ช่วยให้องค์กรสามารถบริหารจัดการงานเป็นเรื่องง่ายสำหรับองค์กรทุกขนาด
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                            <span>ทำงานร่วมกับ</span>
+                            <img src="{{ asset('public/บริษัท.png') }}" alt="WRS"
+                                class="inline-block h-5 ml-2">
+                        </h3>
+                        <p class="leading-relaxed mb-2 text-gray-600">
+                            บริษัท คลิกเน็กซ์ จำกัด
+                            เป็นนักพัฒนาซอฟต์แวร์มืออาชีพที่เน้นกระบวนการพัฒนาซอฟต์แวร์แบบครบวงจร
+                            เพื่อให้ลูกค้าได้รับผลงานที่มีคุณภาพและส่งมอบตรงเวลา
+                        </p>
+                        <p class="text-gray-500">
+                            Phone : 022177900<br>
+                            E-mail : info@clicknext.com
+                        </p>
                     </div>
                 </div>
-            <?php endif; ?>
-        <?php endforeach; ?>
-    </div>
-</div>
-<!-- เกี่ยวกับระบบ -->
-<footer class=" border-t mt-10 px-10 py-12 col-span-2 rounded-lg shadow-sm">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-sm text-gray-700">
-    <div>
-      <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
-        <span>เกี่ยวกับเรา</span>
-        <img src="{{ asset('public/wrslogo.png') }}" alt="WRS" class="inline-block h-5 ml-2">
-      </h3>
-      <p class="leading-relaxed mb-2">
-        จัดการงานง่ายขึ้น เพิ่มประสิทธิภาพองค์กร ด้วย <strong>WRS</strong>
-      </p>
-      <p class="text-gray-600">
-        <span class="text-blue-700 font-medium">Work Request System (WRS)</span> คือระบบบริหารงานที่ช่วยองค์กรจัดระเบียบงานภายใน ลดเวลาการทำงานซ้ำซ้อน
-        และเพิ่มความคล่องตัวให้กับงาน รองรับการติดตามงาน การแจ้งเตือนอัตโนมัติ และการจัดสรรทรัพยากรในองค์กรอย่างมีประสิทธิภาพ
-        ช่วยให้องค์กรสามารถบริหารจัดการงานเป็นเรื่องง่ายสำหรับองค์กรทุกขนาด
-      </p>
-    </div>
-    <div>
-      <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
-        <span>ทำงานร่วมกับ</span>
-        <img src="{{ asset('public/บริษัท.png') }}" alt="WRS" class="inline-block h-5 ml-2">
-      </h3>
-      <p class="leading-relaxed mb-2 text-gray-600">
-        บริษัท คลิกเน็กซ์ จำกัด เป็นนักพัฒนาซอฟต์แวร์มืออาชีพที่เน้นกระบวนการพัฒนาซอฟต์แวร์แบบครบวงจร
-        เพื่อให้ลูกค้าได้รับผลงานที่มีคุณภาพและส่งมอบตรงเวลา
-      </p>
-      <p class="text-gray-500">
-        Phone : 022177900<br>
-        E-mail : info@clicknext.com
-      </p>
-    </div>
-  </div>
-  <div class="text-center text-xs text-gray-400 mt-10">© [2025] Work Request System. All rights reserved.</div>
-</footer>
+                <div class="text-center text-xs text-gray-400 mt-10">© [2025] Work Request System. All rights reserved.
+                </div>
+            </footer>
         </div>
     </div>
 
 
     <!-- Popup รายละเอียดใบสั่งงาน -->
-<div id="workItemPopup" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
-    
-    <!-- ปุ่มปิด -->
+    <div id="workItemPopup" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
+
+            <!-- ปุ่มปิด -->
             <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
-        <i class="fas fa-times text-xl"></i>
-        </button>
+                <i class="fas fa-times text-xl"></i>
+            </button>
 
 
-    <!-- หัวข้อ -->
-    <h2 class="text-xl font-bold text-blue-700 mb-4">
-      รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
-    </h2>
+            <!-- หัวข้อ -->
+            <h2 class="text-xl font-bold text-blue-700 mb-4">
+                รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
+            </h2>
 
-        <!-- ข้อมูลหลัก -->
-    <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
-    <div>
-        <span class="font-semibold">ชื่อเรื่อง :</span> <span id="popup-title">-</span>
-    </div>
-    <div>
-        <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
-    </div>
-    <div>
-        <span class="font-semibold">ผู้ส่ง :</span> วิรายุ คนโก้
-    </div>
-    <div>
-        <span class="font-semibold">แผนก :</span> HR
-    </div>
-    </div>
+            <!-- ข้อมูลหลัก -->
+            <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
+                <div>
+                    <span class="font-semibold">ชื่อเรื่อง :</span> <span id="popup-title">-</span>
+                </div>
+                <div>
+                    <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
+                </div>
+                <div>
+                    <span class="font-semibold">ผู้ส่ง :</span> วิรายุ คนโก้
+                </div>
+                <div>
+                    <span class="font-semibold">แผนก :</span> HR
+                </div>
+            </div>
 
 
-    <!-- การ์ดย่อยของงาน -->
-    <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
-      @for ($i = 0; $i < 6; $i++)
-        <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-          <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
-          <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
-          <div class="flex items-center text-xs text-gray-600">
-            <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
-            อังคาร, 1 ธันวาคม 2025
-          </div>
-          <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
+            <!-- การ์ดย่อยของงาน -->
+            <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
+                @for ($i = 0; $i < 6; $i++)
+                    <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                        <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
+                        <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
+                        <div class="flex items-center text-xs text-gray-600">
+                            <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
+                            อังคาร, 1 ธันวาคม 2025
+                        </div>
+                        <span
+                            class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
+                    </div>
+                @endfor
+            </div>
+
+            <!-- ปุ่ม -->
+            <div class="flex justify-center mt-6 gap-3">
+                <button onclick="closePopup()"
+                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">ปฏิเสธ</button>
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">รับงาน</button>
+            </div>
+
         </div>
-      @endfor
     </div>
 
-        <!-- ปุ่ม -->
-    <div class="flex justify-center mt-6 gap-3">
-    <button onclick="closePopup()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">ปฏิเสธ</button>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">รับงาน</button>
-    </div>
-
-  </div>
-</div>
 
 
 
-   
-<script>
-    // JavaScript for popup functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const workItems = document.querySelectorAll('.work-item');
-        const popup = document.getElementById('workItemPopup');
-        const closeButtons = document.querySelectorAll('.close-popup, .close-popup-btn');
-        const popupTitle = document.getElementById('popup-title');
-        const popupDate = document.getElementById('popup-date');
-        
-        workItems.forEach(item => {
-            item.addEventListener('click', function() {
-                // Get task info from the clicked item
-                const titleElement = this.querySelector('div > div:first-child');
-                const dateElement = this.querySelector('div > div:last-child');
-                
-                if (titleElement && dateElement) {
-                    const title = titleElement.textContent.replace('ชื่องาน : ', '');
-                    const date = dateElement.textContent.replace('วันสิ้นสุดการทำงาน : ', '');
-                    
-                    // Set info in popup
-                    popupTitle.textContent = title;
-                    popupDate.textContent = date;
+    <script>
+        // JavaScript for popup functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const workItems = document.querySelectorAll('.work-item');
+            const popup = document.getElementById('workItemPopup');
+            const closeButtons = document.querySelectorAll('.close-popup, .close-popup-btn');
+            const popupTitle = document.getElementById('popup-title');
+            const popupDate = document.getElementById('popup-date');
+
+            workItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Get task info from the clicked item
+                    const titleElement = this.querySelector('div > div:first-child');
+                    const dateElement = this.querySelector('div > div:last-child');
+
+                    if (titleElement && dateElement) {
+                        const title = titleElement.textContent.replace('ชื่องาน : ', '');
+                        const date = dateElement.textContent.replace('วันสิ้นสุดการทำงาน : ', '');
+
+                        // Set info in popup
+                        popupTitle.textContent = title;
+                        popupDate.textContent = date;
+                    }
+
+                    // Show popup
+                    popup.style.display = 'flex';
+                    document.body.classList.add('popup-open');
+                });
+            });
+
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    popup.style.display = 'none';
+                    document.body.classList.remove('popup-open');
+                });
+            });
+
+            // Close popup when clicking outside the content
+            popup.addEventListener('click', function(e) {
+                if (e.target === popup) {
+                    popup.style.display = 'none';
+                    document.body.classList.remove('popup-open');
                 }
-                
-                // Show popup
-                popup.style.display = 'flex';
-                document.body.classList.add('popup-open');
             });
         });
-        
-        closeButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                popup.style.display = 'none';
-                document.body.classList.remove('popup-open');
-            });
-        });
-        
-        // Close popup when clicking outside the content
-        popup.addEventListener('click', function(e) {
-            if (e.target === popup) {
-                popup.style.display = 'none';
-                document.body.classList.remove('popup-open');
-            }
-        });
-    });
-</script>   
+    </script>
 </body>
+
 </html>

@@ -637,7 +637,8 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                         <?php elseif ($total_item<$current_page*50): ?>
                         <span>{{ ($current_page - 1) * 50 + 1 }}-{{ $total_item }} จาก {{ $total_item }}</span>
                         <?php else : ?>
-                        <span>{{ ($current_page - 1) * 50 + 1 }}-{{ $current_page * 50 }} จาก {{ $total_item }}</span>
+                        <span>{{ ($current_page - 1) * 50 + 1 }}-{{ $current_page * 50 }} จาก
+                            {{ $total_item }}</span>
                         <?php endif; ?>
                         <button onclick="location.href='?page=<?= max(1, $current_page - 1) ?>'"
                             class="text-[#6366f1] hover:text-[#4338ca]">

@@ -3,16 +3,19 @@ use Illuminate\Support\Facades\Log;
 session_start(); // เริ่มต้น session
 $userID = session('users')->user_id;
 $completedTasks = 0;
-$pendingTasks = 0;
+$processedTasks = 0;
 $rejectedTasks = 0;
+$Userclick = session('Userclick', false);
 
 if ($userID) {
     $result = DB::select(
         "
         SELECT
             SUM(CASE WHEN task_status = 'C' THEN 1 ELSE 0 END) AS completed_tasks,
-            SUM(CASE WHEN task_status = 'R' THEN 1 ELSE 0 END) AS pending_tasks,
-            SUM(CASE WHEN task_status = 'D' THEN 1 ELSE 0 END) AS rejected_tasks
+            SUM(CASE WHEN task_status = 'D' THEN 1 ELSE 0 END) AS decryding_tasks,
+            SUM(CASE WHEN task_status = 'R' THEN 1 ELSE 0 END) AS rejected_tasks,
+            SUM(CASE WHEN task_status = 'P' THEN 1 ELSE 0 END) AS processed_tasks
+
         FROM task
         WHERE task_recipient_user_id = ?
           AND task_recipient_type = 'P'
@@ -23,13 +26,15 @@ if ($userID) {
 
     if (!empty($result)) {
         $completedTasks = $result[0]->completed_tasks ?? 0;
-        $pendingTasks = $result[0]->pending_tasks ?? 0;
+        $processedTasks = $result[0]->processed_tasks ?? 0;
         $rejectedTasks = $result[0]->rejected_tasks ?? 0;
+        $decrydingTasks = $result[0]->decryding_tasks ?? 0;
     }
     $departmentUserID = $userID; // รหัสผู้ใช้สำหรับแผนก
     $completedDepartmentTasks = 0;
-    $pendingDepartmentTasks = 0;
-    $rejectedDepartmentTasks = 0;
+    $processedTaskDepartmentTasks = 0;
+    $waitingDepartmentTasks = 0;
+    $decrydingDepartmentTasks = 0;
 
     // ดึงข้อมูลจากฐานข้อมูล
     $result = DB::select(
@@ -38,8 +43,10 @@ if ($userID) {
         task_recipient_user_id,
         task_recipient_type,
         SUM(CASE WHEN task_status = 'C' THEN 1 ELSE 0 END) AS completedDepartment_tasks,
-        SUM(CASE WHEN task_status = 'R' THEN 1 ELSE 0 END) AS pendingDepartment_tasks,
-        SUM(CASE WHEN task_status = 'D' THEN 1 ELSE 0 END) AS rejectedDepartment_tasks
+        SUM(CASE WHEN task_status = 'R' THEN 1 ELSE 0 END) AS waitingDepartment_tasks,
+        SUM(CASE WHEN task_status = 'D' THEN 1 ELSE 0 END) AS decryDepartment_tasks,
+        SUM(CASE WHEN task_status = 'P' THEN 1 ELSE 0 END) AS pendingtedDepartment_tasks
+
     FROM task
     WHERE task_recipient_user_id = ?
       AND task_recipient_type = 'D'
@@ -51,45 +58,14 @@ if ($userID) {
     // ตรวจสอบผลลัพธ์
     if (!empty($result)) {
         $completedDepartmentTasks = $result[0]->completedDepartment_tasks ?? 0;
-        $pendingDepartmentTasks = $result[0]->pendingDepartment_tasks ?? 0;
-        $rejectedDepartmentTasks = $result[0]->rejectedDepartment_tasks ?? 0;
-    }
-    $weeklyTaskSummary = [];
-
-    // ดึงข้อมูลจากฐานข้อมูล
-    $result = DB::select("
-    SELECT
-        DATE(task.task_submit_date) AS completed_date,
-        task.task_recipient_type,
-        COUNT(*) AS total_tasks
-    FROM task
-    WHERE
-        task.task_status = 'C'
-        AND task.task_submit_date IS NOT NULL
-        AND task.task_submit_date BETWEEN
-            DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
-            AND DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 6 DAY)
-    GROUP BY
-        DATE(task.task_submit_date),
-        task.task_recipient_type
-    ORDER BY
-        completed_date ASC
-");
-    if (!empty($result)) {
-        foreach ($result as $row) {
-            $weeklyTaskSummary[] = [
-                'completed_date' => $row->completed_date,
-                'task_recipient_type' => $row->task_recipient_type,
-                'total_tasks' => $row->total_tasks,
-            ];
-        }
+        $processedTaskDepartmentTasks  = $result[0]->pendingtedDepartment_tasks ?? 0;
+        $waitingDepartmentTasks = $result[0]->waitdingDepartment_tasks ?? 0;
+        $decrydingDepartmentTasks = $result[0]->decryDepartment_tasks ?? 0;
     }
 }
-
-
-
 ?>
 <!DOCTYPE html>
+
 <html lang="th">
 
 <head>
@@ -101,6 +77,7 @@ if ($userID) {
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('public/css/button.css') }}">
     <link rel="stylesheet" href="{{ asset('public/css/dashboard.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -111,6 +88,7 @@ if ($userID) {
 </head>
 
 <body class="flex min-h-screen bg-[#f3f4f6]">
+
     <!-- Sidebar - Fixed Position -->
     <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
         <!-- โลโก้ -->
@@ -246,33 +224,36 @@ if ($userID) {
                         </span>
                     </h2>
                     <div class="switch-wrapper">
-                        <input type="checkbox" id="customSwitch" class="switch-input">
+                        <input type="checkbox" id="customSwitch" class="switch-input" {{ $Userclick ? 'checked' : '' }}>
                         <label for="customSwitch" class="switch-label"></label>
-                        <span class="switch-text text-right" id="switchText">ส่วนตัว</span>
                     </div>
-
                     </button>
                 </div>
                 <div class="summary">
                     <div class="card card-completed">
                         <img src="{{ asset('public/asset/success/Icon (5).png') }}" alt="WorkRequest System Logo"
                             class="card-img-left">
-                        <p><?php echo $completedTasks; ?></p>
+                        <p id="completedTasksDisplay">
+                            {{ $Userclick ? $completedDepartmentTasks : $completedTasks }}
+                        </p>
                         <h2>ดำเนินการเสร็จสิ้น</h2>
                     </div>
 
                     <div class="card card-progress">
-                        <img src="{{ asset('public\Ellipse 3 (3).png') }}" alt="WorkRequest System Logo"
-                            class="card-img-left">
-                        <p><?php echo $pendingTasks; ?></p>
+                        <img src="{{ asset('public/Ellipse 3 (3).png') }}" alt="WorkRequest System Logo" class="card-img-left">
+                        <p id="pendingTasksDisplay"> <!-- เพิ่ม id -->
+                            {{ $Userclick ? $waitingDepartmentTasks : $rejectedTasks }}
+                        </p>
                         <h2>รอดำเนินการ</h2>
                     </div>
                     <div class="card card-rejected">
                         <img src="{{ asset('public\asset\reject.png') }}" alt="WorkRequest System Logo"
                             class="card-img-left">
 
-                        <p><?php echo $rejectedTasks; ?></p>
-                        <h2>งานที่ปฏิเสธ</h2>
+                        <p id="$decrydingTasks">
+                            {{ $Userclick ? $decrydingDepartmentTasks : $decrydingTasks }}
+                        <h2>ปฏิเสธงาน</h2>
+
                     </div>
                 </div>
             </div>
@@ -295,11 +276,7 @@ if ($userID) {
                 </div>
             </div>
 
-            <!-- Chart Section: Weekly Completion -->
-            {{-- <div class="chart-section">
-                <div class="chart-title">ดำเนินการเสร็จสิ้นภายในสัปดาห์</div>
-                <canvas id="weekCompletionChart" style="max-width: 100%; height: 400px;"></canvas>
-            </div> --}}
+
         </div>
     </div>
 
@@ -307,18 +284,34 @@ if ($userID) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const checkbox = document.getElementById('customSwitch');
-        const text = document.getElementById('switchText');
+        const completedTasksDisplay = document.getElementById('completedTasksDisplay');
+        const pendingTasksDisplay = document.getElementById('pendingTasksDisplay'); // เพิ่มตัวแปรนี้
 
         checkbox.addEventListener('change', () => {
-            if (checkbox.checked) {
-                text.textContent = 'แผนก';
-                text.classList.remove('text-right');
-                text.classList.add('text-left');
-            } else {
-                text.textContent = 'ส่วนตัว';
-                text.classList.remove('text-left');
-                text.classList.add('text-right');
-            }
+            const isChecked = checkbox.checked;
+
+            fetch('/update-userclick', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ Userclick: isChecked })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // อัปเดตข้อความใน <p> แบบไม่ต้องรีเฟรช
+                    completedTasksDisplay.textContent = data.Userclick ? data.completedDepartmentTasks : data.completedTasks;
+                    pendingTasksDisplay.textContent = data.Userclick ? data.pendingDepartmentTasks : data.pendingTasks; // อัปเดตค่าของ pendingTasks
+                } else {
+                    alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+            });
         });
     </script>
     <script>
@@ -327,7 +320,7 @@ if ($userID) {
             labels: ['รอดำเนินการ', 'กำลังดำเนินการ', 'เสร็จสิ้น'],
             datasets: [{
                 label: 'ส่วนตัว',
-                data: [{{ $pendingTasks }}, {{ $rejectedTasks }}, {{ $completedTasks }}],
+                data: [{{ $rejectedTasks }}, {{ $processedTasks }}, {{ $completedTasks }}],
                 backgroundColor: ['#FFB300', '#FFE0B2', '#4CAF50'], // สีตรงตามภาพ
                 borderSkipped: false,
                 barPercentage: 0.26,
@@ -367,8 +360,7 @@ if ($userID) {
             labels: ['รอดำเนินการ', 'กำลังดำเนินการ', 'เสร็จสิ้น'],
             datasets: [{
                 label: 'แผนก',
-                data: [{{ $pendingDepartmentTasks }}, {{ $rejectedDepartmentTasks }},
-                    {{ $completedDepartmentTasks }}
+                data: [{{ $waitingDepartmentTasks }}, {{ $processedTaskDepartmentTasks  }},{{ $completedDepartmentTasks }}
                 ],
                 backgroundColor: ['#FFB300', '#FFE0B2', '#4CAF50'], // ใช้สีเดียวกับ personal
                 borderSkipped: false,
@@ -402,64 +394,6 @@ if ($userID) {
             }
         };
         new Chart(document.getElementById('departmentChart'), departmentConfig);
-
-        // // Weekly Completion Chart
-        // const weekCompletionData = {
-        //     labels: ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'อาทิตย์'],
-        //     datasets: [{
-        //             label: 'แผนก',
-        //             data: [30, 35, 12, 33, 25, 32, 45],
-        //             backgroundColor: '#0029FF',
-        //             barPercentage: 0.45,
-        //             categoryPercentage: 0.6
-        //         },
-        //         {
-        //             label: 'บุคคล',
-        //             data: [27, 25, 45, 15, 24, 28, 23],
-        //             backgroundColor: '#00D27F',
-        //             barPercentage: 0.45,
-        //             categoryPercentage: 0.6
-        //         }
-        //     ]
-        // };
-
-        // const weekCompletionConfig = {
-        //     type: 'bar',
-        //     data: weekCompletionData,
-        //     options: {
-        //         responsive: true,
-        //         maintainAspectRatio: false,
-        //         plugins: {
-        //             legend: {
-        //                 display: true,
-        //                 position: 'bottom',
-        //                 labels: {
-        //                     usePointStyle: true, // ใช้จุดแทนสี่เหลี่ยม
-        //                     pointStyle: 'roundedRect', // เปลี่ยนเป็นสี่เหลี่ยมไม่มีมุม
-        //                     padding: 20, // เพิ่มระยะห่างระหว่าง Legend
-        //                     font: {
-        //                         size: 14
-        //                     }
-        //                 }
-        //             }
-        //         },
-        //         scales: {
-        //             x: {
-        //                 grid: {
-        //                     display: false
-        //                 }
-        //             },
-        //             y: {
-        //                 grid: {
-        //                     color: '#eee'
-        //                 },
-        //                 beginAtZero: true
-        //             }
-        //         }
-        //     }
-        // };
-
-        // new Chart(document.getElementById('weekCompletionChart'), weekCompletionConfig);
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -467,6 +401,42 @@ if ($userID) {
             button.addEventListener('click', () => {
                 button.classList.toggle('clicked'); // เพิ่มหรือลบคลาส clicked
             });
+        });
+    </script>
+    <script>
+        const checkbox = document.getElementById('customSwitch');
+        const completedTasksDisplay = document.getElementById('completedTasksDisplay');
+
+        checkbox.addEventListener('change', () => {
+            const isChecked = checkbox.checked;
+
+            // ส่งคำขอไปยังเซิร์ฟเวอร์เพื่ออัปเดตค่า Userclick
+            fetch('/update-userclick', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        Userclick: isChecked
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // อัปเดตข้อความใน <p> แบบไม่ต้องรีเฟรช
+                        completedTasksDisplay.textContent = data.Userclick ? data.completedDepartmentTasks :
+                            data.completedTasks;
+                        pendingTasks.textContent = data.Userclick ? data.pendingDepartmentTasks :
+                            data.pendingTasks;
+
+                    } else {
+                        alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+                });
         });
     </script>
 </body>

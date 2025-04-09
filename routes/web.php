@@ -41,6 +41,7 @@ Route::get("/report", [Report_controller::class, "index"])->name('report');
 
 Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_login::class]);
 Route::get('/manage/search-users', [Manage_controller::class, 'searchUsers']);
+Route::post('/manage/search-users', [Manage_controller::class, 'searchUsers'])->name('manage.searchUsers');
 
 Route::post('/manage/edit-dept', [Manage_controller::class, 'edit_dept'])->name('edit.dept');
 

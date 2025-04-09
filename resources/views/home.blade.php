@@ -14,6 +14,7 @@ unset($_SESSION['user_id']);
 // ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
 $userID = session('users')->user_id;
 $user_dept_ID = session('users')->user_dept_id;
+$task_work_request_id = session('task');
 $sql = "SELECT 
             task.task_id, 
             task.task_deadline, 
@@ -26,7 +27,9 @@ $sql = "SELECT
             task.task_submit_date, 
             task.task_work_request_id, 
             wro.work_name, 
-            wro.work_request_id
+            wro.work_request_id,
+            user_fname,
+            user_lname
         FROM task
         LEFT JOIN work_request_order AS wro 
             ON task.task_work_request_id = wro.work_request_id
@@ -48,12 +51,12 @@ $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
-               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname, task_submit_date
         FROM task
         LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
         LEFT JOIN users ON wro1.work_create_by_user_id = user_id
         LEFT JOIN departments ON user_dept_id = department_id
-        WHERE task_recipient_user_id = $userID AND wro1.work_confirm_date >= NOW() - INTERVAL 5 DAY AND (task_status = 'C' OR task_status = 'D')
+        WHERE task_recipient_user_id = $userID AND task_submit_date >= NOW() - INTERVAL 5 DAY AND (task_status = 'C' OR task_status = 'D')
         LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
 
 $stmt2 = $pdo->prepare($sql2);
@@ -62,10 +65,31 @@ $stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt2->execute();
 $data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
+
+$sql3 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
+        FROM task
+        LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
+        LEFT JOIN users ON wro1.work_create_by_user_id = user_id
+        LEFT JOIN departments ON user_dept_id = department_id
+        WHERE task_recipient_user_id = :userID 
+        AND wro1.work_confirm_date >= NOW() - INTERVAL 5 DAY 
+        AND (task_status = 'C' OR task_status = 'D')
+        AND (:selected_work_request_id IS NULL OR task_work_request_id = :selected_work_request_id)
+        LIMIT :offset, :limit";
+
+$stmt3 = $pdo->prepare($sql3);
+$stmt3->bindParam(':userID', $userID, PDO::PARAM_INT);
+$stmt3->bindParam(':selected_work_request_id', $selected_work_request_id, PDO::PARAM_INT);
+$stmt3->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt3->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt3->execute();
+$data3 = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
 // คำนวณจำนวนหน้าทั้งหมด
 $sql_count = "SELECT COUNT(*) FROM work_request_order 
 JOIN task ON work_request_id = task_work_request_id
-WHERE work_confirm_date >= NOW() - INTERVAL 5 DAY AND task_recipient_user_id = $userID AND (task_status = 'C' OR task_status = 'D') AND work_confirm_date IS NOT NULL";
+WHERE task_submit_date >= NOW() - INTERVAL 5 DAY AND task_recipient_user_id = $userID AND (task_status = 'C' OR task_status = 'D')";
 $count_stmt = $pdo->query($sql_count);
 $total_item = $count_stmt->fetchColumn();
 $total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
@@ -292,20 +316,22 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
                         <!-- รายการงาน 1 -->
                         <?php foreach ($data as $row): ?>
                             <?php if ($row['task_status'] === 'R'): ?>
-                                <?php if ($row['task_recipient_type'] === 'D'): ?>
-                                    <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                                        <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                            <i class="fas fa-box text-white text-2xl"></i>
+                                    <?php if ($row['task_recipient_type'] === 'D'): ?>
+                                        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                                            <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                                <i class="fas fa-box text-white text-2xl"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['task_name']) ?> </div>
+                                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-chevron-right text-gray-400"></i>
+                                            </div>
                                         </div>
-                                        <div class="flex-1">
-                                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['task_name']) ?> </div>
-                                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
-                                        </div>
-                                        <div>
-                                            <i class="fas fa-chevron-right text-gray-400"></i>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                
+                                
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
@@ -559,6 +585,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
 
             
 <!-- ส่วนประวัติการทำงาน -->
+<div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
 <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2 h-[495px]">
     <div class="flex justify-between items-center border-b pb-3 mb-4">
         <div>
@@ -694,32 +721,38 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
     </div>
 
 
-    <!-- การ์ดย่อยของงาน -->
+    <!-- การ์ดย่อยของงานxx  -->
     <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
-      @for ($i = 0; $i < 6; $i++)
+    @foreach ($data3 as $task)
         <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-          <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
-          <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
-          <div class="flex items-center text-xs text-gray-600">
-            <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
-            อังคาร, 1 ธันวาคม 2025
-          </div>
-          <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
+            <div class="text-sm font-semibold text-gray-800 truncate">
+                {{ $task['task_name'] }}
+            </div>
+            <div class="text-xs text-gray-500 mb-2">
+                {{ $task['user_fname'] }} {{ $task['user_lname'] }}
+            </div>
+            <div class="flex items-center text-xs text-gray-600">
+                <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
+                {{ $task['task_deadline'] }}
+            </div>
+            <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">
+                {{ $task['task_status'] }}
+            </span>
         </div>
-      @endfor
-    </div>
+    @endforeach
+</div>
 
         <!-- ปุ่ม -->
     <div class="flex justify-center mt-6 gap-3">
         <form method="POST" action="{{ url('/home') }}">
             @csrf
-            <input type="hidden" name="decline_work_id" value="<?= $row['work_request_id'] ?>">
+            
             <button onclick="closePopup()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">ปฏิเสธ</button>
         </form> 
         
         <form method="POST" action="{{ url('/home') }}">
             @csrf
-            <input type="hidden" name="accept_work_id" value="<?= $row['work_request_id'] ?>">
+            
             <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">รับงาน</button>
         </form>
         

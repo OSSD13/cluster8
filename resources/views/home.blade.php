@@ -28,7 +28,7 @@ if ($userID) {
         $rejectedTasks = $result[0]->rejected_tasks ?? 0;
     }
     $departmentUserID = $userID; // รหัสผู้ใช้สำหรับแผนก
-    
+
 
     // ดึงข้อมูลจากฐานข้อมูล
     $result = DB::select(
@@ -84,10 +84,6 @@ if ($userID) {
         }
     }
 }
-
-
-
-
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -131,33 +127,6 @@ if ($userID) {
             /* กำหนดขนาดสูงสุด */
             height: auto;
         }
-
-
-        /* สไตล์สำหรับ Popup
-        .popup {
-            position: fixed;
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 9999 !important;
-            justify-content: center;
-            align-items: center;
-        } */
-
-        /* .popup-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: relative;
-        } */
-
         .close-popup {
             position: absolute;
             top: 10px;
@@ -591,9 +560,9 @@ if ($userID) {
                         <script>
                             // ข้อมูลสำหรับกราฟส่วนตัว - แตกต่างจากกราฟแผนก
                             const personalData = {
-                                waiting: {{ $pendingTasks }},
-                                inProgress: {{ $processedTasks }},
-                                completed: {{ $completedTasks }}
+                                waiting: 25,
+                                inProgress: 10,
+                                completed: 35
                             };
 
                             // หาค่าสูงสุดเพื่อทำ scale

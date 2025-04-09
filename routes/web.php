@@ -38,4 +38,4 @@ Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_lo
 
 Route::get('/dashboard',[Dashboard_controller::class,"index"]);
 
-Route::post("/workrequest", [Work_request_controller::class, "store"])->middleware([Check_login::class]);
+

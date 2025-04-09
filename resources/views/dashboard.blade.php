@@ -2,9 +2,7 @@
 use Illuminate\Support\Facades\Log;
 session_start(); // เริ่มต้น session
 $userID = session('users')->user_id;
-$completedTasks = 0;
-$pendingTasks = 0;
-$rejectedTasks = 0;
+
 
 if ($userID) {
     $result = DB::select(
@@ -85,6 +83,7 @@ if ($userID) {
         }
     }
 }
+
 
 
 

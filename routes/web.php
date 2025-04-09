@@ -34,3 +34,4 @@ Route::get("/report", [Report_controller::class, "index"])->name('report');
 Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_login::class]);
 
 Route::get('/dashboard',[Dashboard_controller::class,"index"]);
+

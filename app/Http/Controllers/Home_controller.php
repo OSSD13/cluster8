@@ -15,5 +15,15 @@ class Home_controller extends Controller
 
     return view('home', compact('waiting', 'inProgress', 'completed'));
 }
+public function index()
+{
+    // ดึงข้อมูลจากฐานข้อมูล
+    $waiting = DB::table('tasks')->where('status', 'waiting')->count();
+    $inProgress = DB::table('tasks')->where('status', 'in_progress')->count();
+    $completed = DB::table('tasks')->where('status', 'completed')->count();
+
+    // ส่งข้อมูลไปยัง View
+    return view('home', compact('waiting', 'inProgress', 'completed'));
+}
 
 }

@@ -1,76 +1,3 @@
-<?php
-// เชื่อมต่อฐานข้อมูล MySQL
-$pdo = new PDO("mysql:host=10.80.6.165;dbname=cluster8;charset=utf8", "cluster8", "k4PL1Wqq");
-
-// กำหนดการตั้งค่าการแบ่งหน้า
-$items_per_page = 50; // จำนวนรายการที่จะแสดงในแต่ละหน้า (50 รายการต่อหน้า)
-$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // ตรวจสอบหน้าปัจจุบัน
-$offset = ($current_page - 1) * $items_per_page; // คำนวณ offset
-session_start(); // เริ่มต้น session
-// ลบค่า user_id ออกจาก session
-unset($_SESSION['user_id']);
-
-
-// ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
-$userID = session('users')->user_id;
-$user_dept_ID = session('users')->user_dept_id;
-$sql = "SELECT 
-            task.task_id, 
-            task.task_deadline, 
-            task.task_status, 
-            task.task_recipient_user_id, 
-            task.task_name, 
-            task.task_recipient_department_id, 
-            task.task_notation, 
-            task.task_recipient_type, 
-            task.task_submit_date, 
-            task.task_work_request_id, 
-            wro.work_name, 
-            wro.work_request_id
-        FROM task
-        LEFT JOIN work_request_order AS wro 
-            ON task.task_work_request_id = wro.work_request_id
-        LEFT JOIN users AS userID 
-            ON task.task_recipient_user_id = userID.user_id
-        LEFT JOIN departments 
-            ON task.task_recipient_department_id = departments.department_id
-        WHERE 
-            (task.task_recipient_department_id = :user_dept_ID 
-            OR task.task_recipient_user_id = :userID)
-        AND task.task_work_request_id = wro.work_request_id
-        LIMIT :offset, :limit";
-
-$stmt = $pdo->prepare($sql);
-$stmt->bindParam(':user_dept_ID', $user_dept_ID, PDO::PARAM_INT);
-$stmt->bindParam(':userID', $userID, PDO::PARAM_INT);
-$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-$stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
-$stmt->execute();
-$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
-               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
-        FROM task
-        LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
-        LEFT JOIN users ON wro1.work_create_by_user_id = user_id
-        LEFT JOIN departments ON user_dept_id = department_id
-        WHERE task_recipient_user_id = $userID AND wro1.work_confirm_date >= NOW() - INTERVAL 5 DAY AND (task_status = 'C' OR task_status = 'D')
-        LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
-
-$stmt2 = $pdo->prepare($sql2);
-$stmt2->bindParam(':offset', $offset, PDO::PARAM_INT);
-$stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
-$stmt2->execute();
-$data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-
-// คำนวณจำนวนหน้าทั้งหมด
-$sql_count = "SELECT COUNT(*) FROM work_request_order 
-JOIN task ON work_request_id = task_work_request_id
-WHERE work_confirm_date >= NOW() - INTERVAL 5 DAY AND task_recipient_user_id = $userID AND (task_status = 'C' OR task_status = 'D') AND work_confirm_date IS NOT NULL";
-$count_stmt = $pdo->query($sql_count);
-$total_item = $count_stmt->fetchColumn();
-$total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
-?>
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -113,7 +40,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;          
+            height: 100%;
             background-color: rgba(0,0,0,0.5);
             z-index: 9999;
             justify-content: center;
@@ -234,7 +161,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 // เมื่อคลิกปุ่มยืนยัน
                 document.getElementById('confirmLogout').addEventListener('click', function() {
                     // ส่งคำขอไปยัง route logout
-                    fetch('/logout', {
+                    fetch('logout', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -242,7 +169,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     }).then(response => {
                         if (response.ok) {
                             // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-                            window.location.href = '/login';  // หรือ URL ที่ต้องการ
+                            window.location.href = 'login';  // หรือ URL ที่ต้องการ
                         } else {
                             alert('เกิดข้อผิดพลาดในการออกจากระบบ');
                         }
@@ -451,7 +378,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     </div>
                     </div>
                     <!-- การ์ดแสดงใบสั่งงานส่วนตัว -->
-                    <div class="bg-[#ffffff] rounded-lg shadow p-6 h-[420px]">
+                    <div class="bg-[#ffffff] rounded-lg shadow p-6">
                         <div class="border-b pb-2 mb-4">
                             <h2 class="text-lg font-bold">ส่วนตัว</h2>
                             <p class="text-sm text-[#6b7280]">ใบสั่งงานส่วนตัว</p>
@@ -765,7 +692,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
 
     <!-- หัวข้อ -->
     <h2 class="text-xl font-bold text-blue-700 mb-4">
-      รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal"></span>
+      รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
     </h2>
 
     <!-- ข้อมูลหลัก -->
@@ -811,7 +738,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
 
     <!-- ✅ ปุ่มรับงาน / ปฏิเสธ -->
     <div class="flex justify-center mt-6 gap-3">
-        <button onclick="closePopup()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
+        <button type="button" id="openDeclinePopup" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
             ปฏิเสธ
         </button>
         <button onclick="acceptWork()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
@@ -830,24 +757,6 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
           <i class="fas fa-times text-xl"></i>
           </button>
 
-<div id="declinePopup" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
-        <!-- ปุ่มปิด -->
-        <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-        <!-- หัวข้อ -->
-        <h2 class="text-xl font-bold text-blue-700 mb-4">
-            ยืนยันการปฏิเสธงาน <span class="text-gray-400 text-base font-normal"></span>
-        </h2>
-        <!-- ข้อมูลหลัก -->
-        <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
-            <div>
-                <span class="font-semibold">เหตุผล :</span>
-            </div>
-            <div class="">
-                <textarea name="task_notation" id="task_notation" cols="30" rows="5" class="border border-black"></textarea>
-            </div>
 
       <!-- หัวข้อ -->
       <h2 class="text-xl font-bold text-blue-700 mb-4">
@@ -888,7 +797,9 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
 
           <!-- ปุ่ม -->
       <div class="flex justify-center mt-6 gap-3">
-        <button onclick="closePopup()"  class="px-4 py-2 border border-black text-black rounded-md hover:bg-black hover:text-white transition">ปฏิเสธ</button>
+        <button type="button" id="openDeclinePopupDoing" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
+            ปฏิเสธ
+        </button>
         <button class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition">ส่งคืนงาน</button>
         <button id = "submit" class="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition">เสร็จสิ้น</button>
       </div>
@@ -900,18 +811,40 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
 <div id="confirmSubmitModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
     <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
         <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
-            <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการส่งาน</div>
+            <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการส่งงาน</div>
             <button class="modal-close text-gray-500 text-xl" id="close-popup">&times;</button>
         </div>
         <div class="modal-body text-center mb-6">
             <p class="text-left text-lg text-gray-600 mb-4">หมายเหตุ <span style="color: red;">*</span> :</p>
             <p class="text-right text-xs text-gray-400"><span id="charCount">0</span>/100</p>
-            <textarea id="notation" class="border border-gray-300 rounded-lg w-full p-2 mb-4" style="height: 100px; resize: none;" maxlength="100" oninput="updateCounter()" placeholder="กรุณากรอกหมายเหตุ"></textarea>
+            <textarea name="task_notation" id="notation" class="border border-gray-300 rounded-lg w-full p-2 mb-4" style="height: 100px; resize: none;" maxlength="100" oninput="updateCounter()" placeholder="กรุณากรอกหมายเหตุ"></textarea>
             <hr>
             <br>
             <div class="modal-buttons flex justify-center gap-4">
                 <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmSubmit">ยืนยัน</button>
                 <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelSubmit">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ป๊อปอัพปฏิเสธส่งงาน-->
+<div id="declineModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+        <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
+            <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการปฏิเสธงาน</div>
+            <button class="modal-close text-gray-500 text-xl" id="close-decline-popup">&times;</button>
+        </div>
+        <div class="modal-body text-center mb-6">
+            <p class="text-left text-lg text-gray-600 mb-4">เหตุผล <span style="color: red;">*</span> :</p>
+            <p class="text-right text-xs text-gray-400"><span id="declineCharCount">0</span>/100</p>
+            <textarea name="work_decline" id="declineReason" class="border border-gray-300 rounded-lg w-full p-2 mb-4" style="height: 100px; resize: none;" maxlength="100" oninput="updateDeclineCounter()" placeholder="กรุณากรอกเหตุผลในการปฏิเสธงาน"></textarea>
+            <hr>
+            <br>
+            <div class="modal-buttons flex justify-center gap-4">
+                <button class="btn btn-confirm text-white bg-red-600 px-6 py-2 rounded-full hover:bg-red-700" type="submit" name="work_status" value="D">ยืนยัน</button>
+                <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelDecline">ยกเลิก</button>
             </div>
         </div>
     </div>
@@ -976,6 +909,9 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             const popupTitle = document.getElementById('popup-title');
             const popupDate = document.getElementById('popup-date');
 
+            const openDeclineBtn = document.getElementById('openDeclinePopup');
+            const declinePopup = document.getElementById('declineModal');
+
             workItems.forEach(item => {
                 item.addEventListener('click', function() {
                     const titleElement = this.querySelector('div > div:first-child');
@@ -1021,6 +957,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 button.addEventListener('click', function() {
                     popup.style.display = 'none';
                     popupDoing.style.display = 'none';
+                    declinePopup.style.display = 'none';
                     document.body.classList.remove('popup-open');
                 });
             });
@@ -1033,7 +970,23 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     document.body.classList.remove('popup-open');
                 }
             });
+        // Open decline popup
+        openDeclineBtn.addEventListener('click', function() {
+            declinePopup.style.display = 'flex';
+            
         });
+
+        // Close decline popup when clicking outside the content
+        declinePopup.addEventListener('click', function(e) {
+            if (e.target === declinePopup) {
+                declinePopup.style.display = 'none';
+                
+            }
+        });
+
+
+        });
+
 
         function acceptWork() {
             const popup = document.getElementById('workItemPopup');
@@ -1045,7 +998,9 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             const popup = document.getElementById('workItemPopup');
             popup.style.display = 'none';
             document.body.classList.remove('popup-open');
+            
         }
+
     </script>
 
     <script>
@@ -1071,6 +1026,49 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 document.querySelectorAll('.popover-content').forEach(p => p.classList.add('hidden'));
             });
         });
+    </script>
+
+    <script>
+        
+    function updateDeclineCounter() {
+        let input = document.getElementById("declineReason");
+        document.getElementById("declineCharCount").textContent = input.value.length;
+    }
+
+    // เปิดป๊อปอัพปฏิเสธ
+    document.getElementById('openDeclinePopup').addEventListener('click', function () {
+        document.getElementById('declineModal').style.display = 'flex';
+    });
+    // สำหรับ popup "กำลังดำเนินการ"
+    document.getElementById('openDeclinePopupDoing').addEventListener('click', function () {
+        document.getElementById('declineModal').style.display = 'flex';
+    });
+
+    // ปิดป๊อปอัพปฏิเสธ
+    document.getElementById('close-decline-popup').addEventListener('click', function () {
+        document.getElementById('declineModal').style.display = 'none';
+    });
+
+    document.getElementById('cancelDecline').addEventListener('click', function () {
+        document.getElementById('declineModal').style.display = 'none';
+    });
+
+    document.getElementById('confirmDecline').addEventListener('click', function () {
+        // ใส่ logic ปฏิเสธงานตรงนี้
+        alert('ปฏิเสธงานเรียบร้อย');
+        document.getElementById('declineModal').style.display = 'none';
+    });
+    
+
+
+    // ปิด modal เมื่อคลิกนอกกล่อง
+    window.addEventListener('click', function(event) {
+        const declineModal = document.getElementById('declineModal');
+        if (event.target === declineModal) {
+            declineModal.style.display = 'none';
+        }
+    });
+
     </script>
 </div>
 

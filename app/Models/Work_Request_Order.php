@@ -20,6 +20,8 @@ class Work_Request_Order extends Model
         'work_author_type',
         'work_status',
         'work_created_by_department_id',
-        'work_confirm_date'
+        'work_confirm_date',
+        'work_decline_date',
+        'work_decline'
     ];
 }

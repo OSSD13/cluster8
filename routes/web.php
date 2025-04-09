@@ -12,8 +12,6 @@ use App\Http\Controllers\Manage_controller;
 use App\Http\Controllers\Dashboard_controller;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
-Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
-Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
 
 Route::get('/login', [Login_controller::class, 'index']);
 Route::post('/login', [Login_controller::class, 'login']);

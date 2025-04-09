@@ -612,79 +612,34 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
 
     <!-- การ์ดแสดงงานที่กำลังดำเนินการ (เต็มความกว้าง) -->
     <div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
-    <div class="border-b pb-2 mb-4">
-        <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
-        <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
+        <div class="border-b pb-2 mb-4">
+            <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
+            <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
+        </div>
+    
+        <div class="space-y-2 scrollbar-hide scrollable-content ">
+            <!-- รายการงานที่กำลังดำเนินการ 1 -->
+            <?php foreach ($data as $row): ?>
+                <?php if ($row['task_status'] === 'P'): ?>
+                        <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
+                            <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                                <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                    <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['task_name']) ?></div>
+                                    <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
+                                </div>
+                                <div class="flex items-center">
+                                    <button class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
+                                    <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                                </div>
+                            </div>
+                        </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
     </div>
-
-    <div class="space-y-2 scrollbar-hide scrollable-content ">
-        <!-- รายการงานที่กำลังดำเนินการ 1 -->
-        <?php foreach ($data as $row): ?>
-            <?php if ($row['task_status'] === 'P'): ?>
-                    <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-                        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                    <!-- รายการงาน 2 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-
-                    <!-- รายการงาน 3 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-[#2563eb] text-2xl "></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-
-                    <!-- รายการงาน 4 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-                    <!-- รายการงาน 5 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- การ์ดแสดงกราฟการทำงานส่วนตัว -->
             <div class="bg-[#ffffff] rounded-lg shadow p-6">

@@ -632,34 +632,37 @@
                 </div>
 
 
-
-                <div class="space-y-2 scrollbar-hide scrollable-content ">
-                    <?php foreach ($data5 as $row): ?>
-                    <!-- รายการงานที่กำลังดำเนินการ 1 -->
-                    <div class="flex items-center justify-between pb-2 cursor-pointer work-item-doing w-full">
-                        <div
-                            class="work-item-doing flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : {{ $row['task_name'] }}
-                                </div>
-                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : {{ $row['task_deadline'] }}
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <button
-                                    class="bg-[#ffffff] border border-[#00AC4F] text-[#00AC4F] px-4 py-1 rounded-full text-sm mr-4 hover:bg-[#00AC4F] hover:text-[#ffffff] transition-colors duration-200">เสร็จสิ้น</button>
-                                <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                            </div>
+                {{--ส่วนคืนงาน --}}
+                <div class="space-y-2 scrollbar-hide scrollable-content">
+                    <?php if (empty($data5)): ?>
+                        <div class="text-center text-gray-500 py-6">
+                            ไม่มีรายการงานที่กำลังดำเนินการ
                         </div>
-                    </div>
-                    <?php endforeach; ?>
-
-
+                    <?php else: ?>
+                        <?php foreach ($data5 as $row): ?>
+                            <div
+                                class="work-item-doing flex items-center justify-between pb-2 cursor-pointer w-full"
+                                data-task-id="{{ $row['task_id'] }}"
+                                onclick="selectTask(this)">
+                                <div
+                                    class="work-item-doing flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                                    <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                        <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-semibold text-gray-800">ชื่องาน : {{ $row['task_name'] }}</div>
+                                        <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : {{ $row['task_deadline'] }}</div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
-            </div>
+
+
         </div>
         <!-- ส่วนประวัติการทำงาน -->
         <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
@@ -892,12 +895,35 @@
                 <button onclick="closePopup()"
                     class="px-4 py-2 border border-black text-black rounded-md hover:bg-black hover:text-white transition">ปฏิเสธ</button>
 
+
+                    {{-- ปุ่มคืนงาน--}}
+                    <div id="success-message" class="hidden flex items-center mt-4 p-4 text-green-800 rounded-lg bg-green-100 border border-green-300" role="alert">
+                        <svg class="w-5 h-5 me-2 text-green-800" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                          <span class="font-medium">ส่งงานสำเร็จ</span><br>
+                          ดำเนินการส่งงานเสร็จสิ้น
+                        </div>
+                      </div>
+
+                    <?php if (!empty($data5)): ?>
                     <button
-                    data-task-id="{{ $row['task_id'] }}"  <!-- ส่ง task_id ไปที่ปุ่ม -->
-                    onclick="returnTask(this)"
-                    class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition">
-                    ส่งคืนงาน
-                </button>
+                        id="return-button"
+                        onclick="returnTask()"
+                        class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition"
+                        disabled>
+                        ส่งคืนงาน
+                    </button>
+                <?php else: ?>
+                    <button
+                        class="mt-4 px-4 py-2 border border-gray-300 text-gray-400 rounded-md cursor-not-allowed"
+                        disabled>
+                        ไม่มีรายการงานที่กำลังดำเนินการ
+                    </button>
+                <?php endif; ?>
+
+                <!-- ส่ง task_id ไปที่ปุ่ม -->
 
 
 
@@ -936,39 +962,67 @@
 
 
     {{-- ส่วนJS ของคืนงาน --}}
-    <script>
-        function returnTask(button) {
-            const taskId = button.getAttribute('data-task-id');  // ดึง task_id จาก data attribute
+    <div id="success-message" class="hidden flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-100 border border-green-300" role="alert">
+        <svg class="w-5 h-5 me-2 text-green-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z" clip-rule="evenodd"/></svg>
+        <div>
+          <span class="font-medium">ส่งงานสำเร็จ</span><br>
+          ดำเนินการส่งงานเสร็จสิ้น
+        </div>
+      </div>
 
-            // ตรวจสอบว่า taskId มีค่า
-            if (!taskId) {
-                alert('ไม่พบข้อมูลงานที่ต้องการส่งคืน');
-                return;  // หยุดการทำงาน
+
+
+
+    <script>
+        let selectedTaskId = null;  // ตัวแปรเก็บ task_id ของงานที่เลือก
+
+        // ฟังก์ชันเมื่อเลือกงาน
+        function selectTask(element) {
+            // ดึง task_id จาก data attribute ของงานที่เลือก
+            selectedTaskId = element.getAttribute('data-task-id');
+            console.log("เลือก task id: ", selectedTaskId);
+
+            // ทำให้ปุ่ม "ส่งคืนงาน" เปิดใช้งาน
+            const btn = document.getElementById("return-button");
+            btn.disabled = false;
+
+            // Optional: ไฮไลต์งานที่เลือก
+            document.querySelectorAll('.work-item-doing').forEach(el => el.classList.remove('ring-2', 'ring-blue-500'));
+            element.classList.add('ring-2', 'ring-blue-500');
+        }
+
+        // ฟังก์ชันส่งคืนงาน
+        function returnTask() {
+            if (!selectedTaskId) {
+                alert("กรุณาเลือกรายการงานก่อน");
+                return;
             }
 
+            // ส่งคำขอไปยังเซิร์ฟเวอร์เพื่อเปลี่ยนสถานะ
             fetch('{{ route('task.return') }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ task_id: taskId })
+                body: JSON.stringify({ task_id: selectedTaskId })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('ส่งคืนงานเรียบร้อยแล้ว');
-                    location.reload(); // โหลดหน้าใหม่เพื่ออัปเดตรายการ
+                    alert("ส่งคืนงานเรียบร้อยแล้ว");
+                    location.reload();
                 } else {
-                    alert('เกิดข้อผิดพลาดในการส่งคืนงาน');
+                    alert("เกิดข้อผิดพลาดในการส่งคืนงาน");
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('เกิดข้อผิดพลาดในการส่งคำขอ');
+            .catch(err => {
+                console.error("Error:", err);
+                alert("เกิดข้อผิดพลาด");
             });
         }
     </script>
+
 
 
 

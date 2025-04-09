@@ -45,7 +45,7 @@ if ($userID) {
         SUM(CASE WHEN task_status = 'C' THEN 1 ELSE 0 END) AS completedDepartment_tasks,
         SUM(CASE WHEN task_status = 'R' THEN 1 ELSE 0 END) AS waitingDepartment_tasks,
         SUM(CASE WHEN task_status = 'D' THEN 1 ELSE 0 END) AS decryDepartment_tasks,
-        SUM(CASE WHEN task_status = 'P' THEN 1 ELSE 0 END) AS pendingtedDepartment_tasks
+        SUM(CASE WHEN task_status = 'P' THEN 1 ELSE 0 END) AS processDepartment_tasks
 
     FROM task
     WHERE task_recipient_user_id = ?
@@ -58,8 +58,8 @@ if ($userID) {
     // ตรวจสอบผลลัพธ์
     if (!empty($result)) {
         $completedDepartmentTasks = $result[0]->completedDepartment_tasks ?? 0;
-        $processedTaskDepartmentTasks  = $result[0]->pendingtedDepartment_tasks ?? 0;
-        $waitingDepartmentTasks = $result[0]->waitdingDepartment_tasks ?? 0;
+        $processedTaskDepartmentTasks = $result[0]->processDepartment_tasks ?? 0; // แก้ไขจาก pendingtedDepartment_tasks
+        $waitingDepartmentTasks = $result[0]->waitingDepartment_tasks ?? 0; // แก้ไขจาก waitdingDepartment_tasks
         $decrydingDepartmentTasks = $result[0]->decryDepartment_tasks ?? 0;
     }
 }

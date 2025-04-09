@@ -10,6 +10,7 @@ use App\Http\Controllers\Work_request_controller;
 use App\Http\Controllers\Report_controller;
 use App\Http\Controllers\Manage_controller;
 use App\Http\Controllers\Dashboard_controller;
+use App\Http\Controllers\Task_controller;
 
 
 
@@ -41,3 +42,5 @@ Route::get('/manage/search-users', [Manage_controller::class, 'searchUsers']);
 Route::post('/manage/edit-dept', [Manage_controller::class, 'edit_dept'])->name('edit.dept');
 
 Route::get("/dashboard",[Dashboard_controller::class, 'index']);
+Route::post('/return-task', [Task_controller::class, 'returnTask'])->name('task.return');
+

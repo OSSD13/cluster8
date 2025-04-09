@@ -569,23 +569,13 @@ document.getElementById('logoutModal').style.display = 'none';
             <!-- ปุ่มส่ง -->
             <div class="flex justify-end space-x-4">
                 <!-- ปุ่มส่ง -->
-                <button 
-                    type="submit" 
-                    onclick="document.getElementById('work_status').value='R'" 
-                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                    ส่ง
-                </button>
-                <!-- ปุ่มแบบร่าง -->
-                <button 
-                    type="submit" 
-                    onclick="document.getElementById('work_status').value='draft'" 
-                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100"
-                >
-                    แบบร่าง
-                </button>
-            </div>
-        </form>
+                <div class="flex justify-end space-x-4">
+                    <button type="submit" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
+                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
+                </div>
+            </form>
+        </div>
+
     </div>
 </div>
 

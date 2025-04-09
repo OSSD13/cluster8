@@ -858,7 +858,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             console.log('Department Name Selected:', departmentName);
 
             // ส่งคำขอ AJAX ไปยังเซิร์ฟเวอร์
-            fetch('/manage/filter-by-department', {
+            fetch('manage/filter-by-department', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

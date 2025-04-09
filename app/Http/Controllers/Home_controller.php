@@ -19,16 +19,17 @@ class Home_controller extends Controller
         // ค้นหา Work_Request_Order ที่ต้องการอ
         $mwrq = \App\Models\Work_Request_Order::find($decline_work_id);
         // ค้นหา Task ที่ต้องการปฏิเสธ
-
+        //dd($mwrq);
         if ($mwrq) {
             // อัปเดต work_decline_date เป็นวันที่ปัจจุบัน
-            $mwrq->work_decline_date = now();
-            $mwrq->work_status = $req->input('work_status');
+            
+            $mwrq->work_submit_date = now();
+            $mwrq->work_status = 'D';
             $mwrq->work_decline = $req->input('work_decline');
             $mwrq->save();
         }
 
-        // Redirect กลับไปที่หน้า workrequest
+        
         return redirect('/home');
     }
     /*

@@ -4,7 +4,7 @@ session_start(); // เริ่มต้น session
 $userID = session('users')->user_id;
 $completedTasks = 0;
 $pendingTasks = 0;
-$rejectedTasks = 0;
+
 
 if ($userID) {
     $result = DB::select(
@@ -25,7 +25,7 @@ if ($userID) {
         $completedTasks = $result[0]->completed_tasks ?? 0;
         $processedTasks = $result[0]->processed_tasks ?? 0;
         $pendingTasks = $result[0]->pending_tasks ?? 0;
-        $rejectedTasks = $result[0]->rejected_tasks ?? 0;
+        
     }
     $departmentUserID = $userID; // รหัสผู้ใช้สำหรับแผนก
 
@@ -46,7 +46,7 @@ if ($userID) {
 ",
         [$departmentUserID],
     );
-
+    
     // ตรวจสอบผลลัพธ์
     if (!empty($result)) {
         $completedDepartmentTasks = $result[0]->completedDepartment_tasks ?? 0;
@@ -388,7 +388,7 @@ if ($userID) {
                     <div class="chart">
                         <!-- โค้ดกราฟของคุณที่ใช้แสดงกราฟที่นี่ -->
                         <script>
-                            const data = {
+                            const data = { 
                                 waiting: {{ $pendingTasks }},
                                 inProgress: {{ $processedTasks }},
                                 completed: {{ $completedTasks }}
@@ -560,9 +560,9 @@ if ($userID) {
                         <script>
                             // ข้อมูลสำหรับกราฟส่วนตัว - แตกต่างจากกราฟแผนก
                             const personalData = {
-                                waiting: 25,
-                                inProgress: 10,
-                                completed: 35
+                                waiting: {{ $pendingTasks }},
+                                inProgress: {{ $processedTasks }},
+                                completed: {{ $completedTasks }}
                             };
 
                             // หาค่าสูงสุดเพื่อทำ scale

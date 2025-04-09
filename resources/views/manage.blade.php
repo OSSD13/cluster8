@@ -104,20 +104,6 @@
             background-color: #0012E1;
             color: white;
         }
-        .submit-delete{
-            background-color: white;
-            color: #E60000;
-            padding: 8px 16px;
-            border: 2px solid #E60000;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .submit-delete:hover {
-            background-color: #E60000;
-            color: white;
-        }
 
         tr {
             border-bottom: 1px solid #ccc; /* เส้นกั้นระหว่างแถว */
@@ -154,7 +140,7 @@
             /* ลบเส้นขอบและมุมโค้ง */
             border: none;
             border-radius: 0;
-        }
+        }   
 
         .dropdown-wrapper i.icon-sort {
             color: #0012E1; /* สีของไอคอน */
@@ -373,31 +359,7 @@
     </div>
 
     <div id="delete" class="tab-content" style="display: none;">
-        <div class="section-top-row">
-            <h2>ลบพนักงานออกจากแผนก</h2>
-            <button class="submit-delete">ลบพนักงาน</button>
-        </div>
-
-        <div class="assign-row">
-            <div class="detail-left">
-                ลบพนักงานออกจากแผนกโดยค้นหาจากชื่อหรือรหัสพนักงาน
-            </div>
-
-            <div class="form-right">
-                <div class="input-icon-both">
-                    <i class="fas fa-user icon-left"></i>
-                    <input type="text" id="searchInput" placeholder="ค้นหาชื่อหรือรหัสพนักงาน">
-
-                    <!-- เปลี่ยน i เป็น button -->
-                    <button class="icon-right search-button" onclick="handleSearch()">
-                      <i class="fas fa-search"></i>
-                    </button>
-                  </div>
-
-
-
-            </div>
-          </div>
+        <p>คุณสามารถลบแผนกได้ที่นี่</p>
     </div>
 </div>
 

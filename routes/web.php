@@ -10,6 +10,10 @@ use App\Http\Controllers\Work_request_controller;
 use App\Http\Controllers\Report_controller;
 use App\Http\Controllers\Manage_controller;
 use App\Http\Controllers\Dashboard_controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+
 
 
 
@@ -40,4 +44,35 @@ Route::get('/manage/search-users', [Manage_controller::class, 'searchUsers']);
 
 Route::post('/manage/edit-dept', [Manage_controller::class, 'edit_dept'])->name('edit.dept');
 
-Route::get("/dashboard",[Dashboard_controller::class, 'index']);
+
+Route::get('/dashboard',[Dashboard_controller::class,"index"]);
+Route::post('/update-userclick', function (Request $request) {
+    $Userclick = $request->input('Userclick');
+    session(['Userclick' => $Userclick]);
+
+    $userID = session('users')->user_id;
+
+    // ดึงข้อมูลสำหรับส่วนตัว
+    $completedTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'P')->where('task_status', 'C')->count();
+    $pendingTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'P')->where('task_status', 'P')->count();
+
+    // ดึงข้อมูลสำหรับแผนก
+    $completedDepartmentTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'D')->where('task_status', 'C')->count();
+    $pendingDepartmentTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'D')->where('task_status', 'P')->count();
+
+    // ดึงข้อมูลสำหรับปฏิเสธงาน
+    $decrydingTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'P')->where('task_status', 'R')->count();
+    $decrydingDepartmentTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'D')->where('task_status', 'R')->count();
+
+    return response()->json([
+        'success' => true,
+        'Userclick' => $Userclick,
+        'completedTasks' => $completedTasks,
+        'completedDepartmentTasks' => $completedDepartmentTasks,
+        'pendingTasks' => $pendingTasks,
+        'pendingDepartmentTasks' => $pendingDepartmentTasks,
+        'decrydingTasks' => $decrydingTasks,
+        'decrydingDepartmentTasks' => $decrydingDepartmentTasks,
+    ]);
+});
+

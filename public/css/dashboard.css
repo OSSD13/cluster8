@@ -1,0 +1,158 @@
+/* Dashboard custom styles */
+body {
+    font-family: 'Noto Sans Thai', sans-serif;
+    background-color: #f5f6fa;
+    color: #343a40;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    align-items: center;
+    padding-left: 80px;
+}
+
+.header-container h1 {
+    text-align: left;
+    color: #0012E1;
+    margin-bottom: 0;
+}
+
+.summary-container {
+    margin-bottom: 20px;
+    background-color: #FFFFFF;
+    padding: 20px;
+    border-radius: 15px;
+    width: 1044px;
+    height: 318px;
+    justify-content: center;
+}
+
+.summary-container.img-left {
+    width: 40px;
+    height: 40px;
+    align-items: right;
+}
+
+.summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: px;
+}
+
+.summary-title {
+    flex-basis: 100%;
+    text-align: left;
+    font-size: 24px;
+    color: #151D48;
+    margin-bottom: 20px;
+}
+
+.card {
+    border-radius: 25px;
+    padding: 20px;
+    width: 250px;
+    height: 184px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-img-left {
+    width: 40px;
+    height: 40px;
+    height: auto;
+    display: block;
+    margin-right: auto;
+}
+
+.card.card-completed {
+    background-color: #DCFCE7;
+    text-align: left;
+    padding: 1rem;
+}
+
+.card.card-progress {
+    background-color: #FFF4DE;
+    text-align: left;
+    padding: 1rem;
+}
+
+.card.card-rejected {
+    background-color: #FFE2E5;
+    text-align: left;
+    padding: 1rem;
+}
+
+.card h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #151D48;
+}
+
+.card p {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.chart-container {
+    margin-bottom: 40px;
+}
+
+.chart-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 30px;
+}
+
+.chart-section {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.15);
+    height: 351px;
+    width: 1050px;
+}
+
+.half {
+    width: 510px;
+    height: 419px;
+}
+
+.chart-title {
+    text-align: left;
+    margin-bottom: 20px;
+    color: #0c0c0c;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+canvas {
+    display: block;
+    width: 450px;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#weekCompletionChart {
+    width: 100% !important;
+    height: 90% !important;
+}
+
+.chartjs-legend .point-style {
+    border-radius: 15px;
+    width: 20px;
+    height: 10px;
+    display: inline-block;
+}
+
+button {
+    all: unset;
+    justify-content: flex-end;
+}

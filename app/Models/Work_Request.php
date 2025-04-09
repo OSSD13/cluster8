@@ -13,4 +13,5 @@ class Work_Request extends Model
         'wrq_create_date',
         'wrq_user_id'
     ];
+    
 }

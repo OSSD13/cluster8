@@ -60,17 +60,3 @@
 </body>
 
 </html>
-
-<script>
-    const togglePassword = document.getElementById("togglePassword");
-    const passwordInput = document.getElementById("user_password");
-    const eyeOpen = document.getElementById("eyeOpen");
-    const eyeClosed = document.getElementById("eyeClosed");
-  
-    togglePassword.addEventListener("click", () => {
-      const isHidden = passwordInput.type === "password";
-      passwordInput.type = isHidden ? "text" : "password";
-      eyeOpen.classList.toggle("hidden", !isHidden);
-      eyeClosed.classList.toggle("hidden", isHidden);
-    });
-  </script>

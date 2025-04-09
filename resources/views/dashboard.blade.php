@@ -193,8 +193,6 @@ if ($userID) {
                 // ปิดป๊อปอัพ
                 document.getElementById('logoutModal').style.display = 'none';
             });
-
-
             // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
             window.addEventListener('click', function(event) {
                 if (event.target === document.getElementById('logoutModal')) {
@@ -202,7 +200,6 @@ if ($userID) {
                 }
             });
         </script>
-
     </div>
 
     <!-- Main Content; เพิ่มคลาส ml-60 เพื่อขยับออกจาก sidebar -->

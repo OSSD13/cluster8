@@ -59,6 +59,14 @@ $sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, tas
         LEFT JOIN departments ON user_dept_id = department_id
         WHERE task_recipient_user_id = $userID AND task_submit_date >= NOW() - INTERVAL 5 DAY AND (task_status = 'C' OR task_status = 'D')
         LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
+    if (!empty($result)) {
+        $completedTasks = $result[0]->completed_tasks ?? 0;
+        $processedTasks = $result[0]->processed_tasks ?? 0;
+        $pendingTasks = $result[0]->pending_tasks ?? 0;
+        $rejectedTasks = $result[0]->rejected_tasks ?? 0;
+    }
+    $departmentUserID = $userID; // รหัสผู้ใช้สำหรับแผนก
+
 
 $stmt2 = $pdo->prepare($sql2);
 $stmt2->bindParam(':offset', $offset, PDO::PARAM_INT);
@@ -103,6 +111,35 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
 
 
 
+    // ดึงข้อมูลจากฐานข้อมูล
+    $result = DB::select("
+    SELECT
+        DATE(task.task_submit_date) AS completed_date,
+        task.task_recipient_type,
+        COUNT(*) AS total_tasks
+    FROM task
+    WHERE
+        task.task_status = 'C'
+        AND task.task_submit_date IS NOT NULL
+        AND task.task_submit_date BETWEEN
+            DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+            AND DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 6 DAY)
+    GROUP BY
+        DATE(task.task_submit_date),
+        task.task_recipient_type
+    ORDER BY
+        completed_date ASC
+");
+    if (!empty($result)) {
+        foreach ($result as $row) {
+            $weeklyTaskSummary[] = [
+                'completed_date' => $row->completed_date,
+                'task_recipient_type' => $row->task_recipient_type,
+                'total_tasks' => $row->total_tasks,
+            ];
+        }
+    }
+}
 ?>
 
 
@@ -162,6 +199,12 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
             max-width: 500px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             position: relative;
+        .chart {
+            width: 70%;
+            /* กำหนดขนาดกราฟที่ต้องการ */
+            max-width: 600px;
+            /* กำหนดขนาดสูงสุด */
+            height: auto;
         }
         .close-popup {
             position: absolute;
@@ -582,6 +625,134 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
                         <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
                             <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
                                 <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                    <!-- รายการงาน 2 -->
+                    <div
+                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                            <i class="fas fa-box text-[#2563eb] text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- รายการงาน 3 -->
+                    <div
+                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                            <i class="fas fa-box text-[#2563eb] text-2xl "></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- รายการงาน 4 -->
+                    <div
+                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                            <i class="fas fa-box text-[#2563eb] text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </div>
+                    <!-- รายการงาน 5 -->
+                    <div
+                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                            <i class="fas fa-box text-[#2563eb] text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
+                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
+                        </div>
+                        <div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- การ์ดแสดงกราฟการทำงานส่วนตัว -->
+            <div class="bg-[#ffffff] rounded-lg shadow p-6">
+                <div class="border-b pb-2 mb-4">
+                    <h2 class="text-lg font-bold">ส่วนตัว</h2>
+                    <p class="text-sm text-[#6b7280]">กราฟแสดงการทำงานของส่วนตัว</p>
+                </div>
+                <div class="graph-container">
+                    <div class="chart">
+                        <!-- โค้ดกราฟของคุณที่ใช้แสดงกราฟที่นี่ -->
+                        <script>
+                            // ข้อมูลสำหรับกราฟส่วนตัว - แตกต่างจากกราฟแผนก
+                            const personalData = {
+                                waiting: 25,
+                                inProgress: 10,
+                                completed: 35
+                            };
+
+                            // หาค่าสูงสุดเพื่อทำ scale
+                            const personalMaxValue = Math.max(personalData.waiting, personalData.inProgress, personalData.completed);
+                            // คำนวณสเกลเพื่อให้กราฟพอดีกับความสูงที่กำหนด (200px)
+                            const personalScale = 200 / (Math.ceil(personalMaxValue / 10) * 10);
+
+                            // สร้างสเกลด้านซ้าย
+                            function createPersonalYAxis() {
+                                const yAxis = document.getElementById('personal-y-axis');
+                                yAxis.innerHTML = '';
+
+                                // คำนวณค่าสูงสุดของสเกล (ปัดขึ้นให้เป็นหลัก 10)
+                                const maxScale = Math.ceil(personalMaxValue / 10) * 10;
+
+                                // สร้างช่วงสเกล 6 ช่วง (0-maxScale)
+                                for (let i = 5; i >= 0; i--) {
+                                    const value = Math.round(maxScale * i / 5);
+                                    const div = document.createElement('div');
+                                    div.textContent = value;
+                                    yAxis.appendChild(div);
+                                }
+                            }
+
+                            // อัพเดตความสูงของกราฟและค่าที่แสดง
+                            function updatePersonalChart() {
+                                // อัพเดตความสูงของกราฟ
+                                document.getElementById('personal-bar-waiting').style.height = `${personalData.waiting * personalScale}px`;
+                                document.getElementById('personal-bar-in-progress').style.height = `${personalData.inProgress * personalScale}px`;
+                                document.getElementById('personal-bar-completed').style.height = `${personalData.completed * personalScale}px`;
+
+                                // อัพเดตตัวเลขที่แสดง
+                                document.getElementById('personal-value-waiting').textContent = personalData.waiting;
+                                document.getElementById('personal-value-in-progress').textContent = personalData.inProgress;
+                                document.getElementById('personal-value-completed').textContent = personalData.completed;
+                            }
+
+                            // เพิ่มฟังก์ชันเข้าไปในรายการที่ต้องทำเมื่อโหลดหน้า
+                            window.addEventListener('load', function () {
+                                if (document.getElementById('personal-y-axis')) {
+                                    createPersonalYAxis();
+                                    updatePersonalChart();
+                                }
+                            });
+                        </script>
+
+                        <!-- กราฟแท่งแนวตั้ง -->
+                        <div class="h-64 flex items-end justify-evenly relative">
+                            <!-- แกนตั้งแสดงค่า -->
+                            <div id="personal-y-axis"
+                                class="absolute left-0 h-full flex flex-col justify-between text-gray-500 text-xs">
+                                <!-- สเกลจะถูกสร้างด้วย JavaScript -->
                             </div>
                             <div class="flex-1">
                                 <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['task_name']) ?></div>

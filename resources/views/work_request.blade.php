@@ -50,6 +50,9 @@ $total_item = $count_stmt->fetchColumn();
 $total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
 
 
+
+
+
 ?>
 
 
@@ -251,9 +254,13 @@ document.getElementById('logoutModal').style.display = 'none';
                                 </div>
                             
                                 <!-- ปุ่มตกลง -->
-                                <button class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
-                                    ตกลง
-                                </button>
+                                <form method="POST" action="{{ url('/workrequest') }}">
+                                    @csrf
+                                    <input type="hidden" name="confirm_work_id" value="<?= $row['work_request_id'] ?>">
+                                    <button type="submit" class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
+                                        ตกลง 
+                                    </button>
+                                </form>
                             </div>
                             
                             <?php elseif ($row['work_status'] === 'D' ): ?>
@@ -279,9 +286,13 @@ document.getElementById('logoutModal').style.display = 'none';
                                 </div>
                             
                                 <!-- ปุ่มตกลง --> 
-                                <button class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
-                                    ตกลง
-                                </button>
+                                <form method="POST" action="{{ url('/workrequest') }}">
+                                    @csrf
+                                    <input type="hidden" name="confirm_work_id" value="<?= $row['work_request_id'] ?>">
+                                    <button type="submit" class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
+                                        ตกลง 
+                                    </button>
+                                </form>
                             </div>
                             
                             <?php endif; ?>
@@ -571,7 +582,7 @@ document.getElementById('logoutModal').style.display = 'none';
                 <!-- ปุ่มส่ง -->
                 <div class="flex justify-end space-x-4">
                     <button type="submit" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
-                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
+                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100" @disabled(true)>แบบร่าง</button>
                 </div>
             </form>
         </div>

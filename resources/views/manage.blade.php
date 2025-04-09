@@ -479,7 +479,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="input-icon-both">
                             <i class="fas fa-users icon-left"></i>
                             <select id="departmentSetSelect" name="department"
-                                class="rounded-[8px] w-[199px] h-[46px] border border-gray-300 mt-1 font-[Lato] text-[14.22px] "
+                                class="rounded-[8px] w-[199px] h-[46px] border border-gray-300 mt-1 font-[Lato] text-[14.22px] ">
                                 {{-- onchange="this.form.submit()"> ส่งค่าอัตโนมัติเมื่อเลือก --}} <option value="">เลือกแผนก</option>
                                 @foreach ($departments as $dept)
                                     <option value="{{ $dept->department_name }}"

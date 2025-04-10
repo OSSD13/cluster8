@@ -85,3 +85,43 @@ Route::post('/update-userclick', function (Request $request) {
 
 
 
+
+Route::get('/dashboard',[Dashboard_controller::class,"index"]);
+Route::post('/update-userclick', function (Request $request) {
+    $Userclick = $request->input('Userclick');
+    session(['Userclick' => $Userclick]);
+
+    $userID = session('users')->user_id;
+
+    // ดึงข้อมูลสำหรับส่วนตัว
+    $completedTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'P')->where('task_status', 'C')->count();
+    $pendingTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'P')->where('task_status', 'P')->count();
+
+    // ดึงข้อมูลสำหรับแผนก
+    $completedDepartmentTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'D')->where('task_status', 'C')->count();
+    $pendingDepartmentTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'D')->where('task_status', 'P')->count();
+
+    // ดึงข้อมูลสำหรับปฏิเสธงาน
+    $decrydingTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'P')->where('task_status', 'R')->count();
+    $decrydingDepartmentTasks = DB::table('task')->where('task_recipient_user_id', $userID)->where('task_recipient_type', 'D')->where('task_status', 'R')->count();
+
+    return response()->json([
+        'success' => true,
+        'Userclick' => $Userclick,
+        'completedTasks' => $completedTasks,
+        'completedDepartmentTasks' => $completedDepartmentTasks,
+        'pendingTasks' => $pendingTasks,
+        'pendingDepartmentTasks' => $pendingDepartmentTasks,
+        'decrydingTasks' => $decrydingTasks,
+        'decrydingDepartmentTasks' => $decrydingDepartmentTasks,
+    ]);
+});
+
+
+
+Route::post("/workrequest", [Work_request_controller::class, "store"])->middleware([Check_login::class]);
+Route::post("/home", [Work_request_controller::class, "decline"])->middleware([Check_login::class]);
+
+Route::post("/home", [Home_controller::class, "all_task"])->middleware([Check_login::class]);
+
+Route::post("/home", [Home_controller::class, "accept"])->middleware([Check_login::class]);

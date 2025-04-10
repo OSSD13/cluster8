@@ -466,129 +466,132 @@ document.getElementById('logoutModal').style.display = 'none';
     <div class="bg-white p-4 rounded-xl shadow-xl max-w-3xl p-6 relative">
         <!-- Header -->
         <div class="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 class="text-xl font-bold text-blue-700 mb-4">
-                รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#</span>
-            </h2>
+                <h2 class="text-xl font-bold text-blue-700 mb-4">
+                    รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal"></span>
+                </h2>
             <button @click="isOpen = false" class="text-gray-600 hover:text-black text-xl">
                 <i class="fas fa-times-circle"></i>
             </button>
         </div>
-
-        <!-- FORM -->
-        <form method="POST" action="{{ url('/workrequest') }}">
-            @csrf
-            <input type="hidden" name="work_status" id="work_status" value="R"> <!-- เริ่มต้นเป็น R -->
-
-            <!-- ข้อมูลหลัก -->
-            <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
-                <div>
-                    <label for="work_name" class="font-semibold">ชื่อเรื่อง :</label>
-                    <input type="text" name="work_name" id="work_name"
-                        class="border px-3 py-2 rounded w-half" placeholder="กรุณากรอกชื่อเรื่อง" required>
-                </div>
-                <div class="px-3 py-2">
-                    <label class="font-semibold">วันที่ร้องขอ :</label>
-                    <span name="create_date" value="" class="text-gray-900 font-medium">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</span>
-                </div>
-                <div>
+    
+            <!-- FORM -->
+            <form action="{{ url('/workrequest') }}" method="POST">
+                @csrf
+                
+                <!-- ข้อมูลหลัก -->
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
+                  <div>
+                      <label for="work_name" class="font-semibold">ชื่อเรื่อง :</label>
+                        <input type="text" name="work_name" id="work_name"
+                            class="border px-3 py-2 rounded w-half" placeholder="กรุณากรอกชื่อเรื่อง" required>
+                  </div>
+                  <div class="px-3 py-2">
+                      <label class="font-semibold">วันที่ร้องขอ :</label>
+                        <span name="create_date" value="" class="text-gray-900 font-medium">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</span>
+                  </div>
+                  <div>
                     <span class="font-semibold">ผู้ส่ง :</span>
                     {{ session('users')->user_fname }} {{ session('users')->user_lname }}                     
-                </div>
-                <div class="px-3">
-                    <label class="font-semibold ">แผนก <span class="text-red-500">*</span> :</label>
-                    <label class="space-x-2 px-3 py-3">
-                        <input type="radio" name="work_author_type" value="D" checked class="">
-                        <span class="">ระบุ</span>
-                    </label>
-                    <label class="space-x-2 px-3 py-3">
-                        <input type="radio" name="work_author_type" value="P" class="">
-                        <span class="">ไม่ระบุ</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- งานย่อย -->
-            <div 
-                x-data="{
-                    tasks: [{ id: 1, name: '', description: '' }],
-                    addTask() {
-                        this.tasks.push({ id: this.tasks.length + 1, name: '', description: '' });
-                    },
-                    removeTask(index) {
-                        this.tasks.splice(index, 1);
-                    }
-                }"
-                class="max-h-80 overflow-y-auto scrollbar-hide"
-            >
-
-                <!-- ปุ่มเพิ่ม -->
-                <div class="flex justify-end items-center mt-1 max-h-80 overflow-y-auto">
-                    <button type="button" @click="addTask" class="button-button5 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700 transition">
-                        <i class="fas fa-plus"></i> เพิ่มรายการ
-                    </button>
+                    
+                    
+                  </div>
+                  <div class="px-3">
+                        <label class="font-semibold ">แผนก <span class="text-red-500">*</span> :</label>
+                        <label class="space-x-2 px-3 py-3">
+                            <input type="radio" name="work_author_type" value="D" checked class="">
+                            <span class="">ระบุ</span>
+                        </label>
+                        <label class="space-x-2 px-3 py-3">
+                            <input type="radio" name="work_author_type" value="P" class="">
+                            <span class="">ไม่ระบุ</span>
+                        </label>
+                  </div>
                 </div>
 
-                <!-- งานย่อย template -->
-                <template x-for="(task, index) in tasks" :key="task.id">
-                    <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
-
-                        <!-- ชื่องาน วันที่ -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <input type="text" :name="'task_name[' + index + ']'" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
-                            <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
-                                <i class="fas fa-calendar-alt text-blue-500"></i>
-                                <input type="date" :name="'task_deadline[' + index + ']'" class="flex-1 outline-none" required>
-                            </div>
-                        </div>  
-
-                        <div
-                            class="grid grid-cols-1 md:grid-cols-2 gap-2"
-                            x-data="{ selected : 'P' }"
-                        >
-                            <!-- บุคคล -->
-                            <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                <input type="radio" :name="'task_recipient_type[' + index + ']'" value="P" x-model="selected">
-                                <input type="text" :name="'task_recipient_user_id[' + index + ']'" placeholder="บุคคล" class="flex-1 outline-none"
-                                    :disabled="selected !== 'P'"
-                                    :required="selected === 'P'">
-                                <i class="fas fa-search text-gray-500"></i>
-                            </label>
-
-                            <!-- แผนก -->
-                            <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                <input type="radio" :name="'task_recipient_type[' + index + ']'" value="D" x-model="selected">
-                                <input type="text" :name="'task_recipient_department_id[' + index + ']'" placeholder="แผนก" class="flex-1 outline-none"
-                                    :disabled="selected !== 'D'"
-                                    :required="selected === 'D'">
-                                <i class="fas fa-search text-gray-500"></i>
-                            </label>
-                        </div>
-
-                        <!-- ปุ่มลบ -->
-                        <div class="flex justify-end">
-                            <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
-                                <i class="fas fa-trash-alt"></i> ลบ
-                            </button>
-                        </div>
+    
+                <!-- งานย่อย -->
+                <div 
+                    x-data="{
+                        tasks: [{ id: 1, name: '', description: '' }],
+                        addTask() {
+                            this.tasks.push({ id: this.tasks.length + 1, name: '', description: '' });
+                        },
+                        removeTask(index) {
+                            this.tasks.splice(index, 1);
+                        }
+                    }"
+                    class="max-h-80 overflow-y-auto scrollbar-hide"
+                >
+    
+                    <!-- ปุ่มเพิ่ม -->
+                    <div class="flex justify-end items-center mt-1 max-h-80 overflow-y-auto">
+                        <button type="button" @click="addTask" class="button-button5 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700 transition">
+                            <i class="fas fa-plus"></i> เพิ่มรายการ
+                        </button>
                     </div>
                 </template>
-                    
+                    <!-- งานย่อย template -->
+                    <template x-for="(task, index) in tasks" :key="task.id">
+                    <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
+    
+                    <!-- ชื่องาน วันที่ -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <input type="text" :name="'task_name[' + index + ']'" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
+                    <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
+                        <i class="fas fa-calendar-alt text-blue-500"></i>
+                    <input type="date" :name="'task_deadline[' + index + ']'" class="flex-1 outline-none" required>
+                    </div>
+                    </div>  
+
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 gap-2"
+                    x-data="{ selected : 'P' }"
+                >
+                <!-- บุคคล -->
+                <label class="flex items-center border rounded px-3 py-2 space-x-2">
+                    <input type="radio" :name="'task_recipient_type[' + index + ']'" value="P" x-model="selected">
+                    <input type="text" :name="'task_recipient_user_id[' + index + ']'" placeholder="บุคคล" class="flex-1 outline-none"
+                        :disabled="selected !== 'P'"
+                        :required="selected === 'P'">
+                    <i class="fas fa-search text-gray-500"></i>
+                </label>
+
+                <!-- แผนก -->
+                <label class="flex items-center border rounded px-3 py-2 space-x-2">
+                    <input type="radio" :name="'task_recipient_type[' + index + ']'" value="D" x-model="selected">
+                    <input type="text" :name="'task_recipient_department_id[' + index + ']'" placeholder="แผนก" class="flex-1 outline-none"
+                        :disabled="selected !== 'D'"
+                        :required="selected === 'D'">
+                    <i class="fas fa-search text-gray-500"></i>
+                </label>
+                </div>
+
+                <!-- ปุ่มลบ -->
+                <div class="flex justify-end">
+                    <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
+                        <i class="fas fa-trash-alt"></i> ลบ
+                    </button>
+                </div>
             </div>
+            </template>
+                    
+                </div>
 
-            <hr class="semibold my-6">
-
-            <!-- ปุ่มส่ง -->
-            <div class="flex justify-end space-x-4">
+                <hr class="semibold my-6">
+                   
                 <!-- ปุ่มส่ง -->
                 <div class="flex justify-end space-x-4">
-                    <button type="submit" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
-                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100" @disabled(true)>แบบร่าง</button>
+                    <button type="submit" name="work_status" value="R" 
+                    formaction="{{ route('workrequest.create') }}"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
+                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
                 </div>
             </form>
         </div>
-
+        
     </div>
 </div>
+
 
 </body>
 

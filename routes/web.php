@@ -13,6 +13,7 @@ use App\Http\Controllers\Dashboard_controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use App\Http\Controllers\Task_controller;
 
 
 
@@ -30,17 +31,19 @@ Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class
 Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
 Route::post("/home",[Home_controller::class,'decline'])->middleware([Check_login::class]);
 
+Route::post('/return-task', [Task_controller::class, 'returnTask'])->name('task.return');
 
 
 Route::get("/workrequest", [Work_request_controller::class, "index"]);
-Route::post("/workrequest", [Work_request_controller::class, "create"]);
+Route::post("/workrequest/create", [Work_request_controller::class, "create"])->name('workrequest.create');
 Route::get("/workrequest", [Work_request_controller::class, "show"]);
-Route::post("/workrequest", [Work_request_controller::class, "store"])->middleware([Check_login::class]);
+Route::post("/workrequest", [Work_request_controller::class, "store"]);
 
 Route::get("/report", [Report_controller::class, "index"])->name('report');
 
 Route::get("/manage", [Manage_controller::class, "index"])->middleware([Check_login::class]);
 Route::get('/manage/search-users', [Manage_controller::class, 'searchUsers']);
+Route::post('/manage/search-users', [Manage_controller::class, 'searchUsers'])->name('manage.searchUsers');
 
 Route::post('/manage/edit-dept', [Manage_controller::class, 'edit_dept'])->name('edit.dept');
 

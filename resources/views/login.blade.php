@@ -1,6 +1,3 @@
-
-@extends('layouts.default')
-
 <!DOCTYPE html>
 <html lang="th">
 

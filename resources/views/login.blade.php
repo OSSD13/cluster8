@@ -1,3 +1,6 @@
+
+@extends('layouts.default')
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -58,8 +61,9 @@
         </div>
     </form>
 </body>
-
 </html>
+
+
 
 <script>
     const togglePassword = document.getElementById("togglePassword");

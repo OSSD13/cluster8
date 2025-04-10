@@ -43,30 +43,14 @@ $stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt2->execute();
 $data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
-
 // คำนวณจำนวนหน้าทั้งหมด
 $sql_count = "SELECT COUNT(*) FROM work_request_order WHERE work_submit_date >= NOW() - INTERVAL 5 DAY AND work_create_by_user_id = $userID AND (work_status = 'C' OR work_status = 'D') AND work_confirm_date IS NOT NULL";
 $count_stmt = $pdo->query($sql_count);
 $total_item = $count_stmt->fetchColumn();
 $total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_work_id'])) {
-    $work_id = $_POST['confirm_work_id'];
-    $confirm_date = date('Y-m-d H:i:s'); // วันที่และเวลาปัจจุบัน
 
-    $update_sql = "UPDATE work_request_order SET work_confirm_date = :confirm_date WHERE work_request_id = :work_id";
-    $update_stmt = $pdo->prepare($update_sql);
-    $update_stmt->bindParam(':confirm_date', $confirm_date);
-    $update_stmt->bindParam(':work_id', work_id, PDO::PARAM_INT);
 
-    if ($updateStmt->execute()) {
-        // Redirect to avoid form resubmission
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    } else {
-        echo "เกิดข้อผิดพลาดในการบันทึกข้อมูล";
-    }
-}
 
 
 ?>
@@ -91,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_work_id'])) {
        }
        </style>
 </head>
+
 <body class="bg-gray-100 text-gray-900" x-data="{ isOpen: false }">
 <!-- เริ่มส่วน Sidebar -->
 <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
@@ -173,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_work_id'])) {
             // เมื่อคลิกปุ่มยืนยัน
 document.getElementById('confirmLogout').addEventListener('click', function() {
 // ส่งคำขอไปยัง route logout
-fetch('/logout', {
+fetch('logout', {
     method: 'GET',
     headers: {
         'Content-Type': 'application/json',
@@ -181,7 +166,7 @@ fetch('/logout', {
 }).then(response => {
     if (response.ok) {
         // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-        window.location.href = '/login';  // หรือ URL ที่ต้องการ
+        window.location.href = 'login';  // หรือ URL ที่ต้องการ
     } else {
         alert('เกิดข้อผิดพลาดในการออกจากระบบ');
     }
@@ -273,10 +258,9 @@ document.getElementById('logoutModal').style.display = 'none';
                                     @csrf
                                     <input type="hidden" name="confirm_work_id" value="<?= $row['work_request_id'] ?>">
                                     <button type="submit" class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
-                                        ตกลง
+                                        ตกลง 
                                     </button>
                                 </form>
-                                
                             </div>
                             
                             <?php elseif ($row['work_status'] === 'D' ): ?>
@@ -482,9 +466,9 @@ document.getElementById('logoutModal').style.display = 'none';
     <div class="bg-white p-4 rounded-xl shadow-xl max-w-3xl p-6 relative">
         <!-- Header -->
         <div class="flex justify-between items-center border-b pb-2 mb-4">
-                <h2 class="text-xl font-bold text-blue-700 mb-4">
-                    รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#</span>
-                </h2>
+            <h2 class="text-xl font-bold text-blue-700 mb-4">
+                รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#</span>
+            </h2>
             <button @click="isOpen = false" class="text-gray-600 hover:text-black text-xl">
                 <i class="fas fa-times-circle"></i>
             </button>
@@ -508,48 +492,85 @@ document.getElementById('logoutModal').style.display = 'none';
                   <div>
                     <span class="font-semibold">ผู้ส่ง :</span>
                     {{ session('users')->user_fname }} {{ session('users')->user_lname }}                     
-                    
-                    
-                  </div>
-                  <div class="px-3">
-                        <label class="font-semibold ">แผนก <span class="text-red-500">*</span> :</label>
-                        <label class="space-x-2 px-3 py-3">
-                            <input type="radio" name="work_author_type" value="D" checked class="">
-                            <span class="">ระบุ</span>
-                        </label>
-                        <label class="space-x-2 px-3 py-3">
-                            <input type="radio" name="work_author_type" value="P" class="">
-                            <span class="">ไม่ระบุ</span>
-                        </label>
-                  </div>
+                </div>
+                <div class="px-3">
+                    <label class="font-semibold ">แผนก <span class="text-red-500">*</span> :</label>
+                    <label class="space-x-2 px-3 py-3">
+                        <input type="radio" name="work_author_type" value="D" checked class="">
+                        <span class="">ระบุ</span>
+                    </label>
+                    <label class="space-x-2 px-3 py-3">
+                        <input type="radio" name="work_author_type" value="P" class="">
+                        <span class="">ไม่ระบุ</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- งานย่อย -->
+            <div 
+                x-data="{
+                    tasks: [{ id: 1, name: '', description: '' }],
+                    addTask() {
+                        this.tasks.push({ id: this.tasks.length + 1, name: '', description: '' });
+                    },
+                    removeTask(index) {
+                        this.tasks.splice(index, 1);
+                    }
+                }"
+                class="max-h-80 overflow-y-auto scrollbar-hide"
+            >
+
+                <!-- ปุ่มเพิ่ม -->
+                <div class="flex justify-end items-center mt-1 max-h-80 overflow-y-auto">
+                    <button type="button" @click="addTask" class="button-button5 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700 transition">
+                        <i class="fas fa-plus"></i> เพิ่มรายการ
+                    </button>
                 </div>
 
-    
-                <!-- งานย่อย -->
-                <div 
-                    x-data="{
-                        tasks: [{ id: 1, name: '', description: '' }],
-                        addTask() {
-                            this.tasks.push({ id: this.tasks.length + 1, name: '', description: '' });
-                        },
-                        removeTask(index) {
-                            this.tasks.splice(index, 1);
-                        }
-                    }"
-                    class="max-h-80 overflow-y-auto scrollbar-hide"
-                >
-    
-                    <!-- ปุ่มเพิ่ม -->
-                    <div class="flex justify-end items-center mt-1 max-h-80 overflow-y-auto">
-                        <button type="button" @click="addTask" class="button-button5 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700 transition">
-                            <i class="fas fa-plus"></i> เพิ่มรายการ
-                        </button>
+                <!-- งานย่อย template -->
+                <template x-for="(task, index) in tasks" :key="task.id">
+                    <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
+
+                        <!-- ชื่องาน วันที่ -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <input type="text" :name="'task_name[' + index + ']'" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
+                            <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
+                                <i class="fas fa-calendar-alt text-blue-500"></i>
+                                <input type="date" :name="'task_deadline[' + index + ']'" class="flex-1 outline-none" required>
+                            </div>
+                        </div>  
+
+                        <div
+                            class="grid grid-cols-1 md:grid-cols-2 gap-2"
+                            x-data="{ selected : 'P' }"
+                        >
+                            <!-- บุคคล -->
+                            <label class="flex items-center border rounded px-3 py-2 space-x-2">
+                                <input type="radio" :name="'task_recipient_type[' + index + ']'" value="P" x-model="selected">
+                                <input type="text" :name="'task_recipient_user_id[' + index + ']'" placeholder="บุคคล" class="flex-1 outline-none"
+                                    :disabled="selected !== 'P'"
+                                    :required="selected === 'P'">
+                                <i class="fas fa-search text-gray-500"></i>
+                            </label>
+
+                            <!-- แผนก -->
+                            <label class="flex items-center border rounded px-3 py-2 space-x-2">
+                                <input type="radio" :name="'task_recipient_type[' + index + ']'" value="D" x-model="selected">
+                                <input type="text" :name="'task_recipient_department_id[' + index + ']'" placeholder="แผนก" class="flex-1 outline-none"
+                                    :disabled="selected !== 'D'"
+                                    :required="selected === 'D'">
+                                <i class="fas fa-search text-gray-500"></i>
+                            </label>
+                        </div>
+
+                        <!-- ปุ่มลบ -->
+                        <div class="flex justify-end">
+                            <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
+                                <i class="fas fa-trash-alt"></i> ลบ
+                            </button>
+                        </div>
                     </div>
                 </template>
-    
-                    <!-- งานย่อย template -->
-                    <template x-for="(task, index) in tasks" :key="task.id">
-                        <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
                     
                             <!-- ชื่องาน วันที่ -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -591,17 +612,21 @@ document.getElementById('logoutModal').style.display = 'none';
                     </template>
                 </div>
 
-                <hr class="semibold my-6">
-                   
+            <hr class="semibold my-6">
+
+            <!-- ปุ่มส่ง -->
+            <div class="flex justify-end space-x-4">
                 <!-- ปุ่มส่ง -->
                 <div class="flex justify-end space-x-4">
                     <button type="submit" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
-                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
+                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100" @disabled(true)>แบบร่าง</button>
                 </div>
             </form>
         </div>
-        
+
     </div>
+</div>
+
 </body>
 
 </html>

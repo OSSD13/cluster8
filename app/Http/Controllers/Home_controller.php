@@ -12,30 +12,48 @@ class Home_controller extends Controller
     {
         return view('home');
     }
-
-    function show_work(Request $req)
-    {
-        $task = Task::where('task_id', $req->task_id);
-        $req->session()->put('task_id', $task->task_id);
-        $req->session()->put('task_work_request_id', $task->task_work_request_id);
-    }
-
     
-    public function all_task(Request $req)
-{
-    if ($req->has('task_work_request_id')) {
-        $task_work_request_id = $req->input('task_work_request_id');
+    public function decline(Request $req) 
+    {
+        // ดึงข้อมูล task_id จากฟอร์ม
+        $decline_work_id = $req->input('decline_work_id');
 
-        // บันทึกข้อมูลใน Session (ถ้าจำเป็นต้องใช้หลายหน้า)
-        $req->session()->put('task_work_request_id', $task_work_request_id);
+        // ค้นหา Work_Request_Order ที่ต้องการอ
+        $mwrq = \App\Models\Work_Request_Order::find($decline_work_id);
+        // ค้นหา Task ที่ต้องการปฏิเสธ
+        //dd($mwrq);
+        if ($mwrq) {
+            // อัปเดต work_decline_date เป็นวันที่ปัจจุบัน
+            
+            $mwrq->work_submit_date = now();
+            $mwrq->work_status = 'D';
+            $mwrq->work_decline = $req->input('work_decline');
+            $mwrq->save();
+        }
 
-        // ดึงเฉพาะงานที่มี task_work_request_id ตรงกัน
-        $data3 = Task::where('task_work_request_id', $task_work_request_id)->get();
-
-        // ส่งไปยัง view พร้อมตัวแปร
-        return view('home', compact('data3', 'task_work_request_id'));
+        
+        return redirect('/home');
     }
+    /*
+    public function accept(Request $req)
+    {
+        // ดึงข้อมูล work_request_id จากฟอร์ม
+        $work_request_id = $req->input('accept_work_id');
 
-    return redirect()->back()->with('error', 'Task work request ID is missing.');
-}
+        // ค้นหา Work_Request_Order ที่ต้องการลบ
+        $mwrq = \App\Models\Work_Request_Order::find($work_request_id);
+        $mtask = new \App\Models\Task;
+        if ($mwrq) {
+            // ลบ Work_Request_Order
+            $mtask->work_status = 'P';
+            $mtask->task_recipient_user_id = session('users')->user_id;
+            $mtask->save();
+            
+        }
+        // Redirect กลับไปที่หน้า workrequest
+        return redirect('/workrequest');
+    }
+        */
+        
+
 }

@@ -184,7 +184,21 @@ $sql5 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, tas
 $stmt5 = $pdo->prepare($sql5);
 $stmt5->execute();
 $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
+
+
+// คำนวณจำนวนหน้าทั้งหมด
+$sql_count = "SELECT COUNT(*) FROM work_request_order 
+JOIN task ON work_request_id = task_work_request_id
+WHERE task_submit_date >= NOW() - INTERVAL 5 DAY AND task_recipient_user_id = $userID AND (task_status = 'C' OR task_status = 'D')";
+$count_stmt = $pdo->query($sql_count);
+$total_item = $count_stmt->fetchColumn();
+$total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
+
+
+
 @endphp
+
+
 
 
 
@@ -802,7 +816,7 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
         </div>
          <!-- ส่วนประวัติการทำงาน -->
-         <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2 h-[420px]">
+         <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
             <div class="flex justify-between items-center border-b pb-3 mb-4">
                 <div>
                     <h2 class="text-lg font-bold">ประวัติ</h2>

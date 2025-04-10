@@ -739,7 +739,6 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                         </button>
                     </div>
                 </div>
-
                 <!-- กริดแสดงการ์ดประวัติ -->
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                     <!-- การ์ดประวัติ: เสร็จสิ้น -->
@@ -767,7 +766,6 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                             วันที่ปฏิเสธ
                         </div>
                     </div>
-
                     <!-- ใช้ลูป Blade เพื่อแสดงการ์ดเพิ่มเติม -->
                     @for ($i = 0; $i < 12; $i++)
                         <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
@@ -784,6 +782,7 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                     @endfor
                 </div>
             </div>
+
             <!-- เกี่ยวกับระบบ -->
             <footer class=" border-t mt-10 px-10 py-12 col-span-2 rounded-lg shadow-sm">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-sm text-gray-700">
@@ -981,15 +980,15 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-                 <button id = "submit"
-                    class="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition">เสร็จสิ้น</button>
+                <button id = "submit"
+                class="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition">เสร็จสิ้น</button>
             </div>
 
 
         </div>
     </div>
-    <!-- ป๊อปอัพยืนยันส่งงาน-->
-    <div id="confirmSubmitModal"
+        <!-- ป๊อปอัพยืนยันส่งงาน-->
+        <div id="confirmSubmitModal"
         class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
         <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
             <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
@@ -1014,6 +1013,18 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
+
+
+    {{-- ส่วนJS ของคืนงาน --}}
+    <div id="success-message" class="hidden flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-100 border border-green-300" role="alert">
+        <svg class="w-5 h-5 me-2 text-green-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z" clip-rule="evenodd"/></svg>
+        <div>
+          <span class="font-medium">ส่งงานสำเร็จ</span><br>
+          ดำเนินการส่งงานเสร็จสิ้น
+        </div>
+      </div>
+
+
 
 
     {{-- ส่วนJS ของคืนงาน --}}

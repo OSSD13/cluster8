@@ -50,12 +50,15 @@ $total_item = $count_stmt->fetchColumn();
 $total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
 
 
+
+
+
 ?>
 
 
 <!DOCTYPE html>
 <html lang="th">
-
+    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -80,7 +83,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
     <div class="py-2 border-b">
         <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-30 mx-auto">
     </div>
-
+    
     <!-- เมนู -->
     <div class="flex-1 px-3 py-6 space-y-2">
         <a href="home" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
@@ -96,7 +99,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
         </a>
     </div>
-
+    
     <!-- โปรไฟล์ผู้ใช้ -->
         <div class="p-4">
             <div id="profileButton" class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800" style="cursor: pointer;">
@@ -184,12 +187,13 @@ document.getElementById('logoutModal').style.display = 'none';
 
 </div>
 <!-- จบส่วน Sidebar -->
+    
     <!-- Main Content -->
     <div class="ml-64 p-8">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-blue-600">สร้างใบสั่งงาน </h1>
              <!-- ปุ่มเพิ่มคำขอ -->
-
+            
             <div class="flex items-center space-x-3" style="position: relative; right: 50px;">
                 <button @click="isOpen = true"
                     class="w-12 h-12 flex items-center justify-center bg-white text-black rounded-full border-2 border-black hover:bg-black hover:text-white transition">
@@ -197,15 +201,15 @@ document.getElementById('logoutModal').style.display = 'none';
                 </button>
                 <h1 class="text-2xl font-bold text-black-600">สร้าง</h1>
             </div>
-
-
-
-
+            
+                
+            
+            
         </div>
-
+        
         <!-- Hide Scroll Bar -->
         <style>
-
+             
             .scrollbar-hide::-webkit-scrollbar {
                 display: none;
             }
@@ -213,9 +217,9 @@ document.getElementById('logoutModal').style.display = 'none';
                 -ms-overflow-style: none;
                 scrollbar-width: none;
             }
-
+            
         </style>
-
+        
         <div class="grid grid-cols-12 gap-6">
 
             <!-- เสร็จสิ้น -->
@@ -232,39 +236,43 @@ document.getElementById('logoutModal').style.display = 'none';
                                 <span class="absolute top-4 right-4 text-[10px] px-2 py-0.5 rounded-full border border-dashed border-[#6E44FF] text-[#6E44FF] bg-white" style="border-radius: 8px">
                                     เสร็จสิ้น
                                 </span>
-
+                            
                                 <!-- งาน -->
                                 <p class="font-semibold text-[16px] text-[#3A3541] truncate"> <?= htmlspecialchars($row['work_name']) ?> </p>
-
+                            
                                 <!-- ผู้ใช้ -->
                                 <?php if ($row['work_author_type'] === 'P'): ?>
                                     <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></p>
                                 <?php elseif ($row['work_author_type'] === 'D'): ?>
                                     <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['department_name']) ?></p>
                                 <?php endif; ?>
-
+                            
                                 <!-- วันที่กด -->
                                 <div class="flex items-center text-sm text-[#3A3541] mt-2">
                                     <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
                                     วันที่เสร็จสิ้น <?= htmlspecialchars($row['work_submit_date']) ?>
                                 </div>
-
+                            
                                 <!-- ปุ่มตกลง -->
-                                <button class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
-                                    ตกลง
-                                </button>
+                                <form method="POST" action="{{ url('/workrequest') }}">
+                                    @csrf
+                                    <input type="hidden" name="confirm_work_id" value="<?= $row['work_request_id'] ?>">
+                                    <button type="submit" class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
+                                        ตกลง 
+                                    </button>
+                                </form>
                             </div>
-
+                            
                             <?php elseif ($row['work_status'] === 'D' ): ?>
                             <div class="p-4 rounded-lg h-[140px] relative shadow" style="background-color: #FFF3F3;">
                                 <!-- เสร็จสิ้น badge -->
                                 <span class="absolute top-4 right-4 text-[10px] px-2 py-0.5  rounded-full border border-dashed border-[#E60000] text-[#E60000] bg-[#ffB6B6]" style="border-radius: 8px">
                                     ปฏิเสธ
                                 </span>
-
+                            
                                 <!-- งาน -->
                                 <p class="font-semibold text-[16px] text-[#3A3541] truncate"> <?= htmlspecialchars($row['work_name']) ?> </p>
-
+                            
                                 <!-- ผู้ใช้ -->
                                 <?php if ($row['work_author_type'] === 'P'): ?>
                                     <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></p>
@@ -276,19 +284,23 @@ document.getElementById('logoutModal').style.display = 'none';
                                     <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
                                     วันที่เสร็จสิ้น <?= htmlspecialchars($row['work_submit_date']) ?>
                                 </div>
-
-                                <!-- ปุ่มตกลง -->
-                                <button class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
-                                    ตกลง
-                                </button>
+                            
+                                <!-- ปุ่มตกลง --> 
+                                <form method="POST" action="{{ url('/workrequest') }}">
+                                    @csrf
+                                    <input type="hidden" name="confirm_work_id" value="<?= $row['work_request_id'] ?>">
+                                    <button type="submit" class="absolute bottom-2 left-4 px-2 py-0.5 text-[10px] border border-black rounded-full bg-white text-black hover:bg-black hover:text-white transition-all duration-500 ease-in-out" style="border-radius: 8px">
+                                        ตกลง 
+                                    </button>
+                                </form>
                             </div>
-
+                            
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 </div>
             </div>
-
+            
             <!-- กำลังดำเนินการ -->
             <div class="col-span-6 bg-white p-6 rounded-lg shadow-md h-[581px]">
                 <h2 class="text-xl ">กำลังดำเนินการ
@@ -303,17 +315,17 @@ document.getElementById('logoutModal').style.display = 'none';
                                 <span class="absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full border border-dashed border-[#FBBC05] text-[#FBBC05] bg-[#FFF5D8]" style="border-radius: 8px">
                                     กำลังดำเนินการ
                                 </span>
-
+                            
                                 <!-- ชื่อใบสั่งงาน -->
                                 <p class="font-semibold text-[16px] text-[#3A3541] truncate">
                                     <?= htmlspecialchars($row['work_name']) ?>
                                 </p>
-
+                            
                                 <!-- ชื่อ / แผนกผู้ขอ -->
                                 <p class="text-[13px] text-[#3A3541] mt-1">
                                     <?= htmlspecialchars($row['user_fname']) ?>
                                 </p>
-
+                            
                                 <!-- ไอคอน + วันที่ -->
                                 <div class="flex items-center text-sm text-gray-700 mt-2">
                                     <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
@@ -347,7 +359,7 @@ document.getElementById('logoutModal').style.display = 'none';
                             <button onclick="location.href='?page=<?= max(1, $current_page - 1) ?>'" class="px-4 py-2" style="background-image: url('public/asset/l.png'); background-repeat: no-repeat; background-position: center;" <?= $current_page === 1 ? 'disabled' : '' ?>></button>
                             <button onclick="location.href='?page=<?= min($total_pages, $current_page + 1) ?>'" class="px-4 py-2" style="background-image: url('public/asset/r.png'); background-repeat: no-repeat; background-position: center;" <?= $current_page === $total_pages ? 'disabled' : '' ?>></button>
                         </div>
-
+    
                     </div>
                     <div class="overflow-y-auto h-[400px] pr-2 scrollbar-hide">
                         <div class="mt-4 grid grid-cols-3 gap-4">
@@ -358,17 +370,17 @@ document.getElementById('logoutModal').style.display = 'none';
                                         <span class="absolute top-4 right-4 text-[10px] px-2 py-0.5 rounded-full border border-dashed border-[#6E44FF] text-[#6E44FF] bg-white" style="border-radius: 8px">
                                             เสร็จสิ้น
                                         </span>
-
+                            
                                         <!-- งาน -->
                                         <p class="font-semibold text-[16px] text-[#3A3541] truncate"> <?= htmlspecialchars($row['work_name']) ?> </p>
-
+                            
                                         <!-- ผู้ใช้ -->
                                         <?php if ($row['work_author_type'] === 'P'): ?>
                                             <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></p>
                                         <?php elseif ($row['work_author_type'] === 'D'): ?>
                                             <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['department_name']) ?></p>
                                         <?php endif; ?>
-
+                            
                                         <!-- วันที่กด -->
                                         <div class="flex items-center text-sm text-[#3A3541] mt-2">
                                             <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
@@ -381,28 +393,28 @@ document.getElementById('logoutModal').style.display = 'none';
                                             <span class="absolute top-4 right-4 text-[10px] px-2 py-0.5  rounded-full border border-dashed border-[#E60000] text-[#E60000] bg-[#ffB6B6]" style="border-radius: 8px">
                                                 ปฏิเสธ
                                             </span>
-
+                            
                                         <!-- งาน -->
                                         <p class="font-semibold text-[16px] text-[#3A3541] truncate"> <?= htmlspecialchars($row['work_name']) ?> </p>
-
+                            
                                         <!-- ผู้ใช้ -->
                                         <?php if ($row['work_author_type'] === 'P'): ?>
                                             <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></p>
                                         <?php elseif ($row['work_author_type'] === 'D'): ?>
                                             <p class="text-[13px] text-[#3A3541] mt-1"><?= htmlspecialchars($row['department_name']) ?></p>
-                                        <?php endif; ?>
+                                        <?php endif; ?>                            
                                         <!-- วันที่กด -->
                                         <div class="flex items-center text-sm text-[#3A3541] mt-2">
                                             <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
                                             วันที่เสร็จสิ้น <?= htmlspecialchars($row['work_submit_date']) ?>
                                         </div>
                                     </div>
-
+                            
                                 <?php endif; ?>
                             <?php endforeach; ?>
                         </div>
                     </div>
-
+    
                 </div>
 
                 <!-- แบบร่าง -->
@@ -419,17 +431,17 @@ document.getElementById('logoutModal').style.display = 'none';
                             <span class="absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full border border-dashed border-gray-300 text-gray-500 bg-gray-100" style="border-radius: 8px">
                                 แบบร่าง
                             </span>
-
+            
                             <!-- Work Name -->
                             <p class="font-semibold text-sm text-gray-800 truncate">
                                 <?= htmlspecialchars($row['work_name']) ?>
                             </p>
-
+            
                             <!-- User Name -->
                             <p class="text-sm text-gray-600 mt-1 truncate">
                                 <?= htmlspecialchars($row['user_fname']) ?>
                             </p>
-
+            
                             <!-- Calendar Icon + Date -->
                             <div class="flex items-center text-sm text-gray-500 mt-2">
                                 <img src="public/Vector.png" class="w-4 h-4 mr-2" alt="Calendar Icon">
@@ -444,27 +456,28 @@ document.getElementById('logoutModal').style.display = 'none';
             </div>
             </div>
 
-
+            
         </div>
     </div>
-
-    <!-- Modal -->
+    
+<!-- Modal -->
 <div x-show="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <!-- Modal Box -->
     <div class="bg-white p-4 rounded-xl shadow-xl max-w-3xl p-6 relative">
         <!-- Header -->
         <div class="flex justify-between items-center border-b pb-2 mb-4">
                 <h2 class="text-xl font-bold text-blue-700 mb-4">
-                    รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#</span>
+                    รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal"></span>
                 </h2>
             <button @click="isOpen = false" class="text-gray-600 hover:text-black text-xl">
                 <i class="fas fa-times-circle"></i>
             </button>
         </div>
-
+    
             <!-- FORM -->
             <form action="{{ url('/workrequest') }}" method="POST">
                 @csrf
+                
                 <!-- ข้อมูลหลัก -->
                 <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
                   <div>
@@ -478,9 +491,9 @@ document.getElementById('logoutModal').style.display = 'none';
                   </div>
                   <div>
                     <span class="font-semibold">ผู้ส่ง :</span>
-                    {{ session('users')->user_fname }} {{ session('users')->user_lname }}
-
-
+                    {{ session('users')->user_fname }} {{ session('users')->user_lname }}                     
+                    
+                    
                   </div>
                   <div class="px-3">
                         <label class="font-semibold ">แผนก <span class="text-red-500">*</span> :</label>
@@ -495,9 +508,9 @@ document.getElementById('logoutModal').style.display = 'none';
                   </div>
                 </div>
 
-
+    
                 <!-- งานย่อย -->
-                <div
+                <div 
                     x-data="{
                         tasks: [{ id: 1, name: '', description: '' }],
                         addTask() {
@@ -509,7 +522,7 @@ document.getElementById('logoutModal').style.display = 'none';
                     }"
                     class="max-h-80 overflow-y-auto scrollbar-hide"
                 >
-
+    
                     <!-- ปุ่มเพิ่ม -->
                     <div class="flex justify-end items-center mt-1 max-h-80 overflow-y-auto">
                         <button type="button" @click="addTask" class="button-button5 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700 transition">
@@ -517,61 +530,68 @@ document.getElementById('logoutModal').style.display = 'none';
                         </button>
                     </div>
                 </template>
-
                     <!-- งานย่อย template -->
                     <template x-for="(task, index) in tasks" :key="task.id">
-                        <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
+                    <div class="mt-4 border border-gray-300 rounded-lg p-4 space-y-3">
+    
+                    <!-- ชื่องาน วันที่ -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <input type="text" :name="'task_name[' + index + ']'" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
+                    <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
+                        <i class="fas fa-calendar-alt text-blue-500"></i>
+                    <input type="date" :name="'task_deadline[' + index + ']'" class="flex-1 outline-none" required>
+                    </div>
+                    </div>  
 
-                            <!-- ชื่องาน วันที่ -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <input type="text" name="task_name[]" placeholder="ชื่องาน" class="w-full border rounded px-3 py-2" required>
-                                <div class="flex items-center border rounded px-3 py-2 w-full space-x-2">
-                                <i class="fas fa-calendar-alt text-blue-500"></i>
-                                <input type="date" name="task_deadline[]" class="flex-1 outline-none" required>
-                                </div>
-                            </div>
-                            <div
-                                class="grid grid-cols-1 md:grid-cols-2 gap-2"
-                                x-data="{ selected : 'P' }"
-                            >
-                                <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                    <input type="radio" :name="'task_recipient_type[]' + index" value="P" x-model="selected">
-                                    <input type="text" name="task_recipient_user_id[]" placeholder="บุคคล" class="flex-1 outline-none"
-                                    :disabled="selected !== 'P' , value='-'"
-                                    :required="selected === 'P'">
-                                    <i class="fas fa-search text-gray-500"></i>
-                                </label>
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 gap-2"
+                    x-data="{ selected : 'P' }"
+                >
+                <!-- บุคคล -->
+                <label class="flex items-center border rounded px-3 py-2 space-x-2">
+                    <input type="radio" :name="'task_recipient_type[' + index + ']'" value="P" x-model="selected">
+                    <input type="text" :name="'task_recipient_user_id[' + index + ']'" placeholder="บุคคล" class="flex-1 outline-none"
+                        :disabled="selected !== 'P'"
+                        :required="selected === 'P'">
+                    <i class="fas fa-search text-gray-500"></i>
+                </label>
 
-                                <!-- แผนก -->
-                                <label class="flex items-center border rounded px-3 py-2 space-x-2">
-                                    <input type="radio" :name="'task_recipient_type[]' + index" value="D" x-model="selected">
-                                    <input type="text" name="task_recipient_department_id[]" placeholder="แผนก" class="flex-1 outline-none"
-                                    :disabled="selected !== 'D' , value='-'"
-                                    :required="selected === 'D'">
-                                    <i class="fas fa-search text-gray-500"></i>
-                                </label>
-                            </div>
+                <!-- แผนก -->
+                <label class="flex items-center border rounded px-3 py-2 space-x-2">
+                    <input type="radio" :name="'task_recipient_type[' + index + ']'" value="D" x-model="selected">
+                    <input type="text" :name="'task_recipient_department_id[' + index + ']'" placeholder="แผนก" class="flex-1 outline-none"
+                        :disabled="selected !== 'D'"
+                        :required="selected === 'D'">
+                    <i class="fas fa-search text-gray-500"></i>
+                </label>
+                </div>
 
-                         <!-- ปุ่มลบ -->
-                            <div class="flex justify-end">
-                                <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
-                                    <i class="fas fa-trash-alt"></i> ลบ
-                                </button>
-                            </div>
-                        </div>
-                    </template>
+                <!-- ปุ่มลบ -->
+                <div class="flex justify-end">
+                    <button type="button" @click="removeTask(index)" class="text-red-500 hover:text-red-700 text-sm">
+                        <i class="fas fa-trash-alt"></i> ลบ
+                    </button>
+                </div>
+            </div>
+            </template>
+                    
                 </div>
 
                 <hr class="semibold my-6">
+                   
                 <!-- ปุ่มส่ง -->
                 <div class="flex justify-end space-x-4">
-                    <button type="submit" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
+                    <button type="submit" name="work_status" value="R" 
+                    formaction="{{ route('workrequest.create') }}"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
                     <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
                 </div>
             </form>
         </div>
-
+        
     </div>
+
+
 </body>
 
 </html>

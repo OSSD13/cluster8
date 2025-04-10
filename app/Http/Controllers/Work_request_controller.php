@@ -8,6 +8,8 @@ use App\Models\Work_Request_Order;
 use App\Models\Task;
 use App\Models\User;
 
+use Illuminate\Support\Facades\Validator;
+
 class Work_request_controller extends Controller
 {
     //
@@ -37,32 +39,53 @@ class Work_request_controller extends Controller
         $workRequestId = $mwrq->work_request_id;
 
 
-        $taskNames = $req->input('task_name', []);
+        $taskNames = $req->input('task_name', []); // ['0' => '...', '1' => '...']
         $taskDeadlines = $req->input('task_deadline', []);
         $taskRecipientTypes = $req->input('task_recipient_type', []);
         $taskRecipientUserIds = $req->input('task_recipient_user_id', []);
         $taskRecipientDepartmentIds = $req->input('task_recipient_department_id', []);
 
-        for ($i = 0; $i < count($taskNames); $i++) {
-        $mtask = new Task();
-        $mtask->task_work_request_id = $workRequestId;
-        $mtask->task_name = $taskNames[$i];
-        $mtask->task_deadline = $taskDeadlines[$i];
-        $mtask->task_status = 'R';
-        $mtask->task_recipient_type = $taskRecipientTypes[$i];
-        $mtask->task_recipient_user_id = $taskRecipientUserIds[$i] !== '-' ? $taskRecipientUserIds[$i] : null;
-        $mtask->task_recipient_department_id = $taskRecipientDepartmentIds[$i] !== '-' ? $taskRecipientDepartmentIds[$i] : null;
-        $mtask->task_notation = null;
-        $mtask->task_submit_date = null;
-        $mtask->save();
+
+        foreach ($taskNames as $i => $name) {
+            $mtask = new Task();
+            $mtask->task_work_request_id = $workRequestId;
+            $mtask->task_name = $name;
+            $mtask->task_deadline = $taskDeadlines[$i] ?? null;
+            $mtask->task_status = 'R';
+            $mtask->task_recipient_type = $taskRecipientTypes[$i] ?? null;
+            $mtask->task_recipient_user_id = ($taskRecipientUserIds[$i] ?? '-') !== '-' ? $taskRecipientUserIds[$i] : null;
+            $mtask->task_recipient_department_id = ($taskRecipientDepartmentIds[$i] ?? '-') !== '-' ? $taskRecipientDepartmentIds[$i] : null;
+            $mtask->task_notation = null;
+            $mtask->task_submit_date = null;
+            $mtask->save();
+        }
+        
+        return redirect('/workrequest');
     }
+    
 
 
 
+    
+    public function store(Request $req)
+    {
+        // ดึงข้อมูล work_request_id จากฟอร์ม
+        $work_request_id = $req->input('confirm_work_id');
+
+        // ค้นหา Work_Request_Order ที่ต้องการอัปเดต
+        $mwrq = \App\Models\Work_Request_Order::find($work_request_id);
+
+        if ($mwrq) {
+            // อัปเดต work_confirm_date เป็นวันที่ปัจจุบัน
+            $mwrq->work_confirm_date = now();
+            $mwrq->save();
+        }
+
+        // Redirect กลับไปที่หน้า workrequest
         return redirect('/workrequest');
     }
 
 
 
-
+    
 }

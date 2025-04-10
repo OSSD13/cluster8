@@ -1,3 +1,4 @@
+version: '3.8'
 
 services:
   apache-php:
@@ -10,4 +11,3 @@ services:
       - /var/www/html/vendor
     env_file:
       - .env
-

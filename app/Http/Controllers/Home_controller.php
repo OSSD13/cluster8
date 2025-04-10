@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Request;
 
+
 class Home_controller extends Controller
 {
     function home()
@@ -41,36 +42,42 @@ class Home_controller extends Controller
         
         return redirect('/home');
     }
-    /*
-    public function accept(Request $req)
-    {
-        // ดึงข้อมูล work_request_id จากฟอร์ม
-        $work_request_id = $req->input('accept_work_id');
-    public function home()
-    {
-        // ดึงจำนวน task แยกตามสถานะ
-        $waiting = DB::table('task')->where('task_status', 'waiting')->count();
-        $inProgress = DB::table('task')->where('task_status', 'in_progress')->count();
-        $completed = DB::table('task')->where('task_status', 'completed')->count();
-    
-        // ส่งข้อมูลไปยัง View
-        return view('home', compact('waiting', 'inProgress', 'completed'));
-    }
     
 
-        // ค้นหา Work_Request_Order ที่ต้องการลบ
-        $mwrq = \App\Models\Work_Request_Order::find($work_request_id);
-        $mtask = new \App\Models\Task;
-        if ($mwrq) {
-            // ลบ Work_Request_Order
-            $mtask->work_status = 'P';
-            $mtask->task_recipient_user_id = session('users')->user_id;
-            $mtask->save();
-            
-        }
-        // Redirect กลับไปที่หน้า workrequest
-        return redirect('/workrequest');
+    public function acceptWork(Request $request)
+{
+    $taskId = $request->input('task_id');
+
+    $updated = DB::table('task')
+        ->where('task_id', $taskId)
+        ->update([
+            'task_status' => 'P', // เปลี่ยนสถานะเป็น "กำลังดำเนินการ"
+        ]);
+
+    if ($updated) {
+        return response()->json(['success' => true, 'message' => 'รับงานสำเร็จ']);
+    } else {
+        return response()->json(['success' => false, 'message' => 'ไม่สามารถรับงานได้']);
     }
-        */
-        
+}
+
+    public function submit_task(Request $request)
+    {
+    $taskId = $request->input('task_id');
+    $notation = $request->input('notation');
+
+    $updated = DB::table('task')
+        ->where('task_id', $taskId)
+        ->update([
+            'task_status' => 'C', // เปลี่ยนสถานะเป็น "เสร็จสิ้น"
+            'task_submit_date' => now(), // บันทึกวันที่ส่งงาน
+            'task_notation' => $notation // บันทึกหมายเหตุ
+        ]);
+
+    if ($updated) {
+        return response()->json(['success' => true, 'message' => 'ส่งงานสำเร็จ']);
+    } else {
+        return response()->json(['success' => false, 'message' => 'ไม่สามารถส่งงานได้']);
+    }
+    }
 }

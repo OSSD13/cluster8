@@ -35,9 +35,9 @@ Route::post('/return-task', [Task_controller::class, 'returnTask'])->name('task.
 
 
 Route::get("/workrequest", [Work_request_controller::class, "index"]);
-Route::post("/workrequest", [Work_request_controller::class, "create"]);
+Route::post("/workrequest/create", [Work_request_controller::class, "create"])->name('workrequest.create');
 Route::get("/workrequest", [Work_request_controller::class, "show"]);
-Route::post("/workrequest", [Work_request_controller::class, "store"])->middleware([Check_login::class]);
+Route::post("/workrequest", [Work_request_controller::class, "store"]);
 
 Route::get("/report", [Report_controller::class, "index"])->name('report');
 

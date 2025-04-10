@@ -1,6 +1,3 @@
-
-@extends('layouts.default')
-
 <!DOCTYPE html>
 <html lang="th">
 
@@ -19,7 +16,7 @@
 </head>
 
 <body class="min-h-screen bg-[#F4F5F9] flex items-center justify-center">
-    <form action="{{ url('/login') }}" method="POST" class="bg-white p-8 rounded-2xl shadow border border-gray-300 w-[590px] h-[625px]" style="border-radius: 30px"> 
+    <form action="{{ url('/login') }}" method="POST" class="bg-white p-8 rounded-2xl shadow border border-gray-300 w-[590px] h-[625px]" style="border-radius: 30px">
         @csrf
         <div class="flex flex-col items-center">
             <!-- Logo -->
@@ -27,7 +24,7 @@
                 <img src="public/asset/WRS_1.png" alt="Work Request System" class="w-[520px] h-[103px]" />
             </div>
 
-            
+
             <!-- Form content -->
             <div class="w-[344px]" >
                 <div class="mb-6">
@@ -44,7 +41,7 @@
                     <div id="togglePassword" class="absolute inset-y-7 right-2 flex items-center pr-4 cursor-pointer h-[46px] ">
                       <!-- Show icon (eye open) -->
                       <i id="eyeOpen" class="fa-regular fa-eye hidden text-gray-500 pr-[1px] "></i>
-            
+
                       <!-- Hide icon (eye slash) -->
                       <i id="eyeClosed" class="fa-regular fa-eye-slash text-gray-500 "></i>
                     </div>
@@ -56,7 +53,7 @@
             </button>
                 </div>
 
-               
+
             </div>
         </div>
     </form>

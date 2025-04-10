@@ -26,32 +26,64 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <html lang="th">
 
 <head>
+
     <!-- CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&display=swap" rel="stylesheet">
     <!-- JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 
     <meta charset="UTF-8">
     {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
+    <!-- โปรไฟล์ผู้ใช้ -->
+    <div style="padding: 0;  width: 15%; margin-left: 82%; ">
+        <div id="profileButton" style="background-color: #1d4ed8; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: background-color 0.3s;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 40px; height: 40px; background-color: white; color: #1d4ed8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fas fa-user" style="font-size: 18px;"></i>
+                </div>
+                <div>
+                    <div style="line-height: 1.2; font-size: 12px;">
+                        {{ session('users')->user_fname }}
+                    </div>
+                    <div style="line-height: 1.2; font-size: 12px;">
+
+                    </div>
+                </div>
+            </div>
+            <i class="fas fa-arrow-right" style="color: white; font-size: 14px;"></i>
+        </div>
+    </div>
     <title>จัดการแผนก</title>
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300&display=swap');
+
         body {
             background-color: #f4f4f9;
             margin: 0;
-            font-family: sans-serif;
+            margin-top: 2%;
+            font-family: "Noto Sans Thai", sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
         }
 
         .container {
             width: 75%;
             min-height: 600px;
             margin: 20px auto;
-            margin-top: 5%;
+            margin-top: 2%;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             padding: 30px;
+            font-family: "Noto Sans Thai", sans-serif;
         }
 
         .container-bottom {
@@ -62,21 +94,25 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             padding: 30px;
+            font-family: "Noto Sans Thai", sans-serif;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-family: "Noto Sans Thai", sans-serif;
         }
 
         .header h1 {
             color: #0012E1;
             font-size: 30px;
+            font-family: "Noto Sans Thai", sans-serif;
         }
 
         .tab-content h2 {
             font-size: 24px;
+            font-family: "Noto Sans Thai", sans-serif;
         }
 
         .detail {
@@ -92,6 +128,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .clickable .icon-blue {
             color: #0012E1;
+
         }
 
         .clickable {
@@ -134,6 +171,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
+            font-family: "Noto Sans Thai", sans-serif;
         }
 
         .submit:hover {
@@ -149,6 +187,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
+            font-family: "Noto Sans Thai", sans-serif;
         }
 
         .submit-delete:hover {
@@ -185,9 +224,11 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             display: flex;
             justify-content: flex-end;
             align-items: center;
+            font-family: "Noto Sans Thai", sans-serif;
         }
 
         .dropdown-wrapper {
+            font-family: "Noto Sans Thai", sans-serif;
             display: flex;
             align-items: center;
             padding: 5px 10px;
@@ -348,6 +389,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             /* เปิดการเลื่อนในแนวตั้ง */
             max-height: 500px;
             /* กำหนดความสูงสูงสุด */
+            font-family: "Noto Sans Thai", sans-serif;
         }
 
         table {
@@ -416,14 +458,74 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             vertical-align: middle;
             /* จัดให้อยู่ตรงกลางแนวตั้ง */
         }
+
         /* เพิ่ม cursor pointer ให้กับแถวในตาราง */
         tbody tr:hover {
             cursor: pointer;
-            background-color: #acacac65; /* เพิ่มสีพื้นหลังเมื่อชี้ */
+            background-color: #acacac65;
+            /* เพิ่มสีพื้นหลังเมื่อชี้ */
 
+        }
+
+        /* กล่องพื้นหลัง */
+        .custom-swal-popup {
+            height: 30%;
+            border: 1px solid #28a745;
+            background-color: #e6f9ed;
+            /* เขียวอ่อนแบบในภาพ */
+            border-radius: 8px;
+            padding: 15px;
+            /* ระยะห่างภายใน */
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            box-shadow: none;
+            top: -50px;
+            /* ขยับขึ้นไปด้านบน */
+        }
+
+
+        /* ไอคอนฝั่งซ้าย */
+        .custom-swal-icon {
+            font-size: 12px;
+            /* ขนาดไอคอน */
+            color: #28a745;
+            /* สีเขียว */
+            margin-right: 80%;
+            align-self: flex-start;
+        }
+
+        /* ข้อความหลักและข้อความรอง */
+        .custom-swal-text-container {
+            display: flex;
+            flex-direction: column;
+            /* จัดข้อความหลักและข้อความรองในแนวตั้ง */
+            justify-content: center;
+        }
+
+        /* ข้อความหลัก */
+        .custom-swal-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #28a745;
+            margin-left: 20%;
+            margin-bottom: 5%;
+            /* ระยะห่างด้านล่าง */
+            text-align: left;
+        }
+
+        /* ข้อความรอง */
+        .custom-swal-text {
+            font-size: 14px;
+            color: #777;
+            margin-top: 4px;
+            margin-left: 20%;
+            /* margin-bottom: 10%; */
+            text-align: left;
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 
 
 </head>
@@ -465,7 +567,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </select> --}}
                             <div class="search-container">
                                 <input type="text" id="searchInput" placeholder="ค้นหาชื่อหรือรหัสพนักงาน"
-                                    class="search-input">
+                                    class="search-input" style="font-family: 'Noto Sans Thai', sans-serif;">
                                 <input type="hidden" id="userIdHidden">
                             </div>
 
@@ -483,7 +585,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 {{-- onchange="this.form.submit()"> ส่งค่าอัตโนมัติเมื่อเลือก --}} <option value="">เลือกแผนก</option>
                                 @foreach ($departments as $dept)
                                     <option value="{{ $dept->department_name }}"
-                                        {{ $select_dept == $dept->department_name ? 'selected' : '' }}>
+                                        {{ $select_dept == $dept->department_name ? 'selected' : '' }}style="font-family: 'Noto Sans Thai', sans-serif;">
                                         {{ $dept->department_name }}
                                     </option>
                                 @endforeach
@@ -503,7 +605,8 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <div class="section-top-row">
                 <h2>ลบพนักงานออกจากแผนก</h2>
-                <button type="button" class="submit-delete" id="deleteDeptButton">ลบพนักงาน</button>
+                <button type="button" class="submit-delete" id="deleteDeptButton"
+                    style="font-family: 'Noto Sans Thai', sans-serif;">ลบพนักงาน</button>
             </div>
 
             <div class="assign-row">
@@ -515,7 +618,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="input-icon-both">
                         <i class="fas fa-user icon-left"></i>
                         <input type="text" id="searchDelInput" placeholder="ค้นหาชื่อหรือรหัสพนักงาน"
-                            class="search-input">
+                            class="search-input" style="font-family: 'Noto Sans Thai', sans-serif;">
                         <input type="hidden" id="userDelIdHidden">
 
                         <button type="button" class="icon-right search-button" onclick="handleDelSearch(event)">
@@ -536,7 +639,8 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="dropdown-sort">
                 <div class="dropdown-wrapper">
                     <i class="fas fa-filter icon-sort"></i>
-                    <select id="sortByDepartment" onchange="filterByDepartment()">
+                    <select id="sortByDepartment"
+                        onchange="filterByDepartment()"style="font-family: 'Noto Sans Thai', sans-serif;">
                         <option value="">จัดเรียงโดย</option>
                         <?php foreach ($departments as $dept): ?>
                         <option value="<?= htmlspecialchars($dept->department_name) ?>">
@@ -575,10 +679,111 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </tbody>
             </table>
         </div>
+        <div id="logoutModal" style="display: none; position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; z-index: 50;">
+            <div id="test" style="background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); width: 400px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                    <div style="font-size: 18px; font-weight: bold; color: #333;">ยืนยันการออกจากระบบ</div>
+                    <button style="font-size: 20px; color: #555; background: none; border: none; cursor: pointer;" id="closeModal">&times;</button>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="font-size: 16px; color: #666; margin-bottom: 20px;">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
+                    <div style="display: flex; justify-content: center; gap: 10px;">
+                        <button style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; font-family: 'Noto Sans Thai', sans-serif; id="id="confirmLogout">ยืนยัน</button>
+                        <button style="background-color: white; color: #555; padding: 10px 20px; border: 1px solid #ccc; border-radius: 20px; cursor: pointer; font-family: 'Noto Sans Thai', sans-serif;" id="cancelLogout">ยกเลิก</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="successAlert"
+            style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 300px; background-color: #e6f9ed; color: #28a745; border: 1px solid #28a745; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 1000;">
+            <div style="display: flex; align-items: center;">
+                <svg style="width: 24px; height: 24px; margin-right: 10px; fill: #28a745;"
+                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd" />
+                </svg>
+                <div>
+                    <strong id="alertTitle" style="display: block; font-size: 16px;">ลบพนักงานสำเร็จ</strong>
+                    <span id="alertMessage" style="font-size: 14px;">ดำเนินการลบพนักงานเสร็จสิ้น</span>
+                </div>
+            </div>
+        </div>
 
     </div>
 
+
     <script>
+        // ============================Logout Modal========================
+        // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+        document.getElementById('profileButton').addEventListener('click', function () {
+            // เปิดป๊อปอัพยืนยันการออกจากระบบ
+            document.getElementById('logoutModal').style.display = 'flex';
+
+
+        });
+
+        document.getElementById('closeModal').addEventListener('click', function () {
+
+            document.getElementById('logoutModal').style.display = 'none';
+        });
+
+
+        // เมื่อคลิกปุ่มยกเลิก
+        document.getElementById('cancelLogout').addEventListener('click', function () {
+            // ปิดป๊อปอัพ
+            document.getElementById('logoutModal').style.display = 'none';
+
+        });
+
+        // เมื่อคลิกปุ่มยืนยัน
+        document.getElementById('confirmLogout').addEventListener('click', function () {
+            // ส่งคำขอไปยัง route logout
+            fetch('/logout', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(response => {
+                if (response.ok) {
+                    // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
+                    window.location.href = '/login';  // หรือ URL ที่ต้องการ
+                } else {
+                    alert('เกิดข้อผิดพลาดในการออกจากระบบ');
+                }
+            });
+
+
+            // ปิดป๊อปอัพ
+            document.getElementById('logoutModal').style.display = 'none';
+        });
+
+        // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+        window.addEventListener('click', function (event) {
+            if (event.target === document.getElementById('logoutModal')) {
+                document.getElementById('logoutModal').style.backgroundColor = 'red';
+            }
+        });
+        // ============================Logout Modal========================
+        function showSuccessAlert(title, message) {
+            const alertBox = document.getElementById('successAlert');
+            const alertTitle = document.getElementById('alertTitle');
+            const alertMessage = document.getElementById('alertMessage');
+
+            // อัปเดตข้อความใน Alert
+            alertTitle.textContent = title;
+            alertMessage.textContent = message;
+
+            // แสดง Alert
+            alertBox.style.display = 'block';
+
+            // ซ่อน Alert หลัง 15 วินาที
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+
         function showTab(tabId, clickedElement) {
             document.getElementById("add").style.display = "none";
             document.getElementById("delete").style.display = "none";
@@ -587,44 +792,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             document.querySelectorAll('.clickable').forEach(el => el.classList.remove('active'));
             clickedElement.classList.add('active');
         }
-
-        // function handleSearch() { //ไปใส่โค้ดค้นหามานะตรงนี้
-        //     const input = document.getElementById('searchInput').value;
-        //     console.log("ค้นหา:", input);
-        //     // ตรงนี้สามารถเอาไปใช้กรองรายชื่อ หรือส่งไป backend ก็ได้
-        //     alert("กำลังค้นหา: " + input);
-        // }
-        // $(document).ready(function() {
-        //     // กำหนด Select2 พร้อมการค้นหาแบบ AJAX
-        //     $(".js-example-tokenizer").select2({
-        //         placeholder: "ค้นหาชื่อหรือรหัสพนักงาน",
-        //         tags: true,
-        //         tokenSeparators: [','], // ลบ ' ' ออกจาก tokenSeparators
-        //         ajax: {
-        //             url: '/manage/search-users', // URL สำหรับดึงข้อมูล
-        //             dataType: 'json',
-        //             delay: 250, // หน่วงเวลา 250ms ก่อนส่งคำค้นหา
-        //             data: function(params) {
-        //                 return {
-        //                     search: params.term // คำค้นหาจาก input
-        //                 };
-        //             },
-        //             processResults: function(data) {
-        //                 // แปลงข้อมูลที่ได้รับจากเซิร์ฟเวอร์ให้เป็นรูปแบบที่ Select2 เข้าใจ
-        //                 return {
-        //                     results: data.map(function(user) {
-        //                         return {
-        //                             id: user.user_id,
-        //                             text: user.user_name + " (ID: " + user.user_id + ")"
-        //                         };
-        //                     })
-        //                 };
-        //             },
-        //             cache: true
-        //         },
-        //         minimumInputLength: 1 // เริ่มค้นหาหลังจากพิมพ์ 1 ตัวอักษร
-        //     });
-        // });
 
         $(document).ready(function() {
             // เมื่อกดปุ่ม "กำหนดแผนก"
@@ -651,10 +818,14 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert(response.message);
-                            location.reload();
+                            showSuccessAlert(response
+                                .message, 'ดำเนินการกำหนดแผนกพนักงานเสร็จสิ้น'
+                            ); // ส่งข้อความจาก response
+                            setTimeout(() => {
+                                location.reload(); // รีเฟรชหน้า
+                            }, 3000); // 3000 มิลลิวินาที = 3 วินาที
                         } else {
-                            alert(response.message);
+                            alert(response.message); // แสดงข้อความข้อผิดพลาด
                         }
                     },
                     error: function(xhr, status, error) {
@@ -693,8 +864,12 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert(response.message); // แสดงข้อความสำเร็จ
-                            location.reload(); // รีเฟรชหน้า
+                            showSuccessAlert(response
+                                .message, 'ดำเนินการลบพนักงานเสร็จสิ้น'
+                            ); // ส่งข้อความจาก response
+                            setTimeout(() => {
+                                location.reload(); // รีเฟรชหน้า
+                            }, 3000); // 3000 มิลลิวินาที = 3 วินาที
                         } else {
                             alert(response.message); // แสดงข้อความข้อผิดพลาด
                         }

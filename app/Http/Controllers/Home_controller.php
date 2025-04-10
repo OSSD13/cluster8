@@ -15,21 +15,22 @@ class Home_controller extends Controller
     
     public function decline(Request $req) 
     {
-        // ดึงข้อมูล task_id จากฟอร์ม
-        $decline_work_id = $req->input('decline_work_id');
+    // ดึงข้อมูล work_request_id จากฟอร์ม
+    $decline_work_id = $req->input('decline_work_id');
 
-        // ค้นหา Work_Request_Order ที่ต้องการอ
-        $mwrq = \App\Models\Work_Request_Order::find($decline_work_id);
-        // ค้นหา Task ที่ต้องการปฏิเสธ
-        //dd($mwrq);
-        if ($mwrq) {
-            // อัปเดต work_decline_date เป็นวันที่ปัจจุบัน
-            
-            $mwrq->work_submit_date = now();
-            $mwrq->work_status = 'D';
-            $mwrq->work_decline = $req->input('work_decline');
-            $mwrq->save();
-        }
+    // ค้นหา Work_Request_Order ที่ต้องการปฏิเสธ
+    $mwrq = \App\Models\Work_Request_Order::find($decline_work_id);
+    //dd($req->all());
+
+    if ($mwrq) {
+        // อัปเดตข้อมูลในฐานข้อมูล
+        $mwrq->work_decline = $req->input('work_decline'); // ข้อความปฏิเสธ
+        $mwrq->work_status = 'D'; // เปลี่ยนสถานะเป็น 'D' (ปฏิเสธ)
+        $mwrq->work_submit_date = now(); // บันทึกวันที่ปัจจุบัน
+        $mwrq->save();
+
+        
+    }
 
         
         return redirect('/home');

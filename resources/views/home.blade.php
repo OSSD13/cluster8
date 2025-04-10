@@ -54,7 +54,7 @@ $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
-               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname, task_submit_date
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname, task_submit_date , department_name
         FROM task
         LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
         LEFT JOIN users ON wro1.work_create_by_user_id = user_id
@@ -862,7 +862,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
 </div>
 
 
-<!-- ป๊อปอัพปฏิเสธส่งงาน-->
+<!-- ป๊อปอัพปฏิเสธส่งงาน -->
 <div id="declineModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
     <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
         <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
@@ -872,17 +872,19 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
         <div class="modal-body text-center mb-6">
             <p class="text-left text-lg text-gray-600 mb-4">เหตุผล <span style="color: red;">*</span> :</p>
             <p class="text-right text-xs text-gray-400"><span id="declineCharCount">0</span>/100</p>
-            <textarea name="work_decline" id="declineReason" class="border border-gray-300 rounded-lg w-full p-2 mb-4" style="height: 100px; resize: none;" maxlength="100" oninput="updateDeclineCounter()" placeholder="กรุณากรอกเหตุผลในการปฏิเสธงาน"></textarea>
-            <hr>
-            <br>
-            <div class="modal-buttons flex justify-center gap-4">
-                <form method="POST" action="{{ url('/home') }}">
-                    @csrf
-                    <input type="hidden" name="decline_work_id" value="<?= $row['task_work_request_id'] ?>">
+            <form method="POST" action="{{ route('home.decline') }}">
+                @csrf
+                <textarea name="work_decline" id="declineReason" class="border border-gray-300 rounded-lg w-full p-2 mb-4" 
+                          style="height: 100px; resize: none;" maxlength="100" oninput="updateDeclineCounter()" 
+                          placeholder="กรุณากรอกเหตุผลในการปฏิเสธงาน" required></textarea>
+                <input type="hidden" name="decline_work_id" id="declineWorkId" value="">
+                <hr>
+                <br>
+                <div class="modal-buttons flex justify-center gap-4">
                     <button class="btn btn-confirm text-white bg-red-600 px-6 py-2 rounded-full hover:bg-red-700" type="submit">ยืนยัน</button>
-                </form>
-                <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelDecline">ยกเลิก</button>
-            </div>
+                    <button type="button" class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelDecline">ยกเลิก</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -985,8 +987,6 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
             const popupTitle = document.getElementById('popup-title');
             const popupDate = document.getElementById('popup-date');
 
-            const openDeclineBtn = document.getElementById('openDeclinePopup');
-            const declinePopup = document.getElementById('declineModal');
 
             workItems.forEach(item => {
                 item.addEventListener('click', function() {
@@ -1046,19 +1046,6 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
                     document.body.classList.remove('popup-open');
                 }
             });
-        // Open decline popup
-        openDeclineBtn.addEventListener('click', function() {
-            declinePopup.style.display = 'flex';
-            
-        });
-
-        // Close decline popup when clicking outside the content
-        declinePopup.addEventListener('click', function(e) {
-            if (e.target === declinePopup) {
-                declinePopup.style.display = 'none';
-                
-            }
-        });
 
 
         });
@@ -1104,7 +1091,30 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
         });
     </script>
 
-    <script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const declineButtons = document.querySelectorAll('.open-decline-modal');
+    const declineModal = document.getElementById('declineModal');
+    const declineWorkIdInput = document.getElementById('declineWorkId');
+
+    declineButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const workRequestId = this.getAttribute('data-work-request-id');
+            declineWorkIdInput.value = workRequestId; // ตั้งค่า work_request_id ใน hidden input
+            declineModal.style.display = 'flex'; // แสดง modal
+        });
+    });
+
+    // ปิด modal
+    document.getElementById('cancelDecline').addEventListener('click', function () {
+        declineModal.style.display = 'none';
+    });
+
+    document.getElementById('close-decline-popup').addEventListener('click', function () {
+        declineModal.style.display = 'none';
+    });
+});
+
         
     function updateDeclineCounter() {
         let input = document.getElementById("declineReason");
@@ -1145,7 +1155,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
         }
     });
 
-    </script>
+</script>
 </div>
 
 

@@ -29,7 +29,7 @@ Route::get('/logout', function(){
 
 Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
 Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
-Route::post("/home",[Home_controller::class,'decline'])->middleware([Check_login::class]);
+Route::post("/home/decline",[Home_controller::class,'decline'])->middleware([Check_login::class])->name('home.decline');
 
 Route::post('/return-task', [Task_controller::class, 'returnTask'])->name('task.return');
 

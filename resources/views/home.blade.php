@@ -81,15 +81,105 @@ unset($_SESSION['user_id']);
 $userID = session('users')->user_id;
 $user_dept_ID = session('users')->user_dept_id;
 $task_work_request_id = session('task');
+$sql = "SELECT
+            task.task_id,
+            task.task_deadline,
+            task.task_status,
+            task.task_recipient_user_id,
+            task.task_name,
+            task.task_recipient_department_id,
+            task.task_notation,
+            task.task_recipient_type,
+            task.task_submit_date,
+            task.task_work_request_id,
+            wro.work_name,
+            wro.work_request_id,
+            user_fname,
+            user_lname
+        FROM task
+        LEFT JOIN work_request_order AS wro
+            ON task.task_work_request_id = wro.work_request_id
+        LEFT JOIN users AS userID
+            ON task.task_recipient_user_id = userID.user_id
+        LEFT JOIN departments
+            ON task.task_recipient_department_id = departments.department_id
+        WHERE
+            (task.task_recipient_department_id = :user_dept_ID
+            OR task.task_recipient_user_id = :userID)
+        AND task.task_work_request_id = wro.work_request_id
+        LIMIT :offset, :limit";
+
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(':user_dept_ID', $user_dept_ID, PDO::PARAM_INT);
+$stmt->bindParam(':userID', $userID, PDO::PARAM_INT);
+$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt->execute();
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id,
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
+        FROM task
+        LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
+        LEFT JOIN users ON wro1.work_create_by_user_id = user_id
+        LEFT JOIN departments ON user_dept_id = department_id
+        WHERE task_recipient_user_id = $userID AND wro1.work_confirm_date >= NOW() - INTERVAL 5 DAY AND (task_status = 'C' OR task_status = 'D')
+        LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
+
+$stmt2 = $pdo->prepare($sql2);
+$stmt2->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt2->execute();
+$data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+$sql3 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id,
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
+        FROM task
+        LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
+        LEFT JOIN users ON wro1.work_create_by_user_id = user_id
+        LEFT JOIN departments ON user_dept_id = department_id
+        WHERE task_recipient_user_id = :userID
+        AND wro1.work_confirm_date >= NOW() - INTERVAL 5 DAY
+        AND (task_status = 'C' OR task_status = 'D')
+        AND (:selected_work_request_id IS NULL OR task_work_request_id = :selected_work_request_id)
+        LIMIT :offset, :limit";
+
+$stmt3 = $pdo->prepare($sql3);
+$stmt3->bindParam(':userID', $userID, PDO::PARAM_INT);
+$stmt3->bindParam(':selected_work_request_id', $selected_work_request_id, PDO::PARAM_INT);
+$stmt3->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt3->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt3->execute();
+$data3 = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
+// คำนวณจำนวนหน้าทั้งหมด
+$sql_count = "SELECT COUNT(*) FROM work_request_order
+JOIN task ON work_request_id = task_work_request_id
+WHERE work_confirm_date >= NOW() - INTERVAL 5 DAY AND task_recipient_user_id = $userID AND (task_status = 'C' OR task_status = 'D') AND work_confirm_date IS NOT NULL";
+$count_stmt = $pdo->query($sql_count);
+$total_item = $count_stmt->fetchColumn();
+$total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
+
+$sql4 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id,
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
+        FROM task
+        LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
+        LEFT JOIN users ON wro1.work_create_by_user_id = user_id
+        LEFT JOIN departments ON user_dept_id = department_id
+        WHERE task_recipient_type = 'P'  AND task_status = 'R' and task_recipient_user_id = $userID
+        ";
+
+$stmt4 = $pdo->prepare($sql4);
+$stmt4->execute();
+$data4 = $stmt4->fetchAll(PDO::FETCH_ASSOC);
 
 $sql5 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id,
-           task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
-    FROM task
-    LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
-    LEFT JOIN users ON wro1.work_create_by_user_id = user_id
-    LEFT JOIN departments ON user_dept_id = department_id
-    WHERE (task_recipient_type = 'P' or task_recipient_type = 'D')  AND task_status = 'P' and task_recipient_user_id = $userID
-    ";
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
+        FROM task
+        LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
+        LEFT JOIN users ON wro1.work_create_by_user_id = user_id
+        LEFT JOIN departments ON user_dept_id = department_id
+        WHERE (task_recipient_type = 'P' or task_recipient_type = 'D')  AND task_status = 'P' and task_recipient_user_id = $userID
+        ";
 
 $stmt5 = $pdo->prepare($sql5);
 $stmt5->execute();
@@ -140,6 +230,7 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
             /* กำหนดขนาดสูงสุด */
             height: auto;
         }
+
         .close-popup {
             position: absolute;
             top: 10px;
@@ -485,20 +576,27 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <div class="space-y-4 scrollbar-hide scrollable-content">
-                    <!-- รายการงาน 1 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-[#2563eb] text-2xl "></i>
+                    <?php foreach ($data4 as $row): ?>
+
+                    <!-- รายการงานที่กำลังดำเนินการ 1 -->
+
+                        <div data-task-id="{{ $row['task_id'] }}" onclick="selectTask(this)"
+                            class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+
+                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : {{ $row['task_name'] }}
+                                </div>
+                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : {{ $row['task_deadline'] }}
+                                </div>
+                            </div>
+
                         </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
+
+                    <?php endforeach; ?>
+
 
                     <!-- รายการงาน 2 -->
                     <div
@@ -704,6 +802,12 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
         </div>
         <!-- ส่วนประวัติการทำงาน -->
+    
+
+            
+
+        </div>
+        <!-- ส่วนประวัติการทำงาน -->
         <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
             <div class="flex justify-between items-center border-b pb-3 mb-4">
                 <div>
@@ -729,19 +833,28 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                         <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
                         <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
                     </div>
-                    <div class="flex items-center gap-2 text-sm text-gray-400">
-                        <span>1-50 จาก 250</span>
-                        <button class="text-[#6366f1] hover:text-[#4338ca]">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="text-[#6366f1] hover:text-[#4338ca]">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+                    <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
+                    <div class="flex items-center text-xs text-gray-600">
+                        <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
+                        วันที่เสร็จสิ้น
                     </div>
                 </div>
-                <!-- กริดแสดงการ์ดประวัติ -->
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                    <!-- การ์ดประวัติ: เสร็จสิ้น -->
+
+                <!-- การ์ดประวัติ: ปฏิเสธ -->
+                <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
+                        <span class="text-xs bg-red-200 text-red-600 px-2 py-0.5 rounded-full">ปฏิเสธ</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
+                    <div class="flex items-center text-xs text-gray-600">
+                        <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
+                        วันที่ปฏิเสธ
+                    </div>
+                </div>
+
+                <!-- ใช้ลูป Blade เพื่อแสดงการ์ดเพิ่มเติม -->
+                @for ($i = 0; $i < 12; $i++)
                     <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
                         <div class="flex justify-between items-center mb-2">
                             <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
@@ -753,75 +866,47 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                             วันที่เสร็จสิ้น
                         </div>
                     </div>
-
-                    <!-- การ์ดประวัติ: ปฏิเสธ -->
-                    <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
-                            <span class="text-xs bg-red-200 text-red-600 px-2 py-0.5 rounded-full">ปฏิเสธ</span>
-                        </div>
-                        <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
-                        <div class="flex items-center text-xs text-gray-600">
-                            <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                            วันที่ปฏิเสธ
-                        </div>
-                    </div>
-                    <!-- ใช้ลูป Blade เพื่อแสดงการ์ดเพิ่มเติม -->
-                    @for ($i = 0; $i < 12; $i++)
-                        <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
-                            <div class="flex justify-between items-center mb-2">
-                                <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
-                                <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
-                            </div>
-                            <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
-                            <div class="flex items-center text-xs text-gray-600">
-                                <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                                วันที่เสร็จสิ้น
-                            </div>
-                        </div>
-                    @endfor
+                @endfor
+            </div>
+        </div>
+        <!-- เกี่ยวกับระบบ -->
+        <footer class=" border-t mt-10 px-10 py-12 col-span-2 rounded-lg shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-sm text-gray-700">
+                <div>
+                    <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                        <span>เกี่ยวกับเรา</span>
+                        <img src="{{ asset('public/wrslogo.png') }}" alt="WRS" class="inline-block h-10 ml-2">
+                    </h3>
+                    <p class="leading-relaxed mb-2">
+                        จัดการงานง่ายขึ้น เพิ่มประสิทธิภาพองค์กร ด้วย <strong>WRS</strong>
+                    </p>
+                    <p class="text-gray-600">
+                        <span class="text-blue-700 font-medium">Work Request System (WRS)</span>
+                        คือระบบบริหารงานที่ช่วยองค์กรจัดระเบียบงานภายใน ลดเวลาการทำงานซ้ำซ้อน
+                        และเพิ่มความคล่องตัวให้กับงาน รองรับการติดตามงาน การแจ้งเตือนอัตโนมัติ
+                        และการจัดสรรทรัพยากรในองค์กรอย่างมีประสิทธิภาพ
+                        ช่วยให้องค์กรสามารถบริหารจัดการงานเป็นเรื่องง่ายสำหรับองค์กรทุกขนาด
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                        <span>ทำงานร่วมกับ</span>
+                        <img src="{{ asset('public/บริษัท.png') }}" alt="WRS" class="inline-block h-5 ml-2">
+                    </h3>
+                    <p class="leading-relaxed mb-2 text-gray-600">
+                        บริษัท คลิกเน็กซ์ จำกัด เป็นนักพัฒนาซอฟต์แวร์มืออาชีพที่เน้นกระบวนการพัฒนาซอฟต์แวร์แบบครบวงจร
+                        เพื่อให้ลูกค้าได้รับผลงานที่มีคุณภาพและส่งมอบตรงเวลา
+                    </p>
+                    <p class="text-gray-500">
+                        Phone : 022177900<br>
+                        E-mail : info@clicknext.com
+                    </p>
                 </div>
             </div>
-
-            <!-- เกี่ยวกับระบบ -->
-            <footer class=" border-t mt-10 px-10 py-12 col-span-2 rounded-lg shadow-sm">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-sm text-gray-700">
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
-                            <span>เกี่ยวกับเรา</span>
-                            <img src="{{ asset('public/wrslogo.png') }}" alt="WRS" class="inline-block h-10 ml-2">
-                        </h3>
-                        <p class="leading-relaxed mb-2">
-                            จัดการงานง่ายขึ้น เพิ่มประสิทธิภาพองค์กร ด้วย <strong>WRS</strong>
-                        </p>
-                        <p class="text-gray-600">
-                            <span class="text-blue-700 font-medium">Work Request System (WRS)</span>
-                            คือระบบบริหารงานที่ช่วยองค์กรจัดระเบียบงานภายใน ลดเวลาการทำงานซ้ำซ้อน
-                            และเพิ่มความคล่องตัวให้กับงาน รองรับการติดตามงาน การแจ้งเตือนอัตโนมัติ
-                            และการจัดสรรทรัพยากรในองค์กรอย่างมีประสิทธิภาพ
-                            ช่วยให้องค์กรสามารถบริหารจัดการงานเป็นเรื่องง่ายสำหรับองค์กรทุกขนาด
-                        </p>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
-                            <span>ทำงานร่วมกับ</span>
-                            <img src="{{ asset('public/บริษัท.png') }}" alt="WRS" class="inline-block h-5 ml-2">
-                        </h3>
-                        <p class="leading-relaxed mb-2 text-gray-600">
-                            บริษัท คลิกเน็กซ์ จำกัด
-                            เป็นนักพัฒนาซอฟต์แวร์มืออาชีพที่เน้นกระบวนการพัฒนาซอฟต์แวร์แบบครบวงจร
-                            เพื่อให้ลูกค้าได้รับผลงานที่มีคุณภาพและส่งมอบตรงเวลา
-                        </p>
-                        <p class="text-gray-500">
-                            Phone : 022177900<br>
-                            E-mail : info@clicknext.com
-                        </p>
-                    </div>
-                </div>
-                <div class="text-center text-xs text-gray-400 mt-10">© [2025] Work Request System. All rights reserved.
-                </div>
-            </footer>
-        </div>
+            <div class="text-center text-xs text-gray-400 mt-10">© [2025] Work Request System. All rights reserved.
+            </div>
+        </footer>
+    </div>
     </div>
 
 
@@ -836,19 +921,19 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- หัวข้อ -->
             <h2 class="text-xl font-bold text-blue-700 mb-4">
-                รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
+                รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003 </span>
             </h2>
 
             <!-- ข้อมูลหลัก -->
             <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
                 <div>
-                    <span class="font-semibold">ชื่อเรื่อง :</span> <span id="popup-title">-</span>
+                    <span class="font-semibold">ชื่อเรื่อง : </span> <span id="popup-title">-</span>
                 </div>
                 <div>
-                    <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
+                    <span class="font-semibold">วันที่ร้องขอ : </span> <span id="popup-date">-</span>
                 </div>
                 <div>
-                    <span class="font-semibold">ผู้ส่ง :</span> {{ session('users')->user_fname }}
+                    <span class="font-semibold">ผู้ส่ง : </span> {{ session('users')->user_fname }}
                     {{ session('users')->user_lname }}
                 </div>
                 <div>
@@ -858,17 +943,20 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- การ์ดย่อยของงาน -->
             <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
+
                 @for ($i = 0; $i < 6; $i++)
                     <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition relative work-item"
                         data-title="สมัครอีเมลพนักงาน" data-owner="จิรายุ คนโก้" data-date="อังคาร, 1 ธันวาคม 2025">
-                        <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
+                        <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน
+                            {{-- task_name --}}</div>
                         <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
                         <div class="flex items-center text-xs text-gray-600">
                             <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
                             อังคาร, 1 ธันวาคม 2025
                         </div>
                         <span
-                            class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
+                            class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ
+                            {{-- ดึง task_status --}}</span>
 
                         <!-- กล่อง Popover ที่ซ่อนอยู่ -->
                         <div
@@ -880,14 +968,19 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 @endfor
             </div>
-
             <!-- ✅ ปุ่มรับงาน / ปฏิเสธ -->
             <div class="flex justify-center mt-6 gap-3">
                 <button onclick="closePopup()"
                     class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
                     ปฏิเสธ
                 </button>
-                <button onclick="acceptWork()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+
+
+
+
+                <button onclick="acceptWork()" id = "accept-button"
+
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled">
                     รับงาน
                 </button>
             </div>
@@ -906,23 +999,23 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- หัวข้อ -->
             <h2 class="text-xl font-bold text-blue-700 mb-4">
-                รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
+                รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003 </span>
             </h2>
 
             <!-- ข้อมูลหลัก -->
             <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
                 <div>
-                    <span class="font-semibold">ชื่อเรื่อง :</span> <span id="popup-title">-</span>
+                    <span class="font-semibold">ชื่อเรื่อง : </span> <span id="popup-title">-</span>
                 </div>
                 <div>
-                    <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
+                    <span class="font-semibold">วันที่ร้องขอ : </span> <span id="popup-date">-</span>
                 </div>
                 <div>
                     <span class="font-semibold">ผู้ส่ง :</span> {{ session('users')->user_fname }}
                     {{ session('users')->user_lname }}
                 </div>
                 <div>
-                    <span class="font-semibold">แผนก :</span>
+                    <span class="font-semibold">แผนก : </span>
                 </div>
             </div>
 
@@ -931,14 +1024,16 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
             <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
                 @for ($i = 0; $i < 6; $i++)
                     <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                        <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
-                        <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
+                        <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน
+                            {{-- ดึงหมายtask_name --}}</div>
+                        <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้ {{-- ดึงผู้รับผิดชอบ task --}} </div>
                         <div class="flex items-center text-xs text-gray-600">
                             <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
-                            อังคาร, 1 ธันวาคม 2025
+                            อังคาร, 1 ธันวาคม 2025 {{-- task_deadline --}}
                         </div>
                         <span
-                            class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
+                            class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ{{-- ดึงtask_status --}}
+                        </span>
                     </div>
                 @endfor
             </div>
@@ -967,8 +1062,9 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                         class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition"
                         disabled>
                         ส่งคืนงาน
+
                     </button>
-                <?php else: ?>
+                    <?php else: ?>
                     <button
                         class="mt-4 px-4 py-2 border border-gray-300 text-gray-400 rounded-md cursor-not-allowed"
                         disabled>
@@ -980,15 +1076,15 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-                <button id = "submit"
-                class="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition">เสร็จสิ้น</button>
+                 <button id = "submit"
+                    class="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition">เสร็จสิ้น</button>
             </div>
 
 
         </div>
     </div>
-        <!-- ป๊อปอัพยืนยันส่งงาน-->
-        <div id="confirmSubmitModal"
+    <!-- ป๊อปอัพยืนยันส่งงาน-->
+    <div id="confirmSubmitModal"
         class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
         <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
             <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
@@ -999,8 +1095,7 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                 <p class="text-left text-lg text-gray-600 mb-4">หมายเหตุ <span style="color: red;">*</span> :</p>
                 <p class="text-right text-xs text-gray-400"><span id="charCount">0</span>/100</p>
                 <textarea id="notation" class="border border-gray-300 rounded-lg w-full p-2 mb-4"
-                    style="height: 100px; resize: none;" maxlength="100" oninput="updateCounter()"
-                    placeholder="กรุณากรอกหมายเหตุ"></textarea>
+                    style="height: 100px; resize: none;" maxlength="100" oninput="updateCounter()" placeholder="กรุณากรอกหมายเหตุ"></textarea>
                 <hr>
                 <br>
                 <div class="modal-buttons flex justify-center gap-4">
@@ -1036,6 +1131,136 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
         </div>
       </div>
 
+    <script>
+        let selectedTaskId = null;  // ตัวแปรเก็บ task_id ของงานที่เลือก
+
+        // ฟังก์ชันเมื่อเลือกงาน
+        function selectTask(element) {
+            // ดึง task_id จาก data attribute ของงานที่เลือก
+            selectedTaskId = element.getAttribute('data-task-id');
+            console.log("เลือก task id: ", selectedTaskId);
+
+            // ทำให้ปุ่ม "ส่งคืนงาน" เปิดใช้งาน
+            const btn = document.getElementById("return-button");
+            btn.disabled = false;
+
+            // Optional: ไฮไลต์งานที่เลือก
+            document.querySelectorAll('.work-item-doing').forEach(el => el.classList.remove('ring-2', 'ring-blue-500'));
+            element.classList.add('ring-2', 'ring-blue-500');
+        }
+
+        // ฟังก์ชันส่งคืนงาน
+        function returnTask() {
+
+            // ส่งคำขอไปยังเซิร์ฟเวอร์เพื่อเปลี่ยนสถานะ
+            fetch('/return_task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ task_id: selectedTaskId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("ส่งคืนงานเรียบร้อยแล้ว");
+                    location.reload();
+                } else {
+                    alert("เกิดข้อผิดพลาดในการส่งคืนงาน");
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alert("เกิดข้อผิดพลาด");
+            });
+        }
+    </script>
+
+{{-- ส่วนJS ของรับงาน --}}
+<script>
+    function acceptWork() {
+        if (!selectedTaskId) {
+            alert("กรุณาเลือกงานก่อน");
+            return;
+        }
+
+        fetch('/accept_task', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ task_id: selectedTaskId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("รับงานเรียบร้อยแล้ว");
+                location.reload();
+            } else {
+                alert("เกิดข้อผิดพลาดในการรับงาน");
+            }
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            alert("เกิดข้อผิดพลาด");
+        });
+    }
+</script>
+
+
+
+
+
+
+
+    <script>
+        function updateCounter() {
+            let input = document.getElementById("notation");
+            let maxLength = input.maxLength;
+            let remaining = input.value.length;
+            document.getElementById("charCount").textContent = remaining;
+        }
+        // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+        document.getElementById('submit').addEventListener('click', function() {
+            // เปิดป๊อปอัพยืนยันการออกจากระบบ
+            document.getElementById('confirmSubmitModal').style.display = 'flex';
+        });
+
+        // เมื่อคลิกปุ่มปิดป๊อปอัพ
+        document.getElementById('close-popup').addEventListener('click', function() {
+            // ปิดป๊อปอัพ
+            document.getElementById('confirmSubmitModal').style.display = 'none';
+            document.body.classList.remove('popup-open');
+        });
+
+        // เมื่อคลิกปุ่มยกเลิก
+        document.getElementById('cancelSubmit').addEventListener('click', function() {
+            // ปิดป๊อปอัพ
+            document.getElementById('confirmSubmitModal').style.display = 'none';
+        });
+
+        // เมื่อคลิกปุ่มยืนยัน
+        document.getElementById('confirmSubmit').addEventListener('click', function() {
+            // แจ้งเตือนการส่งงาน
+            (response => {
+                document.getElementById('workItemPopupDoing').style.display = 'none';
+                alert('ส่งงานสำเร็จ');
+            });
+
+            // ปิดป๊อปอัพ
+            document.getElementById('confirmSubmitModal').style.display = 'none';
+        });
+
+
+        // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('confirmSubmitModal')) {
+                document.getElementById('confirmSubmitModal').style.display = 'none';
+            }
+        });
+    </script>
 
 
 
@@ -1211,11 +1436,7 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
             });
         });
 
-        function acceptWork() {
-            const popup = document.getElementById('workItemPopup');
-            popup.style.display = 'none';
-            document.body.classList.remove('popup-open');
-        }
+
 
         function closePopup() {
             const popup = document.getElementById('workItemPopup');
@@ -1225,14 +1446,15 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const items = document.querySelectorAll('.work-item');
 
             items.forEach(item => {
-                item.addEventListener('click', function (e) {
+                item.addEventListener('click', function(e) {
                     e.stopPropagation();
 
-                    document.querySelectorAll('.popover-content').forEach(p => p.classList.add('hidden'));
+                    document.querySelectorAll('.popover-content').forEach(p => p.classList.add(
+                        'hidden'));
 
                     const popover = this.querySelector('.popover-content');
                     if (popover.classList.contains('hidden')) {
@@ -1243,6 +1465,8 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                 });
             });
             document.addEventListener('click', function () {
+
+            document.addEventListener('click', function() {
                 document.querySelectorAll('.popover-content').forEach(p => p.classList.add('hidden'));
             });
         });

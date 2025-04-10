@@ -33,6 +33,8 @@ Route::post("/home",[Home_controller::class,'decline'])->middleware([Check_login
 
 Route::post('/return-task', [Task_controller::class, 'returnTask'])->name('task.return');
 
+Route::post('/accept_task', [Home_controller::class, 'acceptWork'])->name('accept.task');
+Route::post('/retrun_task', [Home_controller::class, 'return_task'])->name('return.task');
 
 Route::get("/workrequest", [Work_request_controller::class, "index"]);
 Route::post("/workrequest/create", [Work_request_controller::class, "create"])->name('workrequest.create');

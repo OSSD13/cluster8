@@ -15,6 +15,7 @@ unset($_SESSION['user_id']);
 $userID = session('users')->user_id;
 $user_dept_ID = session('users')->user_dept_id;
 $task_work_request_id = session('task');
+
 $sql = "SELECT 
             task.task_id, 
             task.task_deadline, 
@@ -51,6 +52,19 @@ $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$choose_work_request_id = $_POST['task_work_request_id'] ?? null;
+$matched_work_request_id = null;
+$main_task = null;
+
+foreach ($data as $row) {
+    if ($row['task_work_request_id'] === $choose_work_request_id) {
+        $matched_work_request_id = $row['work_request_id'];
+        $main_task = $row;
+        break;
+    }
+}
+
 $sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
                task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname, task_submit_date
         FROM task
@@ -315,7 +329,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
         <!-- กริดแสดงข้อมูล -->
         <div class="grid grid-cols-2 gap-6">
             <!-- การ์ดแสดงใบสั่งงานตามแผนก -->
-        <div class="bg-[#ffffff] rounded-lg shadow p-6">
+        <div class="bg-[#ffffff] rounded-lg shadow p-6 h-[420px]">
             <div class="border-b pb-2 mb-4">
                 <h2 class="text-lg font-bold">แผนก</h2>
                 <p class="text-sm text-[#6b7280]">ใบสั่งงานตามแผนก</p>
@@ -326,8 +340,8 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
             <?php foreach ($data as $row): ?>
                 <?php if ($row['task_status'] === 'R'): ?>
                     <?php if ($row['task_recipient_type'] === 'D'): ?>
-                        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                        <div href="work_detail.php?id=<?= $row['task_work_request_id'] ?>" class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 cursor-pointer transition h-[50px]">
+                        <div class="bg-[#3b82f6] p-2 rounded-lg w-[50px] h-[50px] flex items-center justify-center">
                             <i class="fas fa-box text-white text-2xl"></i>
                         </div>
                         <div class="flex-1">
@@ -441,7 +455,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
                     </div>
                     </div>
                     <!-- การ์ดแสดงใบสั่งงานส่วนตัว -->
-                    <div class="bg-[#ffffff] rounded-lg shadow p-6">
+                    <div class="bg-[#ffffff] rounded-lg shadow p-6 h-[420px]">
                         <div class="border-b pb-2 mb-4">
                             <h2 class="text-lg font-bold">ส่วนตัว</h2>
                             <p class="text-sm text-[#6b7280]">ใบสั่งงานส่วนตัว</p>
@@ -452,7 +466,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
                              <?php foreach ($data as $row): ?>
                              <?php if ($row['task_status'] === 'R'): ?>
                                  <?php if ($row['task_recipient_type'] === 'P'): ?>
-                                     <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                                     <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100  cursor-pointer transition ">
                                          <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
                                              <i class="fas fa-box text-[#2563eb] text-2xl "></i>
                                          </div>
@@ -568,18 +582,18 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
     </div>
 
     <!-- การ์ดแสดงงานที่กำลังดำเนินการ (เต็มความกว้าง) -->
-    <div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
-    <div class="border-b pb-2 mb-4">
-        <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
-        <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
-    </div>
+    <div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2 h-[420px]">
+        <div class="border-b pb-2 mb-4">
+            <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
+            <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
+        </div>
 
     <div class="space-y-2 scrollbar-hide scrollable-content ">
         <!-- รายการงานที่กำลังดำเนินการ 1 -->
         <?php foreach ($data as $row): ?>
             <?php if ($row['task_status'] === 'P'): ?>
                     <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-                        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full"  data-work-request-id="<?= $row['task_work_request_id'] ?>" onclick="openPopup(this)">
                             <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
                                 <i class="fas fa-box text-[#533FE4] text-2xl"></i>
                             </div>
@@ -598,13 +612,13 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
     </div>
 </div>
             <!-- ส่วนประวัติการทำงาน -->
-            <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
+            <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2 h-[420px]">
                 <div class="flex justify-between items-center border-b pb-3 mb-4">
                     <div>
                         <h2 class="text-lg font-bold">ประวัติ</h2>
                         <p class="text-sm text-gray-500">งานที่ดำเนินการเสร็จสิ้นและปฏิเสธ</p>
                     </div>
-                    <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <div class="flex items-center gap-2 text-sm text-gray-400]">
                         <?php if ($total_item==0): ?>
                             <span>0-0 จาก 0</span>
                         <?php elseif ($total_item<=50): ?>
@@ -624,11 +638,11 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
                 </div>
                 
                 <!-- กริดแสดงการ์ดประวัติ -->
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-4 gap-4">
                     <!-- การ์ดประวัติ -->
                     <?php foreach ($data2 as $row): ?>
                         <?php if ($row['task_status'] === 'C'): ?>
-                            <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
+                            <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition h-[105px]">
                                 <div class="flex justify-between items-center mb-2">
                                     <div class="font-semibold text-sm text-gray-800"><?= htmlspecialchars($row['task_name']) ?></div>
                                     <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
@@ -705,53 +719,69 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
 <div id="workItemPopup" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
 
-    <!-- ปุ่มปิด -->
-    <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
-        <i class="fas fa-times text-xl"></i>
-    </button>
+      <!-- ปุ่มปิด -->
+              <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+          <i class="fas fa-times text-xl"></i>
+          </button>
 
-    <!-- หัวข้อ -->
-    <h2 class="text-xl font-bold text-blue-700 mb-4">
-      รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
-    </h2>
 
-    <!-- ข้อมูลหลัก -->
-    <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
-        <div>
-            <span class="font-semibold">ชื่อเรื่อง :</span> <span id="popup-title">-</span>
-        </div>
-        <div>
-            <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
-        </div>
-        <div>
-            <span class="font-semibold">ผู้ส่ง :</span>  {{ session('users')->user_fname }} {{ session('users')->user_lname }}
-        </div>
-        <div>
-            <span class="font-semibold">แผนก :</span>
-        </div>
-    </div>
+      <!-- หัวข้อ -->
+    
+          <h2 class="text-xl font-bold text-blue-700 mb-4">
+              รายละเอียดใบสั่งงาน 
+              <span class="text-gray-400 text-base font-normal">
+                  
+              </span>
+          </h2>
+      
+          <!-- ข้อมูลหลัก -->
+          <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
+            <div>
+                <span class="font-semibold">ชื่อเรื่อง :</span>
+                <span id="popup-title">-</span>
+            </div>
+            <div>
+                <span class="font-semibold">วันที่ร้องขอ :</span>
+                <span id="popup-date">-</span>
+            </div>
+            <div>
+                <span class="font-semibold">ผู้ส่ง :</span>
+                <span id="popup-user">-</span>
+            </div>
+            <div>
+                <span class="font-semibold">แผนก :</span>
+                <span id="popup-department">-</span>
+            </div>
+          </div>
 
-    <!-- การ์ดย่อยของงาน -->
-    <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
-        <div class="space-y-4 scrollbar-hide scrollable-content">
-            งานย่อย
 
-            
-        </div>
-    </div>
+      <!-- การ์ดย่อยของงาน -->
+      <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
+        @for ($i = 0; $i < 6; $i++)
+          <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+            <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
+            <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
+            <div class="flex items-center text-xs text-gray-600">
+              <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
+              อังคาร, 1 ธันวาคม 2025
+            </div>
+            <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
+          </div>
+        @endfor
+      </div>
 
-    <!-- ✅ ปุ่มรับงาน / ปฏิเสธ -->
-    <div class="flex justify-center mt-6 gap-3">
-        <button type="button" id="openDeclinePopup" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
+          <!-- ปุ่ม -->
+      <div class="flex justify-center mt-6 gap-3">
+        <button type="button" id="openDeclinePopupDoing" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
             ปฏิเสธ
         </button>
-        <button onclick="acceptWork()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-            รับงาน
-        </button>
+        <button class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition">ส่งคืนงาน</button>
+        <button id = "submit" class="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition">เสร็จสิ้น</button>
+      </div>
+
+
     </div>
 
-  </div>
-</div>
 <!-- Popup รายละเอียดใบสั่งงาน(กำลังดำนินการ) -->
 <div id="workItemPopupDoing" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
@@ -763,10 +793,14 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
 
 
       <!-- หัวข้อ -->
-      <h2 class="text-xl font-bold text-blue-700 mb-4">
-        รายละเอียดใบสั่งงาน <span class="text-gray-400 text-base font-normal">#HR-680003</span>
-      </h2>
-
+    
+          <h2 class="text-xl font-bold text-blue-700 mb-4">
+              รายละเอียดใบสั่งงาน 
+              <span class="text-gray-400 text-base font-normal">
+                  
+              </span>
+          </h2>
+      
           <!-- ข้อมูลหลัก -->
       <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
       <div>
@@ -776,7 +810,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
           <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
       </div>
       <div>
-          <span class="font-semibold">ผู้ส่ง :</span>  {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+          <span class="font-semibold">ผู้ส่ง :</span>  {{ session('users')->user_fname }} hellow {{ session('users')->user_lname }}
       </div>
       <div>
           <span class="font-semibold">แผนก :</span>
@@ -872,11 +906,14 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
     });
 
     // เมื่อคลิกปุ่มปิดป๊อปอัพ
-    document.getElementById('close-popup').addEventListener('click', function() {
-        // ปิดป๊อปอัพ
-        document.getElementById('confirmSubmitModal').style.display = 'none';
-        document.body.classList.remove('popup-open');
+   
+  // เมื่อคลิกปุ่มปิด popup
+  document.querySelectorAll('.close-popup').forEach(button => {
+    button.addEventListener('click', function () {
+      document.getElementById('workItemPopup').classList.add('hidden');
     });
+  });
+
 
     // เมื่อคลิกปุ่มยกเลิก
     document.getElementById('cancelSubmit').addEventListener('click', function() {
@@ -1080,6 +1117,68 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
     </script>
 </div>
 
+<script>
+    function openPopup(element) {
+        const workRequestId = element.getAttribute('data-work-request-id');
+    
+        fetch(`/getWorkDetails.php?work_request_id=${workRequestId}`)
+          .then(res => res.json())
+          .then(data => {
+            // Set title and date
+            document.getElementById('popup-title').textContent = data.work_name;
+            document.getElementById('popup-date').textContent = data.work_submit_date;
+    
+            // Render tasks
+            const container = document.querySelector('#workItemPopupDoing .grid');
+            container.innerHTML = ''; // Clear old tasks
+    
+            data.tasks.forEach(task => {
+                container.innerHTML += `
+                  <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                    <div class="text-sm font-semibold text-gray-800 truncate">${task.task_name}</div>
+                    <div class="text-xs text-gray-500 mb-2">${task.user_fname} ${task.user_lname}</div>
+                    <div class="flex items-center text-xs text-gray-600">
+                      <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
+                      ${task.deadline_thai}
+                    </div>
+                    <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">
+                      ${task.status_text}
+                    </span>
+                  </div>
+                `;
+            });
+    
+            // Show popup
+            document.getElementById('workItemPopupDoing').classList.remove('hidden');
+          });
+    }
+    </script>
+    <script>
+      // เมื่อคลิกที่การ์ดงานที่กำลังดำเนินการ
+    document.querySelectorAll('.work-item').forEach(item => {
+        item.addEventListener('click', function () {
+          const workRequestId = this.getAttribute('data-work-request-id');
+      
+          fetch('/get_work_request_detail.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'work_request_id=' + workRequestId
+          })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('popup-title').innerText = data.work_name;
+            document.getElementById('popup-date').innerText = data.work_create_date;
+            document.getElementById('popup-user').innerText = `${data.user_fname} ${data.user_lname}`;
+            document.getElementById('popup-department').innerText = data.department_name;
+      
+            // เปิด popup
+            document.getElementById('workItemPopupDoing').classList.remove('hidden');
+          });
+        });
+      });
+    </script>      
 
 </body>
 </html>

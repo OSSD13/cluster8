@@ -45,7 +45,7 @@ if ($userID) {
         SUM(CASE WHEN task_status = 'C' THEN 1 ELSE 0 END) AS completedDepartment_tasks,
         SUM(CASE WHEN task_status = 'R' THEN 1 ELSE 0 END) AS waitingDepartment_tasks,
         SUM(CASE WHEN task_status = 'D' THEN 1 ELSE 0 END) AS decryDepartment_tasks,
-        SUM(CASE WHEN task_status = 'P' THEN 1 ELSE 0 END) AS pendingtedDepartment_tasks
+        SUM(CASE WHEN task_status = 'P' THEN 1 ELSE 0 END) AS processDepartment_tasks
 
     FROM task
     WHERE task_recipient_user_id = ?
@@ -58,16 +58,11 @@ if ($userID) {
     // ตรวจสอบผลลัพธ์
     if (!empty($result)) {
         $completedDepartmentTasks = $result[0]->completedDepartment_tasks ?? 0;
-        $processedTaskDepartmentTasks  = $result[0]->pendingtedDepartment_tasks ?? 0;
-        $waitingDepartmentTasks = $result[0]->waitdingDepartment_tasks ?? 0;
+        $processedTaskDepartmentTasks = $result[0]->processDepartment_tasks ?? 0; // แก้ไขจาก pendingtedDepartment_tasks
+        $waitingDepartmentTasks = $result[0]->waitingDepartment_tasks ?? 0; // แก้ไขจาก waitdingDepartment_tasks
         $decrydingDepartmentTasks = $result[0]->decryDepartment_tasks ?? 0;
     }
 }
-
-
-
-
-
 ?>
 <!DOCTYPE html>
 
@@ -78,7 +73,7 @@ if ($userID) {
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
-        </script>
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('public/css/button.css') }}">
     <link rel="stylesheet" href="{{ asset('public/css/dashboard.css') }}">
@@ -94,86 +89,143 @@ if ($userID) {
 
 <body class="flex min-h-screen bg-[#f3f4f6]">
 
-    <!-- เริ่มส่วน Sidebar -->
+    <!-- Sidebar - Fixed Position -->
     <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
-      <!-- โลโก้ -->
-      <div class="py-2 border-b">
-          <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-30 mx-auto">
-      </div>
+        <!-- โลโก้ -->
+        <div class="py-2 border-b">
+            <img src="{{ asset('public/wrslogo.png') }}" alt="Logo" class="h-30 mx-auto">
+        </div>
 
-      <!-- เมนู -->
-      <div class="flex-1 px-3 py-6 space-y-2">
-          <a href="home" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
-              <i class="fas fa-home mr-3"></i><span>หน้าหลัก</span>
-          </a>
-          <a href="workrequest" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
-              <i class="fas fa-clipboard-list mr-3"></i><span>สร้างใบสั่งงาน</span>
-          </a>
-          <a href="report" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
-              <i class="fas fa-file-alt mr-3"></i><span>รายงานการดำเนินงาน</span>
-          </a>
-          <a href="dashboard" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
-              <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
-          </a>
-      </div>
+        <!-- เมนู -->
+        <div class="flex-1 px-3 py-6 space-y-2">
+            <a href="home" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg" >
+                <i class="fas fa-home mr-3"></i><span>หน้าหลัก</span>
+            </a>
+            <a href="workrequest" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+                <i class="fas fa-clipboard-list mr-3"></i><span>สร้างใบสั่งงาน</span>
+            </a>
+            <a href="report" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+                <i class="fas fa-file-alt mr-3"></i><span>รายงานการดำเนินงาน</span>
+            </a>
+            <a href="dashboard" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
+                <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
+            </a>
+        </div>
 
-      <!-- โปรไฟล์ผู้ใช้ -->
-          <div class="p-4">
-              <div id="profileButton" class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800" style="cursor: pointer;">
-                  <div class="flex items-center">
-                      <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
-                          <i class="fas fa-user text-lg"></i>
-                      </div>
-                      <div>
-                          <div class="leading-tight text-xs">
-                              {{ session('users')->user_fname }} {{ session('users')->user_lname }}
-                          </div>
-                          <div class="leading-tight text-xs">
-                              {{ session('users')->user_id }}
-                          </div>
-                      </div>
-                  </div>
-                  <i class="fas fa-arrow-right text-white text-sm"></i>
-              </div>
-          </div>
-          <!-- ป๊อปอัพยืนยันการออกจากระบบ -->
-          <div id="logoutModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-              <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
-                  <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
-                      <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการออกจากระบบ</div>
-                      <button class="modal-close text-gray-500 text-xl" id="closeModal">&times;</button>
-                  </div>
-                  <div class="modal-body text-center mb-6">
-                      <p class="text-lg text-gray-600 mb-4">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
-                      <div class="modal-buttons flex justify-center gap-4">
-                          <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmLogout">ยืนยัน</button>
-                          <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelLogout">ยกเลิก</button>
-                      </div>
-                  </div>
-              </div>
-          </div>
+        <!-- โปรไฟล์ผู้ใช้ -->
+        <div class="p-4">
+            <div id="profileButton"
+                class="bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-between hover:bg-blue-800"
+                style="cursor: pointer;">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="leading-tight text-xs">
+                            {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+                        </div>
+                        <div class="leading-tight text-xs">
+                            {{ session('users')->user_id }}
+                        </div>
+                    </div>
+                </div>
+                <i class="fas fa-arrow-right text-white text-sm"></i>
+            </div>
+        </div>
+        <!-- ป๊อปอัพยืนยันการออกจากระบบ -->
+        <div id="logoutModal"
+            class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+            <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+                <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
+                    <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการออกจากระบบ</div>
+                    <button class="modal-close text-gray-500 text-xl" id="closeModal">&times;</button>
+                </div>
+                <div class="modal-body text-center mb-6">
+                    <p class="text-lg text-gray-600 mb-4">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
+                    <div class="modal-buttons flex justify-center gap-4">
+                        <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700"
+                            id="confirmLogout">ยืนยัน</button>
+                        <button
+                            class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100"
+                            id="cancelLogout">ยกเลิก</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <script>
             // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
-            document.getElementById('profileButton').addEventListener('click', function () {
+            document.getElementById('profileButton').addEventListener('click', function() {
                 // เปิดป๊อปอัพยืนยันการออกจากระบบ
                 document.getElementById('logoutModal').style.display = 'flex';
             });
 
             // เมื่อคลิกปุ่มปิดป๊อปอัพ
-            document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('closeModal').addEventListener('click', function() {
                 // ปิดป๊อปอัพ
                 document.getElementById('logoutModal').style.display = 'none';
             });
 
             // เมื่อคลิกปุ่มยกเลิก
-            document.getElementById('cancelLogout').addEventListener('click', function () {
+            document.getElementById('cancelLogout').addEventListener('click', function() {
                 // ปิดป๊อปอัพ
                 document.getElementById('logoutModal').style.display = 'none';
             });
 
             // เมื่อคลิกปุ่มยืนยัน
-            document.getElementById('confirmLogout').addEventListener('click', function () {
+            document.getElementById('confirmLogout').addEventListener('click', function() {
+                // ส่งคำขอไปยัง route logout
+                fetch('/logout', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
+                        window.location.href = '/login'; // หรือ URL ที่ต้องการ
+                    } else {
+                        alert('เกิดข้อผิดพลาดในการออกจากระบบ');
+                    }
+                });
+
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+
+            // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('logoutModal')) {
+                    document.getElementById('logoutModal').style.display = 'none';
+                }
+            });
+        </script>
+
+    </div>
+
+        <script>
+            // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+            document.getElementById('profileButton').addEventListener('click', function() {
+                // เปิดป๊อปอัพยืนยันการออกจากระบบ
+                document.getElementById('logoutModal').style.display = 'flex';
+            });
+
+            // เมื่อคลิกปุ่มปิดป๊อปอัพ
+            document.getElementById('closeModal').addEventListener('click', function() {
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+            // เมื่อคลิกปุ่มยกเลิก
+            document.getElementById('cancelLogout').addEventListener('click', function() {
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+            // เมื่อคลิกปุ่มยืนยัน
+            document.getElementById('confirmLogout').addEventListener('click', function() {
                 // ส่งคำขอไปยัง route logout
                 fetch('logout', {
                     method: 'GET',
@@ -183,7 +235,7 @@ if ($userID) {
                 }).then(response => {
                     if (response.ok) {
                         // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-                        window.location.href = 'login';  // หรือ URL ที่ต้องการ
+                        window.location.href = 'login'; // หรือ URL ที่ต้องการ
                     } else {
                         alert('เกิดข้อผิดพลาดในการออกจากระบบ');
                     }
@@ -193,7 +245,7 @@ if ($userID) {
                 document.getElementById('logoutModal').style.display = 'none';
             });
             // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
-            window.addEventListener('click', function (event) {
+            window.addEventListener('click', function(event) {
                 if (event.target === document.getElementById('logoutModal')) {
                     document.getElementById('logoutModal').style.display = 'none';
                 }
@@ -221,8 +273,12 @@ if ($userID) {
                     </h2>
                     <div class="switch-wrapper">
                         <input type="checkbox" id="customSwitch" class="switch-input" {{ $Userclick ? 'checked' : '' }}>
-                        <label for="customSwitch" class="switch-label"></label>
+                        <label for="customSwitch" class="switch-label" id="switchLabel">
+                            <span class="switch-inner-text" style="display: flex; justify-content: center; align-items: center; height: 100%;">{{ $Userclick ? 'แผนก' : 'ส่วนตัว' }}</span>
+                        </label>
                     </div>
+
+
                     </button>
                 </div>
                 <div class="summary">
@@ -246,8 +302,9 @@ if ($userID) {
                         <img src="{{ asset('public\asset\reject.png') }}" alt="WorkRequest System Logo"
                             class="card-img-left">
 
-                        <p id="$decrydingTasks">
-                            {{ $Userclick ? $decrydingDepartmentTasks : $decrydingTasks }}
+                       <p id="decrydingTasksDisplay">
+    {{ $Userclick ? $decrydingDepartmentTasks : $decrydingTasks }}
+</p>
                         <h2>ปฏิเสธงาน</h2>
 
                     </div>
@@ -282,33 +339,36 @@ if ($userID) {
         const checkbox = document.getElementById('customSwitch');
         const completedTasksDisplay = document.getElementById('completedTasksDisplay');
         const pendingTasksDisplay = document.getElementById('pendingTasksDisplay'); // เพิ่มตัวแปรนี้
+        const decrydingTasksDisplay = document.getElementById('decrydingTasksDisplay');
 
         checkbox.addEventListener('change', () => {
-            const isChecked = checkbox.checked;
+    const isChecked = checkbox.checked;
 
-            fetch('update-userclick', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ Userclick: isChecked })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // อัปเดตข้อความใน <p> แบบไม่ต้องรีเฟรช
-                    completedTasksDisplay.textContent = data.Userclick ? data.completedDepartmentTasks : data.completedTasks;
-                    pendingTasksDisplay.textContent = data.Userclick ? data.pendingDepartmentTasks : data.pendingTasks; // อัปเดตค่าของ pendingTasks
-                } else {
-                    alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
-            });
-        });
+    // Send request to the server to update the value of Userclick
+    fetch('/update-userclick', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ Userclick: isChecked })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the displayed task counts without refreshing
+            completedTasksDisplay.textContent = data.Userclick ? data.completedDepartmentTasks : data.completedTasks;
+            pendingTasksDisplay.textContent = data.Userclick ? data.pendingDepartmentTasks : data.pendingTasks;
+            decrydingTasksDisplay.textContent = data.Userclick ? data.decrydingDepartmentTasks : data.decrydingTasks;
+        } else {
+            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+    });
+});
     </script>
     <script>
         // Personal Chart
@@ -407,7 +467,7 @@ if ($userID) {
             const isChecked = checkbox.checked;
 
             // ส่งคำขอไปยังเซิร์ฟเวอร์เพื่ออัปเดตค่า Userclick
-            fetch('update-userclick', {
+            fetch('/update-userclick', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -435,6 +495,17 @@ if ($userID) {
                 });
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkbox = document.getElementById('customSwitch');
+            const labelText = document.querySelector('.switch-inner-text');
+
+            checkbox.addEventListener('change', function () {
+                labelText.textContent = checkbox.checked ? 'แผนก' : 'ส่วนตัว';
+            });
+        });
+    </script>
+
 </body>
 
 </html>

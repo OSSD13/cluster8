@@ -18,6 +18,7 @@
     }, 2000);
 </script>
 
+
 <body class="bg-[#f3f4f6] flex min-h-screen">
     <!-- เริ่มส่วน Sidebar -->
     <div class="w-60 h-screen fixed top-0 left-0 bg-white shadow-lg flex flex-col">
@@ -132,6 +133,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
 
     <!-- Main Content -->
     <div class="ml-60 p-8 ">
+        
         <h2 class="font-[Lato] text-[25.63px] font-bold text-[#0012E1] ">รายงานการดำเนินงาน</h2><br>
 
         <form method="get" action="{{ url('report') }}">

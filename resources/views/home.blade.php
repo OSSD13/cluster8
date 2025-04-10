@@ -73,7 +73,7 @@ $pdo = new PDO('mysql:host=10.80.6.165;dbname=cluster8;charset=utf8', 'cluster8'
 $items_per_page = 50; // จำนวนรายการที่จะแสดงในแต่ละหน้า (50 รายการต่อหน้า)
 $current_page = isset($_GET['page']) ? (int) $_GET['page'] : 1; // ตรวจสอบหน้าปัจจุบัน
 $offset = ($current_page - 1) * $items_per_page; // คำนวณ offset
-// เริ่มต้น session
+
 // ลบค่า user_id ออกจาก session
 unset($_SESSION['user_id']);
 
@@ -81,6 +81,91 @@ unset($_SESSION['user_id']);
 $userID = session('users')->user_id;
 $user_dept_ID = session('users')->user_dept_id;
 $task_work_request_id = session('task');
+
+
+$sql = "SELECT 
+            task.task_id, 
+            task.task_deadline, 
+            task.task_status, 
+            task.task_recipient_user_id, 
+            task.task_name, 
+            task.task_recipient_department_id, 
+            task.task_notation, 
+            task.task_recipient_type, 
+            task.task_submit_date, 
+            task.task_work_request_id, 
+            wro.work_name, 
+            wro.work_request_id,
+            user_fname,
+            user_lname
+        FROM task
+        LEFT JOIN work_request_order AS wro 
+            ON task.task_work_request_id = wro.work_request_id
+        LEFT JOIN users AS userID 
+            ON task.task_recipient_user_id = userID.user_id
+        LEFT JOIN departments 
+            ON task.task_recipient_department_id = departments.department_id
+        WHERE 
+            (task.task_recipient_department_id = :user_dept_ID 
+            OR task.task_recipient_user_id = :userID)
+        AND task.task_work_request_id = wro.work_request_id
+        AND task.task_submit_date IS NULL
+        LIMIT :offset, :limit";
+
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(':user_dept_ID', $user_dept_ID, PDO::PARAM_INT);
+$stmt->bindParam(':userID', $userID, PDO::PARAM_INT);
+$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt->execute();
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname, task_submit_date, department_name
+        FROM task
+        LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
+        LEFT JOIN users ON wro1.work_create_by_user_id = user_id
+        LEFT JOIN departments ON user_dept_id = department_id
+        WHERE task_recipient_user_id = $userID AND task_submit_date >= NOW() - INTERVAL 5 DAY AND (task_status = 'C' OR task_status = 'D')
+        LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
+
+$stmt2 = $pdo->prepare($sql2);
+$stmt2->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt2->execute();
+$data2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+
+$sql3 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
+        FROM task
+        LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
+        LEFT JOIN users ON wro1.work_create_by_user_id = user_id
+        LEFT JOIN departments ON user_dept_id = department_id
+        WHERE task_recipient_user_id = :userID 
+        AND wro1.work_confirm_date >= NOW() - INTERVAL 5 DAY 
+        AND (task_status = 'C' OR task_status = 'D')
+        AND (:selected_work_request_id IS NULL OR task_work_request_id = :selected_work_request_id)
+        LIMIT :offset, :limit";
+
+$stmt3 = $pdo->prepare($sql3);
+$stmt3->bindParam(':userID', $userID, PDO::PARAM_INT);
+$stmt3->bindParam(':selected_work_request_id', $selected_work_request_id, PDO::PARAM_INT);
+$stmt3->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt3->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
+$stmt3->execute();
+$data3 = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
+
+// คำนวณจำนวนหน้าทั้งหมด
+$sql_count = "SELECT COUNT(*) FROM work_request_order 
+JOIN task ON work_request_id = task_work_request_id
+WHERE task_submit_date >= NOW() - INTERVAL 5 DAY AND task_recipient_user_id = $userID AND (task_status = 'C' OR task_status = 'D')";
+$count_stmt = $pdo->query($sql_count);
+$total_item = $count_stmt->fetchColumn();
+$total_pages = ceil($total_item / $items_per_page); // คำนวณจำนวนหน้าทั้งหมด
+
+
+
 
 $sql5 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id,
            task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
@@ -704,84 +789,71 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
         </div>
         <!-- ส่วนประวัติการทำงาน -->
-        <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
+        <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2 h-[420px]">
             <div class="flex justify-between items-center border-b pb-3 mb-4">
                 <div>
                     <h2 class="text-lg font-bold">ประวัติ</h2>
                     <p class="text-sm text-gray-500">งานที่ดำเนินการเสร็จสิ้นและปฏิเสธ</p>
                 </div>
-                <div class="flex items-center gap-2 text-sm text-gray-400">
-                    <span>1-50 จาก 250</span>
-                    <button class="text-[#6366f1] hover:text-[#4338ca]">
+                <div class="flex items-center gap-2 text-sm text-gray-400]">
+                    <?php if ($total_item==0): ?>
+                        <span>0-0 จาก 0</span>
+                    <?php elseif ($total_item<=50): ?>
+                        <span>{{$current_page}}-{{$total_item}} จาก {{$total_item}}</span>
+                    <?php elseif ($total_item<$current_page*50): ?>
+                        <span>{{(($current_page-1)*50)+1}}-{{$total_item}} จาก {{$total_item}}</span>
+                    <?php else : ?>
+                        <span>{{(($current_page-1)*50)+1}}-{{$current_page*50}} จาก {{$total_item}}</span>
+                    <?php endif; ?>
+                    <button onclick="location.href='?page=<?= max(1, $current_page - 1) ?>'" class="text-[#6366f1] hover:text-[#4338ca]">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <button class="text-[#6366f1] hover:text-[#4338ca]">
+                    <button onclick="location.href='?page=<?= min($total_pages, $current_page + 1) ?>'" class="text-[#6366f1] hover:text-[#4338ca]">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
             </div>
-
+            
             <!-- กริดแสดงการ์ดประวัติ -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                <!-- การ์ดประวัติ: เสร็จสิ้น -->
-                <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
-                        <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-sm text-gray-400">
-                        <span>1-50 จาก 250</span>
-                        <button class="text-[#6366f1] hover:text-[#4338ca]">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="text-[#6366f1] hover:text-[#4338ca]">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-                <!-- กริดแสดงการ์ดประวัติ -->
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                    <!-- การ์ดประวัติ: เสร็จสิ้น -->
-                    <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
-                            <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
-                        </div>
-                        <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
-                        <div class="flex items-center text-xs text-gray-600">
-                            <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                            วันที่เสร็จสิ้น
-                        </div>
-                    </div>
-
-                    <!-- การ์ดประวัติ: ปฏิเสธ -->
-                    <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
-                            <span class="text-xs bg-red-200 text-red-600 px-2 py-0.5 rounded-full">ปฏิเสธ</span>
-                        </div>
-                        <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
-                        <div class="flex items-center text-xs text-gray-600">
-                            <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                            วันที่ปฏิเสธ
-                        </div>
-                    </div>
-                    <!-- ใช้ลูป Blade เพื่อแสดงการ์ดเพิ่มเติม -->
-                    @for ($i = 0; $i < 12; $i++)
-                        <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-4 gap-4">
+                <!-- การ์ดประวัติ -->
+                <?php foreach ($data2 as $row): ?>
+                    <?php if ($row['task_status'] === 'C'): ?>
+                        <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition h-[105px]">
                             <div class="flex justify-between items-center mb-2">
-                                <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
+                                <div class="font-semibold text-sm text-gray-800"><?= htmlspecialchars($row['task_name']) ?></div>
                                 <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
                             </div>
-                            <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
+                            <?php if ($row['work_author_type'] === 'P'): ?>
+                                <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></div>
+                            <?php elseif ($row['work_author_type'] === 'D'): ?>
+                                <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['department_name']) ?></div>
+                            <?php endif; ?>
                             <div class="flex items-center text-xs text-gray-600">
                                 <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                                วันที่เสร็จสิ้น
+                                    <?= htmlspecialchars($row['task_submit_date']) ?>
                             </div>
                         </div>
-                    @endfor
-                </div>
+                    <?php elseif ($row['task_status'] === 'D'): ?>
+                        <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="font-semibold text-sm text-gray-800"><?= htmlspecialchars($row['task_name']) ?></div>
+                                <span class="text-xs bg-red-200 text-red-600 px-2 py-0.5 rounded-full">ปฏิเสธ</span>
+                            </div>
+                            <?php if ($row['work_author_type'] === 'P'): ?>
+                                <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['user_fname']) ?> <?= htmlspecialchars($row['user_lname']) ?></div>
+                            <?php elseif ($row['work_author_type'] === 'D'): ?>
+                                <div class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($row['department_name']) ?></div>
+                            <?php endif; ?>
+                            <div class="flex items-center text-xs text-gray-600">
+                                <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
+                                    <?= htmlspecialchars($row['task_submit_date']) ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
             </div>
+        </div>
 
             <!-- เกี่ยวกับระบบ -->
             <footer class=" border-t mt-10 px-10 py-12 col-span-2 rounded-lg shadow-sm">

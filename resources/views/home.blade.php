@@ -3,19 +3,19 @@ use Illuminate\Support\Facades\Log;
 session_start(); // เริ่มต้น session
 $userID = session('users')->user_id;
 $completedTasks = 0;
-$pendingTasks = 0;
-$completedDepartmentTasks = 0;
-$pendingDepartmentTasks = 0;
-$rejectedDepartmentTasks = 0;
-
+$processedTasks = 0;
+$rejectedTasks = 0;
+$Userclick = session('Userclick', false);
 
 if ($userID) {
     $result = DB::select(
         "
         SELECT
             SUM(CASE WHEN task_status = 'C' THEN 1 ELSE 0 END) AS completed_tasks,
-            SUM(CASE WHEN task_status = 'R' THEN 1 ELSE 0 END) AS pending_tasks,
+            SUM(CASE WHEN task_status = 'D' THEN 1 ELSE 0 END) AS decryding_tasks,
+            SUM(CASE WHEN task_status = 'R' THEN 1 ELSE 0 END) AS rejected_tasks,
             SUM(CASE WHEN task_status = 'P' THEN 1 ELSE 0 END) AS processed_tasks
+
         FROM task
         WHERE task_recipient_user_id = ?
           AND task_recipient_type = 'P'
@@ -23,17 +23,18 @@ if ($userID) {
     ",
         [$userID],
     );
-    
 
     if (!empty($result)) {
         $completedTasks = $result[0]->completed_tasks ?? 0;
         $processedTasks = $result[0]->processed_tasks ?? 0;
-        $pendingTasks = $result[0]->pending_tasks ?? 0;
-        
+        $rejectedTasks = $result[0]->rejected_tasks ?? 0;
+        $decrydingTasks = $result[0]->decryding_tasks ?? 0;
     }
     $departmentUserID = $userID; // รหัสผู้ใช้สำหรับแผนก
-    
-
+    // $completedDepartmentTasks = 0;
+    // $processedTaskDepartmentTasks = 0;
+    // $waitingDepartmentTasks = 0;
+    // $decrydingDepartmentTasks = 0;
 
     // ดึงข้อมูลจากฐานข้อมูล
     $result = DB::select(
@@ -42,56 +43,61 @@ if ($userID) {
         task_recipient_user_id,
         task_recipient_type,
         SUM(CASE WHEN task_status = 'C' THEN 1 ELSE 0 END) AS completedDepartment_tasks,
-        SUM(CASE WHEN task_status = 'R' THEN 1 ELSE 0 END) AS pendingDepartment_tasks,
-        SUM(CASE WHEN task_status = 'D' THEN 1 ELSE 0 END) AS rejectedDepartment_tasks
+        SUM(CASE WHEN task_status = 'R' THEN 1 ELSE 0 END) AS waitingDepartment_tasks,
+        SUM(CASE WHEN task_status = 'D' THEN 1 ELSE 0 END) AS decryDepartment_tasks,
+        SUM(CASE WHEN task_status = 'P' THEN 1 ELSE 0 END) AS processDepartment_tasks
+
     FROM task
     WHERE task_recipient_user_id = ?
       AND task_recipient_type = 'D'
     GROUP BY task_recipient_user_id, task_recipient_type
 ",
-        [$userID],
+        [$departmentUserID],
     );
-    
-    
-    
     // ตรวจสอบผลลัพธ์
     if (!empty($result)) {
         $completedDepartmentTasks = $result[0]->completedDepartment_tasks ?? 0;
-        $pendingDepartmentTasks = $result[0]->pendingDepartment_tasks ?? 0;
-        $rejectedDepartmentTasks = $result[0]->rejectedDepartment_tasks ?? 0;
-    }
-    $weeklyTaskSummary = [];
-
-    // ดึงข้อมูลจากฐานข้อมูล
-    $result = DB::select("
-    SELECT
-        DATE(task.task_submit_date) AS completed_date,
-        task.task_recipient_type,
-        COUNT(*) AS total_tasks
-    FROM task
-    WHERE
-        task.task_status = 'P'
-        AND task.task_submit_date IS NOT NULL
-        AND task.task_submit_date BETWEEN
-            DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
-            AND DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 6 DAY)
-    GROUP BY
-        DATE(task.task_submit_date),
-        task.task_recipient_type
-    ORDER BY
-        completed_date ASC
-");
-    if (!empty($result)) {
-        foreach ($result as $row) {
-            $weeklyTaskSummary[] = [
-                'completed_date' => $row->completed_date,
-                'task_recipient_type' => $row->task_recipient_type,
-                'total_tasks' => $row->total_tasks,
-            ];
-        }
+        $processedTaskDepartmentTasks = $result[0]->processDepartment_tasks ?? 0; // แก้ไขจาก pendingtedDepartment_tasks
+        $waitingDepartmentTasks = $result[0]->waitingDepartment_tasks ?? 0; // แก้ไขจาก waitdingDepartment_tasks
+        $decrydingDepartmentTasks = $result[0]->decryDepartment_tasks ?? 0;
     }
 }
+
 ?>
+@php
+// เชื่อมต่อฐานข้อมูล MySQL
+// เชื่อมต่อฐานข้อมูล MySQL
+$pdo = new PDO('mysql:host=10.80.6.165;dbname=cluster8;charset=utf8', 'cluster8', 'k4PL1Wqq');
+
+// กำหนดการตั้งค่าการแบ่งหน้า
+$items_per_page = 50; // จำนวนรายการที่จะแสดงในแต่ละหน้า (50 รายการต่อหน้า)
+$current_page = isset($_GET['page']) ? (int) $_GET['page'] : 1; // ตรวจสอบหน้าปัจจุบัน
+$offset = ($current_page - 1) * $items_per_page; // คำนวณ offset
+// เริ่มต้น session
+// ลบค่า user_id ออกจาก session
+unset($_SESSION['user_id']);
+
+// ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
+$userID = session('users')->user_id;
+$user_dept_ID = session('users')->user_dept_id;
+$task_work_request_id = session('task');
+
+$sql5 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id,
+           task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname
+    FROM task
+    LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
+    LEFT JOIN users ON wro1.work_create_by_user_id = user_id
+    LEFT JOIN departments ON user_dept_id = department_id
+    WHERE (task_recipient_type = 'P' or task_recipient_type = 'D')  AND task_status = 'P' and task_recipient_user_id = $userID
+    ";
+
+$stmt5 = $pdo->prepare($sql5);
+$stmt5->execute();
+$data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
+@endphp
+
+
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -280,7 +286,7 @@ if ($userID) {
         // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
         window.addEventListener('click', function (event) {
             if (event.target === document.getElementById('logoutModal')) {
-                document.getElementById('logoutModal').style.backgroundColor = 'red';
+                document.getElementById('logoutModal').style.display = 'none';
             }
         });
     </script>
@@ -396,9 +402,9 @@ if ($userID) {
                         <!-- โค้ดกราฟของคุณที่ใช้แสดงกราฟที่นี่ -->
                         <script>
                             const data = { 
-                                waiting: {{ $pendingTasks }},
-                                inProgress: {{ $processedTasks }},
-                                completed: {{ $completedTasks }}
+                                waiting: {{  $decrydingDepartmentTasks }},
+                                inProgress: {{ $processedTaskDepartmentTasks}},
+                                completed: {{ $completedDepartmentTasks }}
                                 
     };
 
@@ -567,8 +573,8 @@ if ($userID) {
                         <script>
                             // ข้อมูลสำหรับกราฟส่วนตัว - แตกต่างจากกราฟแผนก
                             const personalData = {
-                                waiting: {{ $pendingTasks }},
-                                inProgress: {{ $processedTasks }},
+                                waiting: {{  $decrydingTasks}},
+                                inProgress: {{ $processedTasks}},
                                 completed: {{ $completedTasks }}
                             };
 
@@ -654,12 +660,16 @@ if ($userID) {
                 </div>
             </div>
 
-            <!-- การ์ดแสดงงานที่กำลังดำเนินการ (เต็มความกว้าง) -->
-            <div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
+             <!-- การ์ดแสดงงานที่กำลังดำเนินการ (เต็มความกว้าง) -->
+
+
+
+             <div class="bg-[#ffffff] rounded-lg shadow p-6 col-span-2">
                 <div class="border-b pb-2 mb-4">
                     <h2 class="text-lg font-bold">กำลังดำเนินการ</h2>
                     <p class="text-sm text-[#6b7280]">ใบสั่งงานอยู่ระหว่างการทำงาน</p>
                 </div>
+
 
 
                 {{--ส่วนคืนงาน --}}
@@ -691,7 +701,6 @@ if ($userID) {
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-
 
         </div>
         <!-- ส่วนประวัติการทำงาน -->

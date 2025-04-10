@@ -176,7 +176,7 @@ if ($userID) {
             // เมื่อคลิกปุ่มยืนยัน
             document.getElementById('confirmLogout').addEventListener('click', function() {
                 // ส่งคำขอไปยัง route logout
-                fetch('/logout', {
+                fetch('logout', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ if ($userID) {
                 }).then(response => {
                     if (response.ok) {
                         // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-                        window.location.href = '/login'; // หรือ URL ที่ต้องการ
+                        window.location.href = 'login'; // หรือ URL ที่ต้องการ
                     } else {
                         alert('เกิดข้อผิดพลาดในการออกจากระบบ');
                     }
@@ -345,7 +345,7 @@ if ($userID) {
     const isChecked = checkbox.checked;
 
     // Send request to the server to update the value of Userclick
-    fetch('/update-userclick', {
+    fetch('update-userclick', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -467,7 +467,7 @@ if ($userID) {
             const isChecked = checkbox.checked;
 
             // ส่งคำขอไปยังเซิร์ฟเวอร์เพื่ออัปเดตค่า Userclick
-            fetch('/update-userclick', {
+            fetch('update-userclick', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

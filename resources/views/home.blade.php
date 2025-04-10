@@ -539,20 +539,20 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
                     <!-- รายการงานที่กำลังดำเนินการ 1 -->
 
-                        <div data-task-id="{{ $row['task_id'] }}" onclick="selectTask(this)"
-                            class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                    <div data-task-id="{{ $row['task_id'] }}" onclick="selectTask(this)"
+                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
 
-                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : {{ $row['task_name'] }}
-                                </div>
-                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : {{ $row['task_deadline'] }}
-                                </div>
-                            </div>
-
+                        <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                            <i class="fas fa-box text-[#533FE4] text-2xl"></i>
                         </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : {{ $row['task_name'] }}
+                            </div>
+                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : {{ $row['task_deadline'] }}
+                            </div>
+                        </div>
+
+                    </div>
 
                     <?php endforeach; ?>
 
@@ -729,87 +729,60 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
 
-                {{--ส่วนคืนงาน --}}
+                {{-- ส่วนคืนงาน --}}
                 <div class="space-y-2 scrollbar-hide scrollable-content">
                     <?php if (empty($data5)): ?>
-                        <div class="text-center text-gray-500 py-6">
-                            ไม่มีรายการงานที่กำลังดำเนินการ
-                        </div>
+                    <div class="text-center text-gray-500 py-6">
+                        ไม่มีรายการงานที่กำลังดำเนินการ
+                    </div>
                     <?php else: ?>
-                        <?php foreach ($data5 as $row): ?>
-                            <div
-                                class="work-item-doing flex items-center justify-between pb-2 cursor-pointer w-full"
-                                data-task-id="{{ $row['task_id'] }}"
-                                onclick="selectTask(this)">
-                                id =
-                                <div
-                                    class="work-item-doing flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                                    <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                        <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="text-sm font-semibold text-gray-800">ชื่องาน : {{ $row['task_name'] }}</div>
-                                        <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : {{ $row['task_deadline'] }}</div>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                                    </div>
+                    <?php foreach ($data5 as $row): ?>
+                    <div class="work-item-doing flex items-center justify-between pb-2 cursor-pointer w-full"
+                        data-task-id="{{ $row['task_id'] }}" onclick="selectTask(this)">
+
+                        <div
+                            class="work-item-doing flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : {{ $row['task_name'] }}
+                                </div>
+                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : {{ $row['task_deadline'] }}
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
 
 
-        </div>
-        <!-- ส่วนประวัติการทำงาน -->
-        <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
-            <div class="flex justify-between items-center border-b pb-3 mb-4">
-                <div>
-                    <h2 class="text-lg font-bold">ประวัติ</h2>
-                    <p class="text-sm text-gray-500">งานที่ดำเนินการเสร็จสิ้นและปฏิเสธ</p>
-                </div>
-                <div class="flex items-center gap-2 text-sm text-gray-400">
-                    <span>1-50 จาก 250</span>
-                    <button class="text-[#6366f1] hover:text-[#4338ca]">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="text-[#6366f1] hover:text-[#4338ca]">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
             </div>
-
-            <!-- กริดแสดงการ์ดประวัติ -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                <!-- การ์ดประวัติ: เสร็จสิ้น -->
-                <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
-                        <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
+            <!-- ส่วนประวัติการทำงาน -->
+            <div class="bg-white rounded-lg shadow p-6 mt-10 col-span-2">
+                <div class="flex justify-between items-center border-b pb-3 mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold">ประวัติ</h2>
+                        <p class="text-sm text-gray-500">งานที่ดำเนินการเสร็จสิ้นและปฏิเสธ</p>
                     </div>
-                    <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
-                    <div class="flex items-center text-xs text-gray-600">
-                        <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                        วันที่เสร็จสิ้น
-                    </div>
-                </div>
-
-                <!-- การ์ดประวัติ: ปฏิเสธ -->
-                <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
-                        <span class="text-xs bg-red-200 text-red-600 px-2 py-0.5 rounded-full">ปฏิเสธ</span>
-                    </div>
-                    <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
-                    <div class="flex items-center text-xs text-gray-600">
-                        <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                        วันที่ปฏิเสธ
+                    <div class="flex items-center gap-2 text-sm text-gray-400">
+                        <span>1-50 จาก 250</span>
+                        <button class="text-[#6366f1] hover:text-[#4338ca]">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="text-[#6366f1] hover:text-[#4338ca]">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- ใช้ลูป Blade เพื่อแสดงการ์ดเพิ่มเติม -->
-                @for ($i = 0; $i < 12; $i++)
+                <!-- กริดแสดงการ์ดประวัติ -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                    <!-- การ์ดประวัติ: เสร็จสิ้น -->
                     <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
                         <div class="flex justify-between items-center mb-2">
                             <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
@@ -821,47 +794,78 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                             วันที่เสร็จสิ้น
                         </div>
                     </div>
-                @endfor
+
+                    <!-- การ์ดประวัติ: ปฏิเสธ -->
+                    <div class="p-4 rounded-lg shadow-sm bg-[#ffecec] border hover:shadow-md transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
+                            <span class="text-xs bg-red-200 text-red-600 px-2 py-0.5 rounded-full">ปฏิเสธ</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
+                        <div class="flex items-center text-xs text-gray-600">
+                            <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
+                            วันที่ปฏิเสธ
+                        </div>
+                    </div>
+
+                    <!-- ใช้ลูป Blade เพื่อแสดงการ์ดเพิ่มเติม -->
+                    @for ($i = 0; $i < 12; $i++)
+                        <div class="p-4 rounded-lg shadow-sm bg-[#e8ffe8] border hover:shadow-md transition">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="font-semibold text-sm text-gray-800">ชื่องาน</div>
+                                <span
+                                    class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">เสร็จสิ้น</span>
+                            </div>
+                            <div class="text-xs text-gray-500 mb-1">ชื่อ / แผนกผู้งาน</div>
+                            <div class="flex items-center text-xs text-gray-600">
+                                <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
+                                วันที่เสร็จสิ้น
+                            </div>
+                        </div>
+                    @endfor
+                </div>
             </div>
+            <!-- เกี่ยวกับระบบ -->
+            <footer class=" border-t mt-10 px-10 py-12 col-span-2 rounded-lg shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-sm text-gray-700">
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                            <span>เกี่ยวกับเรา</span>
+                            <img src="{{ asset('public/wrslogo.png') }}" alt="WRS"
+                                class="inline-block h-10 ml-2">
+                        </h3>
+                        <p class="leading-relaxed mb-2">
+                            จัดการงานง่ายขึ้น เพิ่มประสิทธิภาพองค์กร ด้วย <strong>WRS</strong>
+                        </p>
+                        <p class="text-gray-600">
+                            <span class="text-blue-700 font-medium">Work Request System (WRS)</span>
+                            คือระบบบริหารงานที่ช่วยองค์กรจัดระเบียบงานภายใน ลดเวลาการทำงานซ้ำซ้อน
+                            และเพิ่มความคล่องตัวให้กับงาน รองรับการติดตามงาน การแจ้งเตือนอัตโนมัติ
+                            และการจัดสรรทรัพยากรในองค์กรอย่างมีประสิทธิภาพ
+                            ช่วยให้องค์กรสามารถบริหารจัดการงานเป็นเรื่องง่ายสำหรับองค์กรทุกขนาด
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                            <span>ทำงานร่วมกับ</span>
+                            <img src="{{ asset('public/บริษัท.png') }}" alt="WRS"
+                                class="inline-block h-5 ml-2">
+                        </h3>
+                        <p class="leading-relaxed mb-2 text-gray-600">
+                            บริษัท คลิกเน็กซ์ จำกัด
+                            เป็นนักพัฒนาซอฟต์แวร์มืออาชีพที่เน้นกระบวนการพัฒนาซอฟต์แวร์แบบครบวงจร
+                            เพื่อให้ลูกค้าได้รับผลงานที่มีคุณภาพและส่งมอบตรงเวลา
+                        </p>
+                        <p class="text-gray-500">
+                            Phone : 022177900<br>
+                            E-mail : info@clicknext.com
+                        </p>
+                    </div>
+                </div>
+                <div class="text-center text-xs text-gray-400 mt-10">© [2025] Work Request System. All rights reserved.
+                </div>
+            </footer>
         </div>
-        <!-- เกี่ยวกับระบบ -->
-        <footer class=" border-t mt-10 px-10 py-12 col-span-2 rounded-lg shadow-sm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-sm text-gray-700">
-                <div>
-                    <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
-                        <span>เกี่ยวกับเรา</span>
-                        <img src="{{ asset('public/wrslogo.png') }}" alt="WRS" class="inline-block h-10 ml-2">
-                    </h3>
-                    <p class="leading-relaxed mb-2">
-                        จัดการงานง่ายขึ้น เพิ่มประสิทธิภาพองค์กร ด้วย <strong>WRS</strong>
-                    </p>
-                    <p class="text-gray-600">
-                        <span class="text-blue-700 font-medium">Work Request System (WRS)</span>
-                        คือระบบบริหารงานที่ช่วยองค์กรจัดระเบียบงานภายใน ลดเวลาการทำงานซ้ำซ้อน
-                        และเพิ่มความคล่องตัวให้กับงาน รองรับการติดตามงาน การแจ้งเตือนอัตโนมัติ
-                        และการจัดสรรทรัพยากรในองค์กรอย่างมีประสิทธิภาพ
-                        ช่วยให้องค์กรสามารถบริหารจัดการงานเป็นเรื่องง่ายสำหรับองค์กรทุกขนาด
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
-                        <span>ทำงานร่วมกับ</span>
-                        <img src="{{ asset('public/บริษัท.png') }}" alt="WRS" class="inline-block h-5 ml-2">
-                    </h3>
-                    <p class="leading-relaxed mb-2 text-gray-600">
-                        บริษัท คลิกเน็กซ์ จำกัด เป็นนักพัฒนาซอฟต์แวร์มืออาชีพที่เน้นกระบวนการพัฒนาซอฟต์แวร์แบบครบวงจร
-                        เพื่อให้ลูกค้าได้รับผลงานที่มีคุณภาพและส่งมอบตรงเวลา
-                    </p>
-                    <p class="text-gray-500">
-                        Phone : 022177900<br>
-                        E-mail : info@clicknext.com
-                    </p>
-                </div>
-            </div>
-            <div class="text-center text-xs text-gray-400 mt-10">© [2025] Work Request System. All rights reserved.
-            </div>
-        </footer>
-    </div>
     </div>
 
 
@@ -934,8 +938,7 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
 
                 <button onclick="acceptWork()" id = "accept-button"
-
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled">
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled">
                     รับงาน
                 </button>
             </div>
@@ -1000,39 +1003,40 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                     class="px-4 py-2 border border-black text-black rounded-md hover:bg-black hover:text-white transition">ปฏิเสธ</button>
 
 
-                    {{-- ปุ่มคืนงาน--}}
-                    <div id="success-message" class="hidden flex items-center mt-4 p-4 text-green-800 rounded-lg bg-green-100 border border-green-300" role="alert">
-                        <svg class="w-5 h-5 me-2 text-green-800" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z" clip-rule="evenodd"/>
-                        </svg>
-                        <div>
-                          <span class="font-medium">ส่งงานสำเร็จ</span><br>
-                          ดำเนินการส่งงานเสร็จสิ้น
-                        </div>
-                      </div>
+                {{-- ปุ่มคืนงาน --}}
+                <div id="success-message"
+                    class="hidden flex items-center mt-4 p-4 text-green-800 rounded-lg bg-green-100 border border-green-300"
+                    role="alert">
+                    <svg class="w-5 h-5 me-2 text-green-800" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <div>
+                        <span class="font-medium">ส่งงานสำเร็จ</span><br>
+                        ดำเนินการส่งงานเสร็จสิ้น
+                    </div>
+                </div>
 
-                    <?php if (!empty($data5)): ?>
-                    <button
-                        id="return-button"
-                        onclick="returnTask()"
-                        class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition"
-                        disabled>
-                        ส่งคืนงาน
+                <?php if (!empty($data5)): ?>
+                <button id="return-button" onclick="returnTask()"
+                    class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition"
+                    disabled>
+                    ส่งคืนงาน
 
-                    </button>
-                    <?php else: ?>
-                    <button
-                        class="mt-4 px-4 py-2 border border-gray-300 text-gray-400 rounded-md cursor-not-allowed"
-                        disabled>
-                        ไม่มีรายการงานที่กำลังดำเนินการ
-                    </button>
+                </button>
+                <?php else: ?>
+                <button class="mt-4 px-4 py-2 border border-gray-300 text-gray-400 rounded-md cursor-not-allowed"
+                    disabled>
+                    ไม่มีรายการงานที่กำลังดำเนินการ
+                </button>
                 <?php endif; ?>
 
                 <!-- ส่ง task_id ไปที่ปุ่ม -->
 
 
 
-                 <button id = "submit"
+                <button id = "submit"
                     class="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition">เสร็จสิ้น</button>
             </div>
 
@@ -1056,7 +1060,8 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
                 <br>
                 <div class="modal-buttons flex justify-center gap-4">
                     <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700"
-                        id="confirmSubmit">ยืนยัน</button>
+                    onclick="submitWork()"
+                    id="confirmSubmit">ยืนยัน</button>
                     <button
                         class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100"
                         id="cancelSubmit">ยกเลิก</button>
@@ -1067,16 +1072,22 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
 
     {{-- ส่วนJS ของคืนงาน --}}
-    <div id="success-message" class="hidden flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-100 border border-green-300" role="alert">
-        <svg class="w-5 h-5 me-2 text-green-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z" clip-rule="evenodd"/></svg>
+    <div id="success-message"
+        class="hidden flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-100 border border-green-300"
+        role="alert">
+        <svg class="w-5 h-5 me-2 text-green-800" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+                d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
+                clip-rule="evenodd" />
+        </svg>
         <div>
-          <span class="font-medium">ส่งงานสำเร็จ</span><br>
-          ดำเนินการส่งงานเสร็จสิ้น
+            <span class="font-medium">ส่งงานสำเร็จ</span><br>
+            ดำเนินการส่งงานเสร็จสิ้น
         </div>
-      </div>
+    </div>
 
     <script>
-        let selectedTaskId = null;  // ตัวแปรเก็บ task_id ของงานที่เลือก
+        let selectedTaskId = null; // ตัวแปรเก็บ task_id ของงานที่เลือก
 
         // ฟังก์ชันเมื่อเลือกงาน
         function selectTask(element) {
@@ -1098,60 +1109,105 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
             // ส่งคำขอไปยังเซิร์ฟเวอร์เพื่อเปลี่ยนสถานะ
             fetch('/return_task', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ task_id: selectedTaskId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("ส่งคืนงานเรียบร้อยแล้ว");
-                    location.reload();
-                } else {
-                    alert("เกิดข้อผิดพลาดในการส่งคืนงาน");
-                }
-            })
-            .catch(err => {
-                console.error("Error:", err);
-                alert("เกิดข้อผิดพลาด");
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        task_id: selectedTaskId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("ส่งคืนงานเรียบร้อยแล้ว");
+                        location.reload();
+                    } else {
+                        alert("เกิดข้อผิดพลาดในการส่งคืนงาน");
+                    }
+                })
+                .catch(err => {
+                    console.error("Error:", err);
+                    alert("เกิดข้อผิดพลาด");
+                });
         }
     </script>
 
-{{-- ส่วนJS ของรับงาน --}}
-<script>
-    function acceptWork() {
-        if (!selectedTaskId) {
-            alert("กรุณาเลือกงานก่อน");
-            return;
+    {{-- ส่วนJS ของรับงาน --}}
+    <script>
+        function acceptWork() {
+            if (!selectedTaskId) {
+                alert("กรุณาเลือกงานก่อน");
+                return;
+            }
+
+            fetch('/accept_task', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        task_id: selectedTaskId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("รับงานเรียบร้อยแล้ว");
+                        location.reload();
+                    } else {
+                        alert("เกิดข้อผิดพลาดในการรับงาน");
+                    }
+                })
+                .catch(err => {
+                    console.error("Error:", err);
+                    alert("เกิดข้อผิดพลาด");
+                });
         }
 
-        fetch('/accept_task', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ task_id: selectedTaskId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("รับงานเรียบร้อยแล้ว");
-                location.reload();
-            } else {
-                alert("เกิดข้อผิดพลาดในการรับงาน");
+
+        // ฟังก์ชันสำหรับการส่งงาน
+        document.getElementById('confirmSubmit').addEventListener('click', function() {
+            if (!selectedTaskId) {
+                alert("กรุณาเลือกงานก่อน");
+                return;
             }
-        })
-        .catch(err => {
-            console.error("Error:", err);
-            alert("เกิดข้อผิดพลาด");
+
+            const notation = document.getElementById('notation').value.trim();
+
+            if (!notation) {
+                alert("กรุณากรอกหมายเหตุ");
+                return;
+            }
+
+            fetch('/submit_task', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        task_id: selectedTaskId,
+                        notation: notation
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload(); // รีเฟรชหน้าเพื่ออัปเดตข้อมูล
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error:", err);
+                    alert("เกิดข้อผิดพลาดในการส่งงาน");
+                });
         });
-    }
-</script>
+    </script>
 
 
 

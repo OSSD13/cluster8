@@ -28,6 +28,7 @@ Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class
 Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
 Route::post('/accept_task', [Home_controller::class, 'acceptWork'])->name('accept.task');
 Route::post('/retrun_task', [Home_controller::class, 'return_task'])->name('return.task');
+Route::post('/submit_task', [Home_controller::class, 'submit_task'])->name('submit.task');
 
 Route::get("/workrequest", [Work_request_controller::class, "index"]);
 Route::post("/workrequest", [Work_request_controller::class, "create"]);

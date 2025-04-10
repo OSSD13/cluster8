@@ -38,21 +38,22 @@ class Home_controller extends Controller
 }
 
     public function submit_task(Request $request)
-{
+    {
     $taskId = $request->input('task_id');
     $notation = $request->input('notation');
-    $submitDate = now();
+
     $updated = DB::table('task')
-    ->where('task_id', $taskId)
-    ->update([
-        'task_status' => 'C', // เปลี่ยนสถานะเป็น "เสร็จสิ้น"
-        'task_submit_date' => now(), // บันทึกวันที่ส่งงาน
-        'task_notation' => $notation // บันทึกหมายเหตุ
-    ]);
+        ->where('task_id', $taskId)
+        ->update([
+            'task_status' => 'C', // เปลี่ยนสถานะเป็น "เสร็จสิ้น"
+            'task_submit_date' => now(), // บันทึกวันที่ส่งงาน
+            'task_notation' => $notation // บันทึกหมายเหตุ
+        ]);
+
     if ($updated) {
-        return response()->json(['success' => true, 'message' => 'Task submitted successfully.']);
+        return response()->json(['success' => true, 'message' => 'ส่งงานสำเร็จ']);
     } else {
-        return response()->json(['success' => false, 'message' => 'Failed to submit task.']);
+        return response()->json(['success' => false, 'message' => 'ไม่สามารถส่งงานได้']);
     }
-}
+    }
 }

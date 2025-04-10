@@ -12,7 +12,6 @@ use App\Http\Controllers\Manage_controller;
 
 Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
 Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
-Route::post('/home', [Home_controller::class, 'home']); // สำหรับ POST
 
 Route::get('/login', [Login_controller::class, 'index']);
 Route::post('/login', [Login_controller::class, 'login']);

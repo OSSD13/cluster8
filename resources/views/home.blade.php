@@ -1,33 +1,3 @@
-<?php
-// เชื่อมต่อฐานข้อมูล MySQL
-$pdo = new PDO('mysql:host=10.80.6.165;dbname=cluster8;charset=utf8', 'cluster8', 'k4PL1Wqq');
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // รับค่าหมายเหตุและ task_id จากฟอร์ม
-    $notation = $_POST['notation'];
-    $task_id = $_POST['task_id']; // ต้องส่ง task_id มาด้วย
-
-    // ตรวจสอบว่าหมายเหตุและ task_id ไม่ว่างเปล่า
-    if (!empty($notation) && !empty($task_id)) {
-        // เตรียมคำสั่ง SQL สำหรับอัปเดตหมายเหตุ
-        $sql = "UPDATE task SET task_notation = :notation WHERE task_id = :task_id";
-        $stmt = $pdo->prepare($sql);
-
-        // ผูกค่าพารามิเตอร์
-        $stmt->bindParam(':notation', $notation, PDO::PARAM_STR);
-        $stmt->bindParam(':task_id', $task_id, PDO::PARAM_INT);
-
-        // รันคำสั่ง SQL
-        if ($stmt->execute()) {
-            echo "อัปเดตหมายเหตุสำเร็จ!";
-        } else {
-            echo "เกิดข้อผิดพลาดในการอัปเดตหมายเหตุ!";
-        }
-    } else {
-        echo "กรุณากรอกหมายเหตุ";
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -843,34 +813,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button class="modal-close text-gray-500 text-xl" id="close-popup">&times;</button>
         </div>
         <div class="modal-body text-center mb-6">
-            <form id="notationForm" method="POST" action="{{url('home')}}" onsubmit="return validateForm()">
-                @csrf
-                <input type="hidden" name="task_id" value="1"> <!-- ระบุ Task ID ที่ต้องการอัปเดต -->
-                <p class="text-left text-lg text-gray-600 mb-4">หมายเหตุ <span style="color: red;">*</span> :</p>
-                <p class="text-right text-xs text-gray-400"><span id="charCount">0</span>/100</p>
-                <textarea id="notation" name="notation" class="border border-gray-300 rounded-lg w-full p-2 mb-4" style="height: 100px; resize: none;" maxlength="100" oninput="updateCounter()" placeholder="กรุณากรอกหมายเหตุ"></textarea>
-                <hr>
-                <br>
-                <div class="modal-buttons flex justify-center gap-4">
-                    <button type="submit" class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmSubmit">ยืนยัน</button>
-                    <button type="button" class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelSubmit">ยกเลิก</button>
-                </div>
-            </form>
-
-
+            <p class="text-left text-lg text-gray-600 mb-4">หมายเหตุ <span style="color: red;">*</span> :</p>
+            <p class="text-right text-xs text-gray-400"><span id="charCount">0</span>/100</p>
+            <textarea id="notation" class="border border-gray-300 rounded-lg w-full p-2 mb-4" style="height: 100px; resize: none;" maxlength="100" oninput="updateCounter()" placeholder="กรุณากรอกหมายเหตุ"></textarea>
+            <hr>
+            <br>
+            <div class="modal-buttons flex justify-center gap-4">
+                <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmSubmit">ยืนยัน</button>
+                <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelSubmit">ยกเลิก</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    function validateForm() {
-        const notation = document.getElementById('notation').value.trim();
-        if (!notation) {
-            alert('กรุณากรอกหมายเหตุ');
-            return false; // หยุดการส่งฟอร์มหากไม่มีการกรอกหมายเหตุ
-        }
-        return true; // อนุญาตให้ส่งฟอร์ม
-    }
     function updateCounter() {
     	let input = document.getElementById("notation");
     	let maxLength = input.maxLength;
@@ -887,33 +843,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     document.getElementById('close-popup').addEventListener('click', function() {
         // ปิดป๊อปอัพ
         document.getElementById('confirmSubmitModal').style.display = 'none';
+        document.body.classList.remove('popup-open');
     });
 
     // เมื่อคลิกปุ่มยกเลิก
     document.getElementById('cancelSubmit').addEventListener('click', function() {
+        // ปิดป๊อปอัพ
+        document.getElementById('confirmSubmitModal').style.display = 'none';
+    });
+
+    // เมื่อคลิกปุ่มยืนยัน
+    document.getElementById('confirmSubmit').addEventListener('click', function() {
+    // แจ้งเตือนการส่งงาน
+    (response => {
+        document.getElementById('workItemPopupDoing').style.display = 'none';
+        alert('ส่งงานสำเร็จ');
+    });
+
     // ปิดป๊อปอัพ
         document.getElementById('confirmSubmitModal').style.display = 'none';
     });
 
-    // // เมื่อคลิกปุ่มยืนยัน
-    // document.getElementById('confirmSubmit').addEventListener('click', function() {
-    //     // แจ้งเตือนการส่งงาน
-    //     (response => {
-    //         document.getElementById('workItemPopupDoing').style.display = 'none';
-    //         alert('ส่งงานสำเร็จ');
-    //     });
-
-    //     // ปิดป๊อปอัพ
-    //         document.getElementById('confirmSubmitModal').style.display = 'none';
-    // });
-
 
     // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
-    // window.addEventListener('click', function(event) {
-    //     if (event.target === document.getElementById('confirmSubmitModal')) {
-    //         document.getElementById('confirmSubmitModal').style.display = 'none';
-    //     }
-    // });
+    window.addEventListener('click', function(event) {
+        if (event.target === document.getElementById('confirmSubmitModal')) {
+            document.getElementById('confirmSubmitModal').style.display = 'none';
+        }
+    });
 </script>
 
 

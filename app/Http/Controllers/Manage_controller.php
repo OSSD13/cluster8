@@ -66,14 +66,14 @@ class Manage_controller extends Controller
                     ->where('user_id', $user_id)
                     ->update(['user_dept_id' => 0]);
                 // ลบแผนกของพนักงาน
-                return response()->json(['success' => true, 'message' => 'ยกเลิกแผนกสำเร็จ!']);
+                return response()->json(['success' => true, 'message' => 'ยกเลิกแผนกสำเร็จ']);
             }
         if ($department) {
             // อัปเดตแผนกของพนักงาน
             DB::table('users')
                 ->where('user_id', $user_id)
                 ->update(['user_dept_id' => $department->department_id]);
-            return response()->json(['success' => true, 'message' => 'กำหนดแผนกสำเร็จ!']);
+            return response()->json(['success' => true, 'message' => 'กำหนดแผนกสำเร็จ']);
         }
 
         return response()->json(['success' => false, 'message' => 'ไม่พบแผนกที่เลือก']);

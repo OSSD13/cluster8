@@ -131,7 +131,7 @@ document.getElementById('confirmLogout').addEventListener('click', function() {
     <!-- จบส่วน Sidebar -->
 
     <!-- Main Content -->
-    <div class="ml-80 p-6 ">
+    <div class="ml-60 p-8 ">
         <h2 class="font-[Lato] text-[25.63px] font-bold text-[#0012E1] ">รายงานการดำเนินงาน</h2><br>
 
         <form method="get" action="{{ url('report') }}">

@@ -98,10 +98,10 @@ if ($userID) {
 
         <!-- เมนู -->
         <div class="flex-1 px-3 py-6 space-y-2">
-            <a href="home" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
+            <a href="home" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg" style="padding: 12px 16px;">
                 <i class="fas fa-home mr-3"></i><span>หน้าหลัก</span>
             </a>
-            <a href="workrequest" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+            <a href="workrequest" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
                 <i class="fas fa-clipboard-list mr-3"></i><span>สร้างใบสั่งงาน</span>
             </a>
             <a href="report" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
@@ -176,6 +176,57 @@ if ($userID) {
             // เมื่อคลิกปุ่มยืนยัน
             document.getElementById('confirmLogout').addEventListener('click', function() {
                 // ส่งคำขอไปยัง route logout
+                fetch('/logout', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
+                        window.location.href = '/login'; // หรือ URL ที่ต้องการ
+                    } else {
+                        alert('เกิดข้อผิดพลาดในการออกจากระบบ');
+                    }
+                });
+
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+
+            // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('logoutModal')) {
+                    document.getElementById('logoutModal').style.display = 'none';
+                }
+            });
+        </script>
+
+    </div>
+
+        <script>
+            // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+            document.getElementById('profileButton').addEventListener('click', function() {
+                // เปิดป๊อปอัพยืนยันการออกจากระบบ
+                document.getElementById('logoutModal').style.display = 'flex';
+            });
+
+            // เมื่อคลิกปุ่มปิดป๊อปอัพ
+            document.getElementById('closeModal').addEventListener('click', function() {
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+            // เมื่อคลิกปุ่มยกเลิก
+            document.getElementById('cancelLogout').addEventListener('click', function() {
+                // ปิดป๊อปอัพ
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+            // เมื่อคลิกปุ่มยืนยัน
+            document.getElementById('confirmLogout').addEventListener('click', function() {
+                // ส่งคำขอไปยัง route logout
                 fetch('logout', {
                     method: 'GET',
                     headers: {
@@ -222,8 +273,12 @@ if ($userID) {
                     </h2>
                     <div class="switch-wrapper">
                         <input type="checkbox" id="customSwitch" class="switch-input" {{ $Userclick ? 'checked' : '' }}>
-                        <label for="customSwitch" class="switch-label"></label>
+                        <label for="customSwitch" class="switch-label" id="switchLabel">
+                            <span class="switch-inner-text" style="display: flex; justify-content: center; align-items: center; height: 100%;">{{ $Userclick ? 'แผนก' : 'ส่วนตัว' }}</span>
+                        </label>
                     </div>
+
+
                     </button>
                 </div>
                 <div class="summary">
@@ -247,8 +302,9 @@ if ($userID) {
                         <img src="{{ asset('public\asset\reject.png') }}" alt="WorkRequest System Logo"
                             class="card-img-left">
 
-                        <p id="$decrydingTasks">
-                            {{ $Userclick ? $decrydingDepartmentTasks : $decrydingTasks }}
+                       <p id="decrydingTasksDisplay">
+    {{ $Userclick ? $decrydingDepartmentTasks : $decrydingTasks }}
+</p>
                         <h2>ปฏิเสธงาน</h2>
 
                     </div>
@@ -283,33 +339,36 @@ if ($userID) {
         const checkbox = document.getElementById('customSwitch');
         const completedTasksDisplay = document.getElementById('completedTasksDisplay');
         const pendingTasksDisplay = document.getElementById('pendingTasksDisplay'); // เพิ่มตัวแปรนี้
+        const decrydingTasksDisplay = document.getElementById('decrydingTasksDisplay');
 
         checkbox.addEventListener('change', () => {
-            const isChecked = checkbox.checked;
+    const isChecked = checkbox.checked;
 
-            fetch('/update-userclick', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ Userclick: isChecked })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // อัปเดตข้อความใน <p> แบบไม่ต้องรีเฟรช
-                    completedTasksDisplay.textContent = data.Userclick ? data.completedDepartmentTasks : data.completedTasks;
-                    pendingTasksDisplay.textContent = data.Userclick ? data.pendingDepartmentTasks : data.pendingTasks; // อัปเดตค่าของ pendingTasks
-                } else {
-                    alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
-            });
-        });
+    // Send request to the server to update the value of Userclick
+    fetch('/update-userclick', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ Userclick: isChecked })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the displayed task counts without refreshing
+            completedTasksDisplay.textContent = data.Userclick ? data.completedDepartmentTasks : data.completedTasks;
+            pendingTasksDisplay.textContent = data.Userclick ? data.pendingDepartmentTasks : data.pendingTasks;
+            decrydingTasksDisplay.textContent = data.Userclick ? data.decrydingDepartmentTasks : data.decrydingTasks;
+        } else {
+            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+    });
+});
     </script>
     <script>
         // Personal Chart
@@ -436,6 +495,17 @@ if ($userID) {
                 });
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkbox = document.getElementById('customSwitch');
+            const labelText = document.querySelector('.switch-inner-text');
+
+            checkbox.addEventListener('change', function () {
+                labelText.textContent = checkbox.checked ? 'แผนก' : 'ส่วนตัว';
+            });
+        });
+    </script>
+
 </body>
 
 </html>

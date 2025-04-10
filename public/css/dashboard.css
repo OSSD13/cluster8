@@ -156,3 +156,10 @@ button {
     all: unset;
     justify-content: flex-end;
 }
+
+.modal-overlay {
+    z-index: 9999; /* กำหนดให้ modal อยู่ด้านหน้า */
+}
+.modal-container {
+    z-index: 10000; /* กำหนดให้ container ของ modal อยู่ด้านหน้า */
+}

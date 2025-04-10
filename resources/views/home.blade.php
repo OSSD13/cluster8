@@ -66,7 +66,7 @@ foreach ($data as $row) {
 }
 
 $sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
-               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname, task_submit_date
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname, task_submit_date, department_name
         FROM task
         LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
         LEFT JOIN users ON wro1.work_create_by_user_id = user_id
@@ -729,9 +729,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
     
           <h2 class="text-xl font-bold text-blue-700 mb-4">
               รายละเอียดใบสั่งงาน 
-              <span class="text-gray-400 text-base font-normal">
-                  
-              </span>
+              <span class="text-gray-400 text-base font-normal" id="popupId">-</span>
           </h2>
       
           <!-- ข้อมูลหลัก -->
@@ -953,7 +951,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
             const closeButtons = document.querySelectorAll('.close-popup, .close-popup-btn');
             const popupTitle = document.getElementById('popup-title');
             const popupDate = document.getElementById('popup-date');
-
+            const popupID = document.getElementById('popup-id');
             const openDeclineBtn = document.getElementById('openDeclinePopup');
             const declinePopup = document.getElementById('declineModal');
 
@@ -961,15 +959,19 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
                 item.addEventListener('click', function() {
                     const titleElement = this.querySelector('div > div:first-child');
                     const dateElement = this.querySelector('div > div:last-child');
+                    const idElement = this.querySelector('div > div:nth-child(2)');     // <div>รหัสงาน : ...</div>
 
-                    if (titleElement && dateElement) {
                         const title = titleElement.textContent.replace('ชื่องาน : ', '');
+
                         const date = dateElement.textContent.replace('วันสิ้นสุดการทำงาน : ', '');
+                        const id = idElement.textContent.replace( 'รหัสงาน : ', '');
 
                         // Set info in popup
                         popupTitle.textContent = title;
                         popupDate.textContent = date;
-                    }
+                        popupId.textContent = id;
+                        
+
 
                     // Show popup
                     popup.style.display = 'flex';
@@ -1117,42 +1119,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
     </script>
 </div>
 
-<script>
-    function openPopup(element) {
-        const workRequestId = element.getAttribute('data-work-request-id');
-    
-        fetch(`/getWorkDetails.php?work_request_id=${workRequestId}`)
-          .then(res => res.json())
-          .then(data => {
-            // Set title and date
-            document.getElementById('popup-title').textContent = data.work_name;
-            document.getElementById('popup-date').textContent = data.work_submit_date;
-    
-            // Render tasks
-            const container = document.querySelector('#workItemPopupDoing .grid');
-            container.innerHTML = ''; // Clear old tasks
-    
-            data.tasks.forEach(task => {
-                container.innerHTML += `
-                  <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                    <div class="text-sm font-semibold text-gray-800 truncate">${task.task_name}</div>
-                    <div class="text-xs text-gray-500 mb-2">${task.user_fname} ${task.user_lname}</div>
-                    <div class="flex items-center text-xs text-gray-600">
-                      <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
-                      ${task.deadline_thai}
-                    </div>
-                    <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">
-                      ${task.status_text}
-                    </span>
-                  </div>
-                `;
-            });
-    
-            // Show popup
-            document.getElementById('workItemPopupDoing').classList.remove('hidden');
-          });
-    }
-    </script>
+{{--     
     <script>
       // เมื่อคลิกที่การ์ดงานที่กำลังดำเนินการ
     document.querySelectorAll('.work-item').forEach(item => {
@@ -1178,7 +1145,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
           });
         });
       });
-    </script>      
+    </script>       --}}
 
 </body>
 </html>

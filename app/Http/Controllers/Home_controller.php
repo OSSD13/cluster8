@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Models\Task;
+
 class Home_controller extends Controller
 {
     function home()
@@ -18,19 +20,22 @@ class Home_controller extends Controller
         $req->session()->put('task_work_request_id', $task->task_work_request_id);
     }
 
+    
     public function all_task(Request $req)
 {
-    // ดึงค่า task_work_request_id จาก request
-    $taskWorkRequestId = $req->task_work_request_id;
+    if ($req->has('task_work_request_id')) {
+        $task_work_request_id = $req->input('task_work_request_id');
 
-    // สมมุติว่า Task ต้องใช้ค่า task_work_request_id
-    $task = Task::where('task_work_request_id', $taskWorkRequestId)->first();
+        // บันทึกข้อมูลใน Session (ถ้าจำเป็นต้องใช้หลายหน้า)
+        $req->session()->put('task_work_request_id', $task_work_request_id);
 
-    // บันทึก task_work_request_id ลงใน session
-    $req->session()->put('task_work_request_id', $taskWorkRequestId);
+        // ดึงเฉพาะงานที่มี task_work_request_id ตรงกัน
+        $data3 = Task::where('task_work_request_id', $task_work_request_id)->get();
 
-    // ส่งข้อมูลกลับไปยัง frontend (optional)
-    return response()->json(['status' => 'success', 'task' => $task]);
+        // ส่งไปยัง view พร้อมตัวแปร
+        return view('home', compact('data3', 'task_work_request_id'));
+    }
+
+    return redirect()->back()->with('error', 'Task work request ID is missing.');
 }
-
 }

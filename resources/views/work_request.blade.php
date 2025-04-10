@@ -566,7 +566,7 @@ document.getElementById('logoutModal').style.display = 'none';
                                 <label class="flex items-center border rounded px-3 py-2 space-x-2">
                                     <input type="radio" :name="'task_recipient_type[]' + index" value="P" x-model="selected">
                                     <input type="text" name="task_recipient_user_id[]" placeholder="บุคคล" class="flex-1 outline-none" 
-                                    :disabled="selected !== 'P' , value='-'"
+                                    :disabled="selected !== 'P' , value=='-'"
                                     :required="selected === 'P'">
                                     <i class="fas fa-search text-gray-500"></i>
                                 </label>
@@ -575,7 +575,7 @@ document.getElementById('logoutModal').style.display = 'none';
                                 <label class="flex items-center border rounded px-3 py-2 space-x-2">
                                     <input type="radio" :name="'task_recipient_type[]' + index" value="D" x-model="selected">
                                     <input type="text" name="task_recipient_department_id[]" placeholder="แผนก" class="flex-1 outline-none" 
-                                    :disabled="selected !== 'D' , value='-'"
+                                    :disabled="selected !== 'D' , value=='-'"
                                     :required="selected === 'D'">
                                     <i class="fas fa-search text-gray-500"></i>
                                 </label>

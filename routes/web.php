@@ -38,4 +38,4 @@ Route::get('/dashboard',[Dashboard_controller::class,"index"]);
 Route::post("/workrequest", [Work_request_controller::class, "store"])->middleware([Check_login::class]);
 Route::post("/home", [Work_request_controller::class, "decline"])->middleware([Check_login::class]);
 
-Route::post("/home", [Work_request_controller::class, "all_task"])->middleware([Check_login::class]);
+Route::post("/home", [Home_controller::class, "all_task"])->middleware([Check_login::class]);

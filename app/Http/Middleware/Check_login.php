@@ -21,16 +21,14 @@ class Check_login
         }
         elseif ($user['user_ro_id'] != 0) {
             if ($request->path() !== 'home') {
-                return $next($request);
+                return redirect('/home');
             }
-            return $next($request);
         } else {
             if ($request->path() !== 'manage') {
                 return redirect('/manage');
             }
-            return $next($request);
         }
+
         return $next($request);
-        
     }
 }

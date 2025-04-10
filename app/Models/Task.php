@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Task extends Model
 {
     //
+    protected $table = 'task';
+    public $timestamps = false;
+
     protected $fillable = [
         'task_id',
         'task_name',
@@ -16,6 +19,7 @@ class Task extends Model
         'task_recipient_department_id',
         'task_notation',
         'task_recipient_type',
-        'task_submit_date'
+        'task_submit_date',
+        'task_work_request_id'
     ];
 }

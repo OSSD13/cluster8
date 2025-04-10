@@ -24,7 +24,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
     <!-- CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -63,7 +62,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             padding: 30px;
             font-family: "Noto Sans Thai", sans-serif;
         }
-
         .container-bottom {
             width: 75%;
             height: 80%;
@@ -128,7 +126,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: white;
             border-color: black;
         }
-
         .clickable.active .icon-blue {
             color: white;
         }
@@ -327,7 +324,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border: 1px solid #ccc;
             border-radius: 8px;
         }
-
         .search-button {
             position: absolute;
             top: 50%;
@@ -340,7 +336,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             padding: 0;
             font-size: 16px;
         }
-
         @media screen and (max-width: 768px) {
             .assign-row {
                 flex-direction: column;

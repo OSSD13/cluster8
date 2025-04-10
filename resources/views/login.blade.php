@@ -1,129 +1,59 @@
-
-@extends('layouts.default')
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Work Request System - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #F4F5F9;
-            margin: 0;
-        }
-
-        .login-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 20px;
-            height: 625px;
-            width: 608px;
-            border: 2px solid #cecbcb;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 30px;
-            margin-top: 20px;
-        }
-
-        .logo img {
-            width: 520px;
-            height: 103px;
-        }
-
-        .login-title {
-            width: 100%;
-            text-align: left;
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 40px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-
-        }
-
-        .input-group label {
-            font-weight: bold;
-            text-align: left;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .input-box {
-            width: 330px;
-            height: 46px;
-            padding: 10px;
-            border: 1px solid #dbdcde;
-            border-radius: 8px;
-            font-size: 14px;
-            box-sizing: border-box;
-            margin-bottom: 25px;
-            background-color: #F4F5F9;
-        }
-
-        .login-btn {
-            background-color: #0044FF;
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 330px;
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 25px;
-            height: 46px;
-        }
-
-        .login-btn:hover {
-            background-color: #0029A3;
-
-        }
-
-        .content {
-            width: 344px;
-            height: 373px;
+            font-family: 'Noto Sans Thai', sans-serif;
         }
     </style>
 </head>
 
-<body>
-    <form action="{{ url('/login') }}" method = 'post'>
+<body class="min-h-screen bg-[#F4F5F9] flex items-center justify-center">
+    <form action="{{ url('/login') }}" method="POST" class="bg-white p-8 rounded-2xl shadow border border-gray-300 w-[590px] h-[625px]" style="border-radius: 30px">
         @csrf
-        <div class="login-container">
-            <div class="logo">
-                <img src="public\asset\WRS_1.png" alt="Work Request System">
+        <div class="flex flex-col items-center">
+            <!-- Logo -->
+            <div class="mb-8 mt-2">
+                <img src="public/asset/WRS_1.png" alt="Work Request System" class="w-[520px] h-[103px]" />
             </div>
-            <div>
-                <h1 class="login-title">เข้าสู่ระบบ</h1>
-                <div class="content">
-                    <div class="input-group">
-                        <label for="username">ชื่อผู้ใช้</label>
-                        <input name="user_username" type="text" id="user_username" class="input-box" placeholder="กรอกชื่อผู้ใช้">
 
-                        <label for="password">รหัสผ่าน</label>
-                        <input name="user_password" type="password" id="user_password" class="input-box" placeholder="กรอกรหัสผ่าน">
-                    </div>
 
-                    <button class="login-btn">เข้าสู่ระบบ</button>
+            <!-- Form content -->
+            <div class="w-[344px]" >
+                <div class="mb-6">
+                    <h1 class="w-full text-left text-2xl font-bold mb-10">เข้าสู่ระบบ</h1>
+                    <label for="user_username" class="block text-sm mb-2">ชื่อผู้ใช้</label>
+                    <input name="user_username" id="user_username" type="text" placeholder="กรอกชื่อผู้ใช้"
+                        class="w-[330px] h-[46px] rounded-lg border border-gray-300 bg-[#F4F5F9] px-4 text-sm outline-none" />
                 </div>
+
+                <div class="mb-6 relative ">
+                    <label for="user_password" class="block text-sm mb-2">รหัสผ่าน</label>
+                    <input name="user_password" id="user_password" type="password" placeholder="กรอกรหัสผ่าน"
+                      class="w-[330px] h-[46px] rounded-lg border border-gray-300 bg-[#F4F5F9] px-4 text-sm pr-10 outline-none" />
+                    <div id="togglePassword" class="absolute inset-y-7 right-2 flex items-center pr-4 cursor-pointer h-[46px] ">
+                      <!-- Show icon (eye open) -->
+                      <i id="eyeOpen" class="fa-regular fa-eye hidden text-gray-500 pr-[1px] "></i>
+
+                      <!-- Hide icon (eye slash) -->
+                      <i id="eyeClosed" class="fa-regular fa-eye-slash text-gray-500 "></i>
+                    </div>
+                  </div>
+                  <!-- Login Button -->
+                <button type="submit"
+                class="mt-6 bg-blue-700 hover:bg-blue-900 text-white font-bold w-[330px] h-[46px] rounded-lg text-sm ">
+                เข้าสู่ระบบ
+            </button>
+                </div>
+
+
             </div>
         </div>
     </form>

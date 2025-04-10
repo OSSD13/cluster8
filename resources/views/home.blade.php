@@ -4,6 +4,9 @@ session_start(); // เริ่มต้น session
 $userID = session('users')->user_id;
 $completedTasks = 0;
 $pendingTasks = 0;
+$completedDepartmentTasks = 0;
+$pendingDepartmentTasks = 0;
+$rejectedDepartmentTasks = 0;
 
 
 if ($userID) {
@@ -20,6 +23,7 @@ if ($userID) {
     ",
         [$userID],
     );
+    
 
     if (!empty($result)) {
         $completedTasks = $result[0]->completed_tasks ?? 0;
@@ -28,6 +32,7 @@ if ($userID) {
         
     }
     $departmentUserID = $userID; // รหัสผู้ใช้สำหรับแผนก
+    
 
 
     // ดึงข้อมูลจากฐานข้อมูล
@@ -44,8 +49,10 @@ if ($userID) {
       AND task_recipient_type = 'D'
     GROUP BY task_recipient_user_id, task_recipient_type
 ",
-        [$departmentUserID],
+        [$userID],
     );
+    
+    
     
     // ตรวจสอบผลลัพธ์
     if (!empty($result)) {
@@ -63,7 +70,7 @@ if ($userID) {
         COUNT(*) AS total_tasks
     FROM task
     WHERE
-        task.task_status = 'C'
+        task.task_status = 'P'
         AND task.task_submit_date IS NOT NULL
         AND task.task_submit_date BETWEEN
             DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)

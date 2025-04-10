@@ -155,7 +155,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             // เมื่อคลิกปุ่มยืนยัน
 document.getElementById('confirmLogout').addEventListener('click', function() {
 // ส่งคำขอไปยัง route logout
-fetch('/logout', {
+fetch('logout', {
     method: 'GET',
     headers: {
         'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ fetch('/logout', {
 }).then(response => {
     if (response.ok) {
         // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-        window.location.href = '/login';  // หรือ URL ที่ต้องการ
+        window.location.href = 'login';  // หรือ URL ที่ต้องการ
     } else {
         alert('เกิดข้อผิดพลาดในการออกจากระบบ');
     }
@@ -184,7 +184,6 @@ document.getElementById('logoutModal').style.display = 'none';
 
 </div>
 <!-- จบส่วน Sidebar -->
-
     <!-- Main Content -->
     <div class="ml-64 p-8">
         <div class="flex justify-between items-center mb-6">
@@ -466,7 +465,6 @@ document.getElementById('logoutModal').style.display = 'none';
             <!-- FORM -->
             <form action="{{ url('/workrequest') }}" method="POST">
                 @csrf
-
                 <!-- ข้อมูลหลัก -->
                 <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
                   <div>
@@ -565,7 +563,6 @@ document.getElementById('logoutModal').style.display = 'none';
                 </div>
 
                 <hr class="semibold my-6">
-
                 <!-- ปุ่มส่ง -->
                 <div class="flex justify-end space-x-4">
                     <button type="submit" name="work_status" value="R" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>

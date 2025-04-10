@@ -96,7 +96,7 @@ if ($userID) {
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
-    </script>
+        </script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('public/css/button.css') }}">
     <link rel="stylesheet" href="{{ asset('public/css/dashboard.css') }}">
@@ -177,27 +177,27 @@ if ($userID) {
 
         <script>
             // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
-            document.getElementById('profileButton').addEventListener('click', function() {
+            document.getElementById('profileButton').addEventListener('click', function () {
                 // เปิดป๊อปอัพยืนยันการออกจากระบบ
                 document.getElementById('logoutModal').style.display = 'flex';
             });
 
             // เมื่อคลิกปุ่มปิดป๊อปอัพ
-            document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('closeModal').addEventListener('click', function () {
                 // ปิดป๊อปอัพ
                 document.getElementById('logoutModal').style.display = 'none';
             });
 
             // เมื่อคลิกปุ่มยกเลิก
-            document.getElementById('cancelLogout').addEventListener('click', function() {
+            document.getElementById('cancelLogout').addEventListener('click', function () {
                 // ปิดป๊อปอัพ
                 document.getElementById('logoutModal').style.display = 'none';
             });
 
             // เมื่อคลิกปุ่มยืนยัน
-            document.getElementById('confirmLogout').addEventListener('click', function() {
+            document.getElementById('confirmLogout').addEventListener('click', function () {
                 // ส่งคำขอไปยัง route logout
-                fetch('logout', {
+                fetch('/logout', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -205,7 +205,7 @@ if ($userID) {
                 }).then(response => {
                     if (response.ok) {
                         // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
-                        window.location.href = 'login'; // หรือ URL ที่ต้องการ
+                        window.location.href = '/login';  // หรือ URL ที่ต้องการ
                     } else {
                         alert('เกิดข้อผิดพลาดในการออกจากระบบ');
                     }
@@ -215,7 +215,7 @@ if ($userID) {
                 document.getElementById('logoutModal').style.display = 'none';
             });
             // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
-            window.addEventListener('click', function(event) {
+            window.addEventListener('click', function (event) {
                 if (event.target === document.getElementById('logoutModal')) {
                     document.getElementById('logoutModal').style.display = 'none';
                 }

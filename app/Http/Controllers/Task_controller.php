@@ -24,4 +24,5 @@ class Task_controller extends Controller
 
     return response()->json(['success' => true, 'task' => $task]); // ส่งข้อมูลกลับ
 }
+
 }

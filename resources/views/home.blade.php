@@ -413,6 +413,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
 
         <!-- กริดแสดงข้อมูล -->
         <div class="grid grid-cols-2 gap-6">
+            
             <!-- การ์ดแสดงใบสั่งงานตามแผนก -->
             <div class="bg-[#ffffff] rounded-lg shadow p-6">
                 <div class="border-b pb-2 mb-4">
@@ -420,79 +421,29 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     <p class="text-sm text-[#6b7280]">ใบสั่งงานตามแผนก</p>
                 </div>
                 <div class="space-y-4 scrollbar-hide scrollable-content">
-                    <!-- รายการงาน 1 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
+                     <!-- รายการงาน 1 -->
+            <?php foreach ($data as $row): ?>
+            <?php if ($row['task_status'] === 'R'): ?>
+                <?php if ($row['task_recipient_type'] === 'D'): ?>
+                    <div data-task-id="{{ $row['task_id'] }}" onclick="selectTask(this)"
+                     class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
+                    <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                        <i class="fas fa-box text-white text-2xl"></i>
                     </div>
-                    <!-- รายการงาน 1 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-semibold text-gray-800">ชื่องาน : <?= htmlspecialchars($row['task_name']) ?> </div>
+                        <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : <?= htmlspecialchars($row['task_deadline']) ?></div>
                     </div>
-
-                    <!-- รายการงาน 2 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
+                    <div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
                     </div>
-
-                    <!-- รายการงาน 3 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
                     </div>
-
-                    <!-- รายการงาน 4 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#3b82f6] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
+                <?php endif; ?>
+                             
+                             
+            <?php endif; ?>
+        <?php endforeach; ?>
+                    
                 </div>
             </div>
 
@@ -612,64 +563,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     <?php endforeach; ?>
 
 
-                    <!-- รายการงาน 2 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-
-                    <!-- รายการงาน 3 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-[#2563eb] text-2xl "></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-
-                    <!-- รายการงาน 4 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-                    <!-- รายการงาน 5 -->
-                    <div
-                        class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition">
-                        <div class="bg-[#D7FFC3] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                            <i class="fas fa-box text-[#2563eb] text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800">ชื่องาน : สร้างอีเมลพนักงาน</div>
-                            <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : 30/12/2025</div>
-                        </div>
-                        <div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
 
@@ -986,12 +880,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             <!-- ✅ ปุ่มรับงาน / ปฏิเสธ -->
             <div class="flex justify-center mt-6 gap-3">
                 <button onclick="closePopup()"
-                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
-                    ปฏิเสธ
-                </button>
-
-
-
+                    class="px-4 py-2 border border-black text-black rounded-md hover:bg-black hover:text-white transition">ปฏิเสธ</button>
 
                 <button onclick="acceptWork()" id = "accept-button"
                     class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled">
@@ -1056,7 +945,6 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             <div class="flex justify-center mt-6 gap-3">
                 <button onclick="closePopup()"
                     class="px-4 py-2 border border-black text-black rounded-md hover:bg-black hover:text-white transition">ปฏิเสธ</button>
-
 
                 {{-- ปุ่มคืนงาน --}}
                 <div id="success-message"
@@ -1125,6 +1013,33 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         </div>
     </div>
 
+    <!-- ป๊อปอัพปฏิเสธส่งงาน -->
+<div id="declineModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+        <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
+            <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการปฏิเสธงาน</div>
+            <button class="modal-close text-gray-500 text-xl" id="close-decline-popup">&times;</button>
+        </div>
+        <div class="modal-body text-center mb-6">
+            <p class="text-left text-lg text-gray-600 mb-4">เหตุผล <span style="color: red;">*</span> :</p>
+            <p class="text-right text-xs text-gray-400"><span id="declineCharCount">0</span>/100</p>
+            <form method="POST" action="{{ route('home.decline') }}">
+                @csrf
+                <textarea name="work_decline" id="declineReason" class="border border-gray-300 rounded-lg w-full p-2 mb-4" 
+                          style="height: 100px; resize: none;" maxlength="100" oninput="updateDeclineCounter()" 
+                          placeholder="กรุณากรอกเหตุผลในการปฏิเสธงาน" required></textarea>
+                <input type="hidden" name="decline_work_id" id="declineWorkId" value="">
+                <hr>
+                <br>
+                <div class="modal-buttons flex justify-center gap-4">
+                    <button class="btn btn-confirm text-white bg-red-600 px-6 py-2 rounded-full hover:bg-red-700" type="submit">ยืนยัน</button>
+                    <button type="button" class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelDecline">ยกเลิก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
     {{-- ส่วนJS ของคืนงาน --}}
     <div id="success-message"
@@ -1175,7 +1090,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         function returnTask() {
 
             // ส่งคำขอไปยังเซิร์ฟเวอร์เพื่อเปลี่ยนสถานะ
-            fetch('/return_task', {
+            fetch('return_task', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1209,7 +1124,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 return;
             }
 
-            fetch('/accept_task', {
+            fetch('accept_task', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1249,7 +1164,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 return;
             }
 
-            fetch('/submit_task', {
+            fetch('submit_task', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1538,6 +1453,11 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             });
         });
     </script>
+
+
+    
+
+
     </div>
 
 

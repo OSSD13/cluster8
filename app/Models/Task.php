@@ -8,6 +8,9 @@ class Task extends Model
 {
     //
     protected $table = 'task';
+    public $timestamps = false;
+
+    
     protected $fillable = [
         'task_id',
         'task_name',

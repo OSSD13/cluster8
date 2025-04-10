@@ -8,6 +8,8 @@ class Work_request_order extends Model
 {
     //
     protected $table = 'work_request_order';
+    public $timestamps = false;
+    protected $primaryKey = 'work_request_id';
 
     protected $fillable = [
         'work_request_id',

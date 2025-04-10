@@ -553,7 +553,7 @@ document.getElementById('logoutModal').style.display = 'none';
                     <input type="text" :name="'task_recipient_user_id[' + index + ']'" placeholder="บุคคล" class="flex-1 outline-none"
                         :disabled="selected !== 'P'"
                         :required="selected === 'P'">
-                    <i class="fas fa-search text-gray-500"></i>
+                    
                 </label>
 
                 <!-- แผนก -->
@@ -562,7 +562,7 @@ document.getElementById('logoutModal').style.display = 'none';
                     <input type="text" :name="'task_recipient_department_id[' + index + ']'" placeholder="แผนก" class="flex-1 outline-none"
                         :disabled="selected !== 'D'"
                         :required="selected === 'D'">
-                    <i class="fas fa-search text-gray-500"></i>
+                    
                 </label>
                 </div>
 
@@ -590,7 +590,6 @@ document.getElementById('logoutModal').style.display = 'none';
         </div>
         
     </div>
-</div>
 
 
 </body>

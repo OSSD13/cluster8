@@ -889,7 +889,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const searchValue = document.getElementById('searchInput').value;
 
             // ส่งคำค้นหาไปยังเซิร์ฟเวอร์ผ่าน AJAX
-            fetch('/manage/search-users', {
+            fetch('manage/search-users', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -955,7 +955,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const searchDelValue = document.getElementById('searchDelInput').value;
 
             // ส่งคำค้นหาไปยังเซิร์ฟเวอร์ผ่าน AJAX
-            fetch('/manage/search-users', {
+            fetch('manage/search-users', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1033,7 +1033,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             console.log('Department Name Selected:', departmentName);
 
             // ส่งคำขอ AJAX ไปยังเซิร์ฟเวอร์
-            fetch('/manage/filter-by-department', {
+            fetch('manage/filter-by-department', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

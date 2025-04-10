@@ -12,17 +12,39 @@ class Home_controller extends Controller
         return view('home');
     }
 
-    public function acceptTask(Request $request)
+    public function acceptWork(Request $request)
 {
     $taskId = $request->input('task_id');
-    $userId = session('users')->user_id;
 
-    
     $updated = DB::table('task')
         ->where('task_id', $taskId)
         ->update([
-            'task_status' => 'P',
-            'task_recipient_user_id' => $userId
+            'task_status' => 'P', // เปลี่ยนสถานะเป็น "กำลังดำเนินการ"
         ]);
+
+    if ($updated) {
+        return response()->json(['success' => true, 'message' => 'รับงานสำเร็จ']);
+    } else {
+        return response()->json(['success' => false, 'message' => 'ไม่สามารถรับงานได้']);
+    }
+}
+
+    public function submit_task(Request $request)
+{
+    $taskId = $request->input('task_id');
+    $notation = $request->input('notation');
+    $submitDate = now();
+    $updated = DB::table('task')
+    ->where('task_id', $taskId)
+    ->update([
+        'task_status' => 'C', // เปลี่ยนสถานะเป็น "เสร็จสิ้น"
+        'task_submit_date' => now(), // บันทึกวันที่ส่งงาน
+        'task_notation' => $notation // บันทึกหมายเหตุ
+    ]);
+    if ($updated) {
+        return response()->json(['success' => true, 'message' => 'Task submitted successfully.']);
+    } else {
+        return response()->json(['success' => false, 'message' => 'Failed to submit task.']);
+    }
 }
 }

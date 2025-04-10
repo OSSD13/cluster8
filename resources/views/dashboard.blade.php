@@ -98,16 +98,16 @@ if ($userID) {
 
         <!-- เมนู -->
         <div class="flex-1 px-3 py-6 space-y-2">
-            <a href="home" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg" style="padding: 12px 16px;">
+            <a href="home" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg" >
                 <i class="fas fa-home mr-3"></i><span>หน้าหลัก</span>
             </a>
-            <a href="workrequest" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
+            <a href="workrequest" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
                 <i class="fas fa-clipboard-list mr-3"></i><span>สร้างใบสั่งงาน</span>
             </a>
             <a href="report" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
                 <i class="fas fa-file-alt mr-3"></i><span>รายงานการดำเนินงาน</span>
             </a>
-            <a href="dashboard" class="flex items-center px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-lg">
+            <a href="dashboard" class="flex items-center px-4 py-3 bg-blue-500 text-white rounded-lg">
                 <i class="fas fa-chart-bar mr-3"></i><span>แดชบอร์ด</span>
             </a>
         </div>

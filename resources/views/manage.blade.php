@@ -25,6 +25,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <!DOCTYPE html>
 <html lang="th">
 <head>
+
     <!-- CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,13 +40,34 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <meta charset="UTF-8">
     {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
+    <!-- โปรไฟล์ผู้ใช้ -->
+    <div style="padding: 0;  width: 15%; margin-left: 82%; ">
+        <div id="profileButton" style="background-color: #1d4ed8; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: background-color 0.3s;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 40px; height: 40px; background-color: white; color: #1d4ed8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fas fa-user" style="font-size: 18px;"></i>
+                </div>
+                <div>
+                    <div style="line-height: 1.2; font-size: 12px;">
+                        {{ session('users')->user_fname }}
+                    </div>
+                    <div style="line-height: 1.2; font-size: 12px;">
+
+                    </div>
+                </div>
+            </div>
+            <i class="fas fa-arrow-right" style="color: white; font-size: 14px;"></i>
+        </div>
+    </div>
     <title>จัดการแผนก</title>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300&display=swap');
 
         body {
             background-color: #f4f4f9;
             margin: 0;
+            margin-top: 2%;
             font-family: "Noto Sans Thai", sans-serif;
             font-optical-sizing: auto;
             font-style: normal;
@@ -55,7 +77,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             width: 75%;
             min-height: 600px;
             margin: 20px auto;
-            margin-top: 5%;
+            margin-top: 2%;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
@@ -652,6 +674,21 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </tbody>
             </table>
         </div>
+        <div id="logoutModal" style="display: none; position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; z-index: 50;">
+            <div id="test" style="background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); width: 400px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                    <div style="font-size: 18px; font-weight: bold; color: #333;">ยืนยันการออกจากระบบ</div>
+                    <button style="font-size: 20px; color: #555; background: none; border: none; cursor: pointer;" id="closeModal">&times;</button>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="font-size: 16px; color: #666; margin-bottom: 20px;">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
+                    <div style="display: flex; justify-content: center; gap: 10px;">
+                        <button style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; font-family: 'Noto Sans Thai', sans-serif; id="id="confirmLogout">ยืนยัน</button>
+                        <button style="background-color: white; color: #555; padding: 10px 20px; border: 1px solid #ccc; border-radius: 20px; cursor: pointer; font-family: 'Noto Sans Thai', sans-serif;" id="cancelLogout">ยกเลิก</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div id="successAlert"
             style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 300px; background-color: #e6f9ed; color: #28a745; border: 1px solid #28a745; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 1000;">
@@ -673,6 +710,57 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
     <script>
+        // ============================Logout Modal========================
+        // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+        document.getElementById('profileButton').addEventListener('click', function () {
+            // เปิดป๊อปอัพยืนยันการออกจากระบบ
+            document.getElementById('logoutModal').style.display = 'flex';
+
+
+        });
+
+        document.getElementById('closeModal').addEventListener('click', function () {
+
+            document.getElementById('logoutModal').style.display = 'none';
+        });
+
+
+        // เมื่อคลิกปุ่มยกเลิก
+        document.getElementById('cancelLogout').addEventListener('click', function () {
+            // ปิดป๊อปอัพ
+            document.getElementById('logoutModal').style.display = 'none';
+
+        });
+
+        // เมื่อคลิกปุ่มยืนยัน
+        document.getElementById('confirmLogout').addEventListener('click', function () {
+            // ส่งคำขอไปยัง route logout
+            fetch('/logout', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(response => {
+                if (response.ok) {
+                    // ถ้าการออกจากระบบสำเร็จ ให้ redirect ไปที่หน้า login
+                    window.location.href = '/login';  // หรือ URL ที่ต้องการ
+                } else {
+                    alert('เกิดข้อผิดพลาดในการออกจากระบบ');
+                }
+            });
+
+
+            // ปิดป๊อปอัพ
+            document.getElementById('logoutModal').style.display = 'none';
+        });
+
+        // ปิดป๊อปอัพเมื่อคลิกพื้นหลัง
+        window.addEventListener('click', function (event) {
+            if (event.target === document.getElementById('logoutModal')) {
+                document.getElementById('logoutModal').style.backgroundColor = 'red';
+            }
+        });
+        // ============================Logout Modal========================
         function showSuccessAlert(title, message) {
             const alertBox = document.getElementById('successAlert');
             const alertTitle = document.getElementById('alertTitle');

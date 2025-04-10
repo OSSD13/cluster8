@@ -30,6 +30,10 @@ Route::get('/logout', function(){
 Route::get("/",[Home_controller::class, 'home'])->middleware([Check_login::class]);
 Route::get("/home",[Home_controller::class,'home'])->middleware([Check_login::class]);
 Route::post("/home/decline",[Home_controller::class,'decline'])->middleware([Check_login::class])->name('home.decline');
+Route::post('/accept_task', [Home_controller::class, 'acceptWork'])->name('accept.task');
+Route::post('/retrun_task', [Home_controller::class, 'return_task'])->name('return.task');
+Route::post('/submit_task', [Home_controller::class, 'submit_task'])->name('submit.task');
+
 
 Route::post('/return-task', [Task_controller::class, 'returnTask'])->name('task.return');
 

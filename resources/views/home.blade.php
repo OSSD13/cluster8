@@ -116,7 +116,7 @@ $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
+$sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id,
                task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname, task_submit_date, department_name
         FROM task
         LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
@@ -187,7 +187,7 @@ $data5 = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 
 
 // คำนวณจำนวนหน้าทั้งหมด
-$sql_count = "SELECT COUNT(*) FROM work_request_order 
+$sql_count = "SELECT COUNT(*) FROM work_request_order
 JOIN task ON work_request_id = task_work_request_id
 WHERE task_submit_date >= NOW() - INTERVAL 5 DAY AND task_recipient_user_id = $userID AND (task_status = 'C' OR task_status = 'D')";
 $count_stmt = $pdo->query($sql_count);
@@ -413,7 +413,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
 
         <!-- กริดแสดงข้อมูล -->
         <div class="grid grid-cols-2 gap-6">
-            
+
             <!-- การ์ดแสดงใบสั่งงานตามแผนก -->
             <div class="bg-[#ffffff] rounded-lg shadow p-6">
                 <div class="border-b pb-2 mb-4">
@@ -439,11 +439,11 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     </div>
                     </div>
                 <?php endif; ?>
-                             
-                             
+
+
             <?php endif; ?>
         <?php endforeach; ?>
-                    
+
                 </div>
             </div>
 
@@ -457,11 +457,11 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     <div class="chart">
                         <!-- โค้ดกราฟของคุณที่ใช้แสดงกราฟที่นี่ -->
                         <script>
-                            const data = { 
+                            const data = {
                                 waiting: {{  $decrydingDepartmentTasks }},
                                 inProgress: {{ $processedTaskDepartmentTasks}},
                                 completed: {{ $completedDepartmentTasks }}
-                                
+
     };
 
                             const maxValue = Math.max(data.waiting, data.inProgress, data.completed);
@@ -563,7 +563,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     <?php endforeach; ?>
 
 
-                    
+
                 </div>
             </div>
 
@@ -734,7 +734,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                     </button>
                 </div>
             </div>
-            
+
             <!-- กริดแสดงการ์ดประวัติ -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-4 gap-4">
                 <!-- การ์ดประวัติ -->
@@ -818,7 +818,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
         </div>
     </div>
 
-
+    <!-- Popup หน้ารับงานการทำงาน -->
     <!-- Popup รายละเอียดใบสั่งงาน -->
     <div id="workItemPopup" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
         <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
@@ -1025,8 +1025,8 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
             <p class="text-right text-xs text-gray-400"><span id="declineCharCount">0</span>/100</p>
             <form method="POST" action="{{ route('home.decline') }}">
                 @csrf
-                <textarea name="work_decline" id="declineReason" class="border border-gray-300 rounded-lg w-full p-2 mb-4" 
-                          style="height: 100px; resize: none;" maxlength="100" oninput="updateDeclineCounter()" 
+                <textarea name="work_decline" id="declineReason" class="border border-gray-300 rounded-lg w-full p-2 mb-4"
+                          style="height: 100px; resize: none;" maxlength="100" oninput="updateDeclineCounter()"
                           placeholder="กรุณากรอกเหตุผลในการปฏิเสธงาน" required></textarea>
                 <input type="hidden" name="decline_work_id" id="declineWorkId" value="">
                 <hr>
@@ -1455,7 +1455,7 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
     </script>
 
 
-    
+
 
 
     </div>

@@ -9,13 +9,13 @@ $offset = ($current_page - 1) * $items_per_page; // คำนวณ offset
 session_start(); // เริ่มต้น session
 // ลบค่า user_id ออกจาก session
 unset($_SESSION['user_id']);
+$selected_work_request_id = $_GET['id'] ?? null;
 
 
 // ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
 $userID = session('users')->user_id;
 $user_dept_ID = session('users')->user_dept_id;
 $task_work_request_id = session('task');
-
 $sql = "SELECT 
             task.task_id, 
             task.task_deadline, 
@@ -46,22 +46,22 @@ $sql = "SELECT
         LIMIT :offset, :limit";
 
 $stmt = $pdo->prepare($sql);
+$stmt->bindParam(':user_dept_ID', $user_dept_ID, PDO::PARAM_INT);
+$stmt->bindParam(':userID', $userID, PDO::PARAM_INT);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// ดึงข้อมูลคำขอที่สร้างภายใน 5 วันที่ผ่านมา โดยจำกัดการแสดงผลตามหน้า
-$sql2 = "SELECT work_request_id, work_name, work_create_date, work_submit_date, work_create_by_user_id, work_status,
-        user_fname, user_lname, department_name, work_author_type, work_confirm_date
-        FROM work_request_order
-        LEFT JOIN users ON work_create_by_user_id = user_id
-        LEFT JOIN departments ON work_created_by_department_id = department_id
-        WHERE work_create_by_user_id = $userID AND work_confirm_date >= NOW() - INTERVAL 5 DAY
+$sql2 = "SELECT task_id, task_deadline, task_status, task_recipient_user_id, task_name, task_recipient_department_id, 
+               task_notation, task_recipient_type, task_submit_date, task_work_request_id, work_status, work_author_type, user_fname, user_lname, task_submit_date, department_name
+        FROM task
+        LEFT JOIN work_request_order AS wro1 ON task_work_request_id = wro1.work_request_id
+        LEFT JOIN users ON wro1.work_create_by_user_id = user_id
+        LEFT JOIN departments ON user_dept_id = department_id
+        WHERE task_recipient_user_id = $userID AND task_submit_date >= NOW() - INTERVAL 5 DAY AND (task_status = 'C' OR task_status = 'D')
         LIMIT :offset, :limit"; // ใช้ LIMIT สำหรับการแบ่งหน้า
 
 $stmt2 = $pdo->prepare($sql2);
-
 $stmt2->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt2->bindParam(':limit', $items_per_page, PDO::PARAM_INT);
 $stmt2->execute();
@@ -109,19 +109,15 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
 
 <!DOCTYPE html>
 <html lang="th">
-    
 <head>
+    <!-- Meta tags และ Fonts -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet">
     <title>Work Request System</title>
 
     <!-- การนำเข้า CSS และ Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
     <!-- CSS พื้นฐาน -->
@@ -232,53 +228,44 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
                             </div>
                         </div>
                     </div>
-                    <div>
-                        <div class="leading-tight text-xs">
-                            {{ session('users')->user_fname }} {{ session('users')->user_lname }}
-                        </div>
-                        <div class="leading-tight text-xs">
-                            {{ session('users')->user_id }}
+                    <i class="fas fa-arrow-right text-white text-sm"></i>
+                </div>
+            </div>
+            <!-- ป๊อปอัพยืนยันการออกจากระบบ -->
+            <div id="logoutModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+                <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+                    <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
+                        <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการออกจากระบบ</div>
+                        <button class="modal-close text-gray-500 text-xl" id="closeModal">&times;</button>
+                    </div>
+                    <div class="modal-body text-center mb-6">
+                        <p class="text-lg text-gray-600 mb-4">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
+                        <div class="modal-buttons flex justify-center gap-4">
+                            <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmLogout">ยืนยัน</button>
+                            <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelLogout">ยกเลิก</button>
                         </div>
                     </div>
                 </div>
-                <i class="fas fa-arrow-right text-white text-sm"></i>
             </div>
-        </div>
-        <!-- ป๊อปอัพยืนยันการออกจากระบบ -->
-        <div id="logoutModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-            <div class="modal-container bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
-                <div class="modal-header flex justify-between items-center border-b pb-4 mb-4">
-                    <div class="modal-title text-xl font-semibold text-gray-800">ยืนยันการออกจากระบบ</div>
-                    <button class="modal-close text-gray-500 text-xl" id="closeModal">&times;</button>
-                </div>
-                <div class="modal-body text-center mb-6">
-                    <p class="text-lg text-gray-600 mb-4">คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?</p>
-                    <div class="modal-buttons flex justify-center gap-4">
-                        <button class="btn btn-confirm text-white bg-blue-600 px-6 py-2 rounded-full hover:bg-blue-700" id="confirmLogout">ยืนยัน</button>
-                        <button class="btn btn-cancel text-gray-700 border border-gray-300 px-6 py-2 rounded-full hover:bg-gray-100" id="cancelLogout">ยกเลิก</button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <script>
-            // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
-            document.getElementById('profileButton').addEventListener('click', function() {
-                // เปิดป๊อปอัพยืนยันการออกจากระบบ
-                document.getElementById('logoutModal').style.display = 'flex';
-            });
+            <script>
+                // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+                document.getElementById('profileButton').addEventListener('click', function() {
+                    // เปิดป๊อปอัพยืนยันการออกจากระบบ
+                    document.getElementById('logoutModal').style.display = 'flex';
+                });
 
-            // เมื่อคลิกปุ่มปิดป๊อปอัพ
-            document.getElementById('closeModal').addEventListener('click', function() {
-                // ปิดป๊อปอัพ
-                document.getElementById('logoutModal').style.display = 'none';
-            });
+                // เมื่อคลิกปุ่มปิดป๊อปอัพ
+                document.getElementById('closeModal').addEventListener('click', function() {
+                    // ปิดป๊อปอัพ
+                    document.getElementById('logoutModal').style.display = 'none';
+                });
 
-            // เมื่อคลิกปุ่มยกเลิก
-            document.getElementById('cancelLogout').addEventListener('click', function() {
-                // ปิดป๊อปอัพ
-                document.getElementById('logoutModal').style.display = 'none';
-            });
+                // เมื่อคลิกปุ่มยกเลิก
+                document.getElementById('cancelLogout').addEventListener('click', function() {
+                    // ปิดป๊อปอัพ
+                    document.getElementById('logoutModal').style.display = 'none';
+                });
 
                 // เมื่อคลิกปุ่มยืนยัน
                 document.getElementById('confirmLogout').addEventListener('click', function() {
@@ -593,7 +580,7 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
         <?php foreach ($data as $row): ?>
             <?php if ($row['task_status'] === 'P'): ?>
                     <div class="flex items-center justify-between pb-2 cursor-pointer work-item w-full">
-                        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full"  data-work-request-id="<?= $row['task_work_request_id'] ?>" onclick="openPopup(this)">
+                        <div class="work-item flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
                             <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
                                 <i class="fas fa-box text-[#533FE4] text-2xl"></i>
                             </div>
@@ -719,69 +706,63 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
 <div id="workItemPopup" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
 
-      <!-- ปุ่มปิด -->
-              <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
-          <i class="fas fa-times text-xl"></i>
-          </button>
+    <!-- ปุ่มปิด -->
+    <button class="close-popup absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+        <i class="fas fa-times text-xl"></i>
+    </button>
 
+    <!-- หัวข้อxx -->
+    <?php foreach ($data as $row): ?>
+    <?php if (
+        $row['task_work_request_id'] === $row['work_request_id'] &&
+        $row['task_work_request_id'] === $selected_work_request_id
+    ): ?>
+        <h2 class="text-xl font-bold text-blue-700 mb-4">
+            รายละเอียดใบสั่งงาน 
+            <span class="text-gray-400 text-base font-normal">
+                <?= htmlspecialchars($row['work_request_id']) ?>
+            </span>
+        </h2>
+    <?php endif; ?>
+<?php endforeach; ?>
 
-      <!-- หัวข้อ -->
-    
-          <h2 class="text-xl font-bold text-blue-700 mb-4">
-              รายละเอียดใบสั่งงาน 
-              <span class="text-gray-400 text-base font-normal">
-                  
-              </span>
-          </h2>
-      
-          <!-- ข้อมูลหลัก -->
-          <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
-            <div>
-                <span class="font-semibold">ชื่อเรื่อง :</span>
-                <span id="popup-title">-</span>
-            </div>
-            <div>
-                <span class="font-semibold">วันที่ร้องขอ :</span>
-                <span id="popup-date">-</span>
-            </div>
-            <div>
-                <span class="font-semibold">ผู้ส่ง :</span>
-                <span id="popup-user">-</span>
-            </div>
-            <div>
-                <span class="font-semibold">แผนก :</span>
-                <span id="popup-department">-</span>
-            </div>
-          </div>
-
-
-      <!-- การ์ดย่อยของงาน -->
-      <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
-        @for ($i = 0; $i < 6; $i++)
-          <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-            <div class="text-sm font-semibold text-gray-800 truncate">สมัครอีเมลพนักงาน</div>
-            <div class="text-xs text-gray-500 mb-2">จิรายุ คนโก้</div>
-            <div class="flex items-center text-xs text-gray-600">
-              <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
-              อังคาร, 1 ธันวาคม 2025
-            </div>
-            <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">รอดำเนินการ</span>
-          </div>
-        @endfor
-      </div>
-
-          <!-- ปุ่ม -->
-      <div class="flex justify-center mt-6 gap-3">
-        <button type="button" id="openDeclinePopupDoing" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
-            ปฏิเสธ
-        </button>
-        <button class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition">ส่งคืนงาน</button>
-        <button id = "submit" class="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition">เสร็จสิ้น</button>
-      </div>
-
-
+    <!-- ข้อมูลหลัก -->
+    <div class="grid grid-cols-2 gap-4 text-sm text-gray-800 border-b pb-3 mb-4">
+        <div>
+            <span class="font-semibold">ชื่อเรื่อง :</span> <span id="popup-title">-</span>
+        </div>
+        <div>
+            <span class="font-semibold">วันที่ร้องขอ :</span> <span id="popup-date">-</span>
+        </div>
+        <div>
+            <span class="font-semibold">ผู้ส่ง :</span>  {{ session('users')->user_fname }} {{ session('users')->user_lname }}
+        </div>
+        <div>
+            <span class="font-semibold">แผนก :</span>
+        </div>
     </div>
 
+    <!-- การ์ดย่อยของงาน -->
+    <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
+        <div class="space-y-4 scrollbar-hide scrollable-content">
+            งานย่อย
+
+            
+        </div>
+    </div>
+
+    <!-- ✅ ปุ่มรับงาน / ปฏิเสธ -->
+    <div class="flex justify-center mt-6 gap-3">
+        <button type="button" id="openDeclinePopup" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
+            ปฏิเสธ
+        </button>
+        <button onclick="acceptWork()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            รับงาน
+        </button>
+    </div>
+
+  </div>
+</div>
 <!-- Popup รายละเอียดใบสั่งงาน(กำลังดำนินการ) -->
 <div id="workItemPopupDoing" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
@@ -906,14 +887,11 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
     });
 
     // เมื่อคลิกปุ่มปิดป๊อปอัพ
-   
-  // เมื่อคลิกปุ่มปิด popup
-  document.querySelectorAll('.close-popup').forEach(button => {
-    button.addEventListener('click', function () {
-      document.getElementById('workItemPopup').classList.add('hidden');
+    document.getElementById('close-popup').addEventListener('click', function() {
+        // ปิดป๊อปอัพ
+        document.getElementById('confirmSubmitModal').style.display = 'none';
+        document.body.classList.remove('popup-open');
     });
-  });
-
 
     // เมื่อคลิกปุ่มยกเลิก
     document.getElementById('cancelSubmit').addEventListener('click', function() {
@@ -1117,69 +1095,6 @@ $stmt_tasks = $pdo->prepare($sql_tasks);
     </script>
 </div>
 
-<script>
-    function openPopup(element) {
-        const workRequestId = element.getAttribute('data-work-request-id');
-    
-        fetch(`/getWorkDetails.php?work_request_id=${workRequestId}`)
-          .then(res => res.json())
-          .then(data => {
-            // Set title and date
-            document.getElementById('popup-title').textContent = data.work_name;
-            document.getElementById('popup-date').textContent = data.work_submit_date;
-    
-            // Render tasks
-            const container = document.querySelector('#workItemPopupDoing .grid');
-            container.innerHTML = ''; // Clear old tasks
-    
-            data.tasks.forEach(task => {
-                container.innerHTML += `
-                  <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                    <div class="text-sm font-semibold text-gray-800 truncate">${task.task_name}</div>
-                    <div class="text-xs text-gray-500 mb-2">${task.user_fname} ${task.user_lname}</div>
-                    <div class="flex items-center text-xs text-gray-600">
-                      <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>
-                      ${task.deadline_thai}
-                    </div>
-                    <span class="mt-2 inline-block text-xs bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-medium">
-                      ${task.status_text}
-                    </span>
-                  </div>
-                `;
-            });
-    
-            // Show popup
-            document.getElementById('workItemPopupDoing').classList.remove('hidden');
-          });
-    }
-    </script>
-    <script>
-      // เมื่อคลิกที่การ์ดงานที่กำลังดำเนินการ
-    document.querySelectorAll('.work-item').forEach(item => {
-        item.addEventListener('click', function () {
-          const workRequestId = this.getAttribute('data-work-request-id');
-      
-          fetch('/get_work_request_detail.php', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'work_request_id=' + workRequestId
-          })
-          .then(response => response.json())
-          .then(data => {
-            document.getElementById('popup-title').innerText = data.work_name;
-            document.getElementById('popup-date').innerText = data.work_create_date;
-            document.getElementById('popup-user').innerText = `${data.user_fname} ${data.user_lname}`;
-            document.getElementById('popup-department').innerText = data.department_name;
-      
-            // เปิด popup
-            document.getElementById('workItemPopupDoing').classList.remove('hidden');
-          });
-        });
-      });
-    </script>      
 
 </body>
-
 </html>

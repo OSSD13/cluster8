@@ -84,3 +84,5 @@ Route::post("/workrequest", [Work_request_controller::class, "store"])->middlewa
 Route::post("/home", [Work_request_controller::class, "decline"])->middleware([Check_login::class]);
 
 Route::post("/home", [Home_controller::class, "all_task"])->middleware([Check_login::class]);
+
+Route::post("/home", [Home_controller::class, "accept"])->middleware([Check_login::class]);

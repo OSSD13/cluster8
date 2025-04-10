@@ -553,7 +553,7 @@ document.getElementById('logoutModal').style.display = 'none';
                     <input type="text" :name="'task_recipient_user_id[' + index + ']'" placeholder="บุคคล" class="flex-1 outline-none"
                         :disabled="selected !== 'P'"
                         :required="selected === 'P'">
-                    <i class="fas fa-search text-gray-500"></i>
+                    
                 </label>
 
                 <!-- แผนก -->
@@ -562,7 +562,7 @@ document.getElementById('logoutModal').style.display = 'none';
                     <input type="text" :name="'task_recipient_department_id[' + index + ']'" placeholder="แผนก" class="flex-1 outline-none"
                         :disabled="selected !== 'D'"
                         :required="selected === 'D'">
-                    <i class="fas fa-search text-gray-500"></i>
+                    
                 </label>
                 </div>
 
@@ -584,13 +584,12 @@ document.getElementById('logoutModal').style.display = 'none';
                     <button type="submit" name="work_status" value="R" 
                     formaction="{{ route('workrequest.create') }}"
                     class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">ส่ง</button>
-                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">แบบร่าง</button>
+                    <button type="submit" name="work_status" value="draft" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100" @disabled(true)>แบบร่าง</button>
                 </div>
             </form>
         </div>
         
     </div>
-</div>
 
 
 </body>

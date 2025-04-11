@@ -23,7 +23,7 @@ class Work_request_controller extends Controller
     }
 
     function create(Request $req){
-        print_r($req->input());
+       // print_r($req->input());
         $mwrq = new \App\Models\Work_Request_Order;
         $mtask = new \App\Models\Task;
 
@@ -59,11 +59,11 @@ class Work_request_controller extends Controller
             $mtask->task_submit_date = null;
             $mtask->save();
         }
-        
+
         return redirect('/workrequest');
     }
 
-    
+
     public function store(Request $req)
     {
         // ดึงข้อมูล work_request_id จากฟอร์ม
@@ -84,5 +84,5 @@ class Work_request_controller extends Controller
 
 
 }
-    
+
 

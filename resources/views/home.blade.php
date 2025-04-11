@@ -680,31 +680,31 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 {{-- ส่วนคืนงาน --}}
                 <div class="space-y-2 scrollbar-hide scrollable-content">
                     <?php if (empty($data5)): ?>
-                    <div class="text-center text-gray-500 py-6">
-                        ไม่มีรายการงานที่กำลังดำเนินการ
-                    </div>
-                    <?php else: ?>
-                    <?php foreach ($data5 as $row): ?>
-                    <div class="work-item-doing flex items-center justify-between pb-2 cursor-pointer w-full"
-                        data-task-id="{{ $row['task_id'] }}" onclick="selectTask(this)">
-
-                        <div
-                            class="work-item-doing flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
-                            <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
-                                <i class="fas fa-box text-[#533FE4] text-2xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <div class="text-sm font-semibold text-gray-800">ชื่องาน : {{ $row['task_name'] }}
-                                </div>
-                                <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : {{ $row['task_deadline'] }}
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-chevron-right text-[#9ca3af]"></i>
-                            </div>
+                        <div class="text-center text-gray-500 py-6">
+                            ไม่มีรายการงานที่กำลังดำเนินการ
                         </div>
-                    </div>
-                    <?php endforeach; ?>
+                    <?php else: ?>
+                        <?php foreach ($data5 as $row): ?>
+                            <div
+                            class="work-item-doing flex items-center justify-between pb-2 cursor-pointer w-full"
+                            data-task-id="{{ $row['task_id'] }}"
+                            onclick="selectTask(this)">
+
+                                <div
+                                    class="work-item-doing flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-gray-100 shadow cursor-pointer transition w-full">
+                                    <div class="bg-[#CFD0F9] p-2 rounded-lg w-18 h-18 flex items-center justify-center">
+                                        <i class="fas fa-box text-[#533FE4] text-2xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-semibold text-gray-800">ชื่องาน : {{ $row['task_name'] }}</div>
+                                        <div class="text-xs text-gray-500">วันสิ้นสุดการทำงาน : {{ $row['task_deadline'] }}</div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chevron-right text-[#9ca3af]"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
 
@@ -962,18 +962,20 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
                 </div>
 
                 <?php if (!empty($data5)): ?>
-                <button id="return-button" onclick="returnTask()"
+                <button
+                    id="return-button"
+                    onclick="returnTask()"
                     class="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition"
                     disabled>
                     ส่งคืนงาน
-
                 </button>
-                <?php else: ?>
-                <button class="mt-4 px-4 py-2 border border-gray-300 text-gray-400 rounded-md cursor-not-allowed"
+            <?php else: ?>
+                <button
+                    class="mt-4 px-4 py-2 border border-gray-300 text-gray-400 rounded-md cursor-not-allowed"
                     disabled>
                     ไม่มีรายการงานที่กำลังดำเนินการ
                 </button>
-                <?php endif; ?>
+            <?php endif; ?>
 
                 <!-- ส่ง task_id ไปที่ปุ่ม -->
 
@@ -1059,15 +1061,6 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
 
 
 
-    {{-- ส่วนJS ของคืนงาน --}}
-    <div id="success-message" class="hidden flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-100 border border-green-300" role="alert">
-        <svg class="w-5 h-5 me-2 text-green-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z" clip-rule="evenodd"/></svg>
-        <div>
-          <span class="font-medium">ส่งงานสำเร็จ</span><br>
-          ดำเนินการส่งงานเสร็จสิ้น
-        </div>
-      </div>
-
     <script>
         let selectedTaskId = null; // ตัวแปรเก็บ task_id ของงานที่เลือก
 
@@ -1117,79 +1110,58 @@ $total_pages = ceil($total_item / $items_per_page); // คำนวณจำน�
     </script>
 
     {{-- ส่วนJS ของรับงาน --}}
+    <div id="success-message" class="hidden flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-100 border border-green-300" role="alert">
+        <svg class="w-5 h-5 me-2 text-green-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z" clip-rule="evenodd"/></svg>
+        <div>
+          <span class="font-medium">ส่งงานสำเร็จ</span><br>
+          ดำเนินการส่งงานเสร็จสิ้น
+        </div>
+      </div>
+
+
+
+
+
+
+
+
     <script>
-        function acceptWork() {
-            if (!selectedTaskId) {
-                alert("กรุณาเลือกงานก่อน");
-                return;
-            }
-
-            fetch('accept_task', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        task_id: selectedTaskId
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("รับงานเรียบร้อยแล้ว");
-                        location.reload();
-                    } else {
-                        alert("เกิดข้อผิดพลาดในการรับงาน");
-                    }
-                })
-                .catch(err => {
-                    console.error("Error:", err);
-                    alert("เกิดข้อผิดพลาด");
-                });
+        function updateCounter() {
+            let input = document.getElementById("notation");
+            let maxLength = input.maxLength;
+            let remaining = input.value.length;
+            document.getElementById("charCount").textContent = remaining;
         }
-
-
-        // ฟังก์ชันสำหรับการส่งงาน
-        document.getElementById('confirmSubmit').addEventListener('click', function() {
-            if (!selectedTaskId) {
-                alert("กรุณาเลือกงานก่อน");
-                return;
-            }
-
-            const notation = document.getElementById('notation').value.trim();
-
-            if (!notation) {
-                alert("กรุณากรอกหมายเหตุ");
-                return;
-            }
-
-            fetch('submit_task', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        task_id: selectedTaskId,
-                        notation: notation
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload(); // รีเฟรชหน้าเพื่ออัปเดตข้อมูล
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(err => {
-                    console.error("Error:", err);
-                    alert("เกิดข้อผิดพลาดในการส่งงาน");
-                });
+        // เมื่อคลิกที่ปุ่มโปรไฟล์ผู้ใช้
+        document.getElementById('submit').addEventListener('click', function() {
+            // เปิดป๊อปอัพยืนยันการออกจากระบบ
+            document.getElementById('confirmSubmitModal').style.display = 'flex';
         });
-    </script>
+
+        // เมื่อคลิกปุ่มปิดป๊อปอัพ
+        document.getElementById('close-popup').addEventListener('click', function() {
+            // ปิดป๊อปอัพ
+            document.getElementById('confirmSubmitModal').style.display = 'none';
+            document.body.classList.remove('popup-open');
+        });
+
+        // เมื่อคลิกปุ่มยกเลิก
+        document.getElementById('cancelSubmit').addEventListener('click', function() {
+            // ปิดป๊อปอัพ
+            document.getElementById('confirmSubmitModal').style.display = 'none';
+        });
+
+        // เมื่อคลิกปุ่มยืนยัน
+        document.getElementById('confirmSubmit').addEventListener('click', function() {
+            // แจ้งเตือนการส่งงาน
+            (response => {
+                document.getElementById('workItemPopupDoing').style.display = 'none';
+                alert('ส่งงานสำเร็จ');
+            });
+
+            // ปิดป๊อปอัพ
+            document.getElementById('confirmSubmitModal').style.display = 'none';
+        });
 
 
 
